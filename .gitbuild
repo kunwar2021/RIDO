@@ -1,4 +1,4 @@
-BUILD_STAGE=4
-BUILD_COMMIT=feat(assets): import vector logistics branding and vehicle icons
-BUILD_TIMESTAMP=2026-08-13T15:10:40+05:30
+BUILD_STAGE=5
+BUILD_COMMIT=style(typography): configure Inter font weights and letter spacing
+BUILD_TIMESTAMP=2026-08-13T18:25:00+05:30
 AUTHOR=kunwar2021 <kunwar2954.beai24@chitkara.edu.in>
