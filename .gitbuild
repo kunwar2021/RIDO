@@ -1,4 +1,4 @@
-BUILD_STAGE=7
-BUILD_COMMIT=feat(models): define commercial vehicle specifications catalog
-BUILD_TIMESTAMP=2026-08-14T11:40:25+05:30
-AUTHOR=kunwar2021 <kunwar2954.beai24@chitkara.edu.in>
+BUILD_STAGE=8
+BUILD_COMMIT=feat(locations): curate tier-1 and tier-2 transport nagar coordinates
+BUILD_TIMESTAMP=2026-08-14T14:20:30+05:30
+AUTHOR=Kartik Sukhija <kartiksukhija1@gmail.com>
