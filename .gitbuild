@@ -1,4 +1,4 @@
-BUILD_STAGE=6
-BUILD_COMMIT=feat(config): establish pan-India economic parameters and vehicle specifications
-BUILD_TIMESTAMP=2026-08-14T09:15:10+05:30
+BUILD_STAGE=7
+BUILD_COMMIT=feat(models): define commercial vehicle specifications catalog
+BUILD_TIMESTAMP=2026-08-14T11:40:25+05:30
 AUTHOR=kunwar2021 <kunwar2954.beai24@chitkara.edu.in>
