@@ -1,4 +1,4 @@
-BUILD_STAGE=14
-BUILD_COMMIT=feat(api): integrate OSRM routing and postal geocoding client layers
-BUILD_TIMESTAMP=2026-08-15T17:15:50+05:30
-AUTHOR=kunwar2021 <kunwar2954.beai24@chitkara.edu.in>
+BUILD_STAGE=15
+BUILD_COMMIT=refactor(api): standardize error handling and network timeout aborts
+BUILD_TIMESTAMP=2026-08-15T19:45:00+05:30
+AUTHOR=Kartik Sukhija <kartiksukhija1@gmail.com>
