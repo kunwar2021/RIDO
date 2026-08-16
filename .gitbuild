@@ -1,4 +1,4 @@
-BUILD_STAGE=18
-BUILD_COMMIT=feat(map): add satellite, terrain, and street tile layer switcher
-BUILD_TIMESTAMP=2026-08-16T14:20:45+05:30
-AUTHOR=Kartik Sukhija <kartiksukhija1@gmail.com>
+BUILD_STAGE=19
+BUILD_COMMIT=feat(map): implement Leaflet interactive map with custom freight pin markers
+BUILD_TIMESTAMP=2026-08-16T16:55:00+05:30
+AUTHOR=kunwar2021 <kunwar2954.beai24@chitkara.edu.in>
