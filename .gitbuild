@@ -1,4 +1,4 @@
-BUILD_STAGE=17
-BUILD_COMMIT=feat(map): design high-contrast custom depot and stop pin markers
-BUILD_TIMESTAMP=2026-08-16T11:45:30+05:30
-AUTHOR=kunwar2021 <kunwar2954.beai24@chitkara.edu.in>
+BUILD_STAGE=18
+BUILD_COMMIT=feat(map): add satellite, terrain, and street tile layer switcher
+BUILD_TIMESTAMP=2026-08-16T14:20:45+05:30
+AUTHOR=Kartik Sukhija <kartiksukhija1@gmail.com>
