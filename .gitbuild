@@ -1,4 +1,4 @@
-BUILD_STAGE=16
-BUILD_COMMIT=feat(map): initialize Leaflet multi-layer map container
-BUILD_TIMESTAMP=2026-08-16T09:10:15+05:30
+BUILD_STAGE=17
+BUILD_COMMIT=feat(map): design high-contrast custom depot and stop pin markers
+BUILD_TIMESTAMP=2026-08-16T11:45:30+05:30
 AUTHOR=kunwar2021 <kunwar2954.beai24@chitkara.edu.in>
