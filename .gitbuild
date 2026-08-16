@@ -1,4 +1,4 @@
-BUILD_STAGE=19
-BUILD_COMMIT=feat(map): implement Leaflet interactive map with custom freight pin markers
-BUILD_TIMESTAMP=2026-08-16T16:55:00+05:30
+BUILD_STAGE=20
+BUILD_COMMIT=feat(map): implement dynamic polyline rendering and bounds auto-fit
+BUILD_TIMESTAMP=2026-08-16T19:20:10+05:30
 AUTHOR=kunwar2021 <kunwar2954.beai24@chitkara.edu.in>
