@@ -1,4 +1,4 @@
-BUILD_STAGE=21
-BUILD_COMMIT=feat(optimizer): implement initial greedy nearest-neighbor TSP solver
-BUILD_TIMESTAMP=2026-08-17T09:25:20+05:30
+BUILD_STAGE=22
+BUILD_COMMIT=feat(optimizer): implement 2-Opt TSP heuristic for waypoint optimization
+BUILD_TIMESTAMP=2026-08-17T12:00:35+05:30
 AUTHOR=kunwar2021 <kunwar2954.beai24@chitkara.edu.in>
