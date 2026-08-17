@@ -1,4 +1,4 @@
-BUILD_STAGE=22
-BUILD_COMMIT=feat(optimizer): implement 2-Opt TSP heuristic for waypoint optimization
-BUILD_TIMESTAMP=2026-08-17T12:00:35+05:30
-AUTHOR=kunwar2021 <kunwar2954.beai24@chitkara.edu.in>
+BUILD_STAGE=23
+BUILD_COMMIT=feat(optimizer): add 2-Opt iterative edge-swap heuristic engine
+BUILD_TIMESTAMP=2026-08-17T14:35:50+05:30
+AUTHOR=Kartik Sukhija <kartiksukhija1@gmail.com>
