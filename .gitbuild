@@ -1,4 +1,4 @@
-BUILD_STAGE=27
-BUILD_COMMIT=feat(economics): add thermodynamic fuel consumption and FASTag toll matching
-BUILD_TIMESTAMP=2026-08-18T11:50:15+05:30
-AUTHOR=kunwar2021 <kunwar2954.beai24@chitkara.edu.in>
+BUILD_STAGE=28
+BUILD_COMMIT=feat(economics): calculate driver allowance and handling fees
+BUILD_TIMESTAMP=2026-08-18T14:25:30+05:30
+AUTHOR=Kartik Sukhija <kartiksukhija1@gmail.com>
