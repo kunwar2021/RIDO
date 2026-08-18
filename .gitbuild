@@ -1,4 +1,4 @@
-BUILD_STAGE=25
-BUILD_COMMIT=feat(optimizer): support priority-weighted stop sequence reordering
-BUILD_TIMESTAMP=2026-08-17T19:35:15+05:30
+BUILD_STAGE=26
+BUILD_COMMIT=feat(economics): compute fuel consumption curves for diesel and EV
+BUILD_TIMESTAMP=2026-08-18T09:15:00+05:30
 AUTHOR=kunwar2021 <kunwar2954.beai24@chitkara.edu.in>
