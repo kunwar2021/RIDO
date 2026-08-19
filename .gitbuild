@@ -1,4 +1,4 @@
-BUILD_STAGE=32
-BUILD_COMMIT=feat(fleet): add vehicle status filters with live badge counters
-BUILD_TIMESTAMP=2026-08-19T12:05:25+05:30
-AUTHOR=Kartik Sukhija <kartiksukhija1@gmail.com>
+BUILD_STAGE=33
+BUILD_COMMIT=feat(ui): refine responsive fleet roster card grid and telemetry chips
+BUILD_TIMESTAMP=2026-08-19T14:15:00+05:30
+AUTHOR=Parineeta <parineetatinna@gmail.com>
