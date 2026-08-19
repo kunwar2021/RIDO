@@ -1,4 +1,4 @@
-BUILD_STAGE=34
-BUILD_COMMIT=feat(fleet): implement dynamic vehicle roster grid and telemetry filters
-BUILD_TIMESTAMP=2026-08-19T16:40:40+05:30
+BUILD_STAGE=35
+BUILD_COMMIT=feat(fleet): add live driver assignment workflow and telemetry links
+BUILD_TIMESTAMP=2026-08-19T19:40:00+05:30
 AUTHOR=kunwar2021 <kunwar2954.beai24@chitkara.edu.in>
