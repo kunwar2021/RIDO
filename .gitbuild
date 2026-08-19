@@ -1,4 +1,4 @@
-BUILD_STAGE=30
-BUILD_COMMIT=feat(economics): implement dynamic OpEx comparison and margin modeler
-BUILD_TIMESTAMP=2026-08-18T19:30:00+05:30
+BUILD_STAGE=31
+BUILD_COMMIT=feat(fleet): implement reactive vehicle roster grid and card views
+BUILD_TIMESTAMP=2026-08-19T09:30:10+05:30
 AUTHOR=kunwar2021 <kunwar2954.beai24@chitkara.edu.in>
