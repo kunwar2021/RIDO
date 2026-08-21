@@ -1,4 +1,4 @@
-BUILD_STAGE=44
-BUILD_COMMIT=feat(simulator): model vehicle breakdown and capacity re-allocation
-BUILD_TIMESTAMP=2026-08-21T17:00:55+05:30
-AUTHOR=kunwar2021 <kunwar2954.beai24@chitkara.edu.in>
+BUILD_STAGE=45
+BUILD_COMMIT=feat(simulator): compute ESG carbon abatement and EV transition ROI
+BUILD_TIMESTAMP=2026-08-21T19:25:00+05:30
+AUTHOR=Kartik Sukhija <kartiksukhija1@gmail.com>
