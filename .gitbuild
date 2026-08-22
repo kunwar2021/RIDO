@@ -1,4 +1,4 @@
-BUILD_STAGE=49
-BUILD_COMMIT=feat(analytics): compute real-time fleet utilization percentage gauge
-BUILD_TIMESTAMP=2026-08-22T17:15:45+05:30
+BUILD_STAGE=50
+BUILD_COMMIT=feat(analytics): generate downloadable PDF manifest and CSV summary
+BUILD_TIMESTAMP=2026-08-22T19:40:00+05:30
 AUTHOR=kunwar2021 <kunwar2954.beai24@chitkara.edu.in>
