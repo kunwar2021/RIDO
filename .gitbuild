@@ -1,4 +1,4 @@
-BUILD_STAGE=47
-BUILD_COMMIT=feat(analytics): style Canvas 2D telemetry charts and legend tooltips
-BUILD_TIMESTAMP=2026-08-22T11:45:10+05:30
-AUTHOR=Parineeta <parineetatinna@gmail.com>
+BUILD_STAGE=48
+BUILD_COMMIT=feat(analytics): render distance variance and cost breakdown charts
+BUILD_TIMESTAMP=2026-08-22T14:40:30+05:30
+AUTHOR=Kartik Sukhija <kartiksukhija1@gmail.com>
