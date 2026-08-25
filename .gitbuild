@@ -1,4 +1,4 @@
-BUILD_STAGE=62
-BUILD_COMMIT=refactor(optimizer): ensure route summary displays dashes before calculation
-BUILD_TIMESTAMP=2026-08-25T11:20:15+05:30
-AUTHOR=kunwar2021 <kunwar2954.beai24@chitkara.edu.in>
+BUILD_STAGE=63
+BUILD_COMMIT=perf(map): refine Leaflet layer cleanup and animation frame throttling
+BUILD_TIMESTAMP=2026-08-25T13:35:30+05:30
+AUTHOR=Kartik Sukhija <kartiksukhija1@gmail.com>
