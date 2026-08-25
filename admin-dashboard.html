@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>RIDO Admin - Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="admin.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+  
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar-header">
+      <h1 class="text-xl font-black text-slate-900 tracking-tight">RIDO <span class="text-orange-600">Admin</span></h1>
+    </div>
+    <div class="space-y-1 p-3 flex-1 overflow-y-auto">
+      <div class="admin-nav-item active" data-target="dashboard">📊 Dashboard</div>
+      <div class="admin-nav-item" data-target="users">👥 Users</div>
+      <div class="admin-nav-item" data-target="companies">🏢 Companies</div>
+      <div class="admin-nav-item" data-target="vehicles">🚚 Vehicles</div>
+      <div class="admin-nav-item" data-target="trips">🛣️ Trips</div>
+      <div class="admin-nav-item" data-target="alerts">🚨 Alerts</div>
+      <div class="admin-nav-item" data-target="activity">📋 Logs</div>
+      <div class="admin-nav-item hidden" data-target="tracking">Live Tracking</div>
+      <div class="admin-nav-item hidden" data-target="drivers">Drivers</div>
+    </div>
+    <div class="p-4 border-t border-slate-200">
+      <button onclick="AdminApp.logout()" class="w-full text-left flex items-center gap-2 text-slate-500 font-bold hover:text-red-600 transition text-sm">
+        <span>⬅️</span> Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="admin-main">
+    <header class="admin-header">
+      <h2 class="font-bold text-lg text-slate-800">Control Center</h2>
+      <div class="flex items-center gap-4">
+        <span class="text-sm font-medium text-slate-600" id="admin-user-name">System Admin</span>
+        <div class="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold border border-orange-200">A</div>
+      </div>
+    </header>
+
+    <div class="admin-content-scroll">
+      
+      <!-- Dashboard View -->
+      <div id="view-dashboard" class="admin-view active">
+        <h3 class="text-xl font-bold mb-4">Overview</h3>
+        <div class="admin-kpi-grid">
+          <div class="admin-card">
+            <div class="text-xs text-slate-500 font-bold uppercase tracking-wide">Total Users</div>
+            <div class="text-2xl font-black text-slate-900 mt-1" id="kpi-users">128</div>
+          </div>
+          <div class="admin-card">
+            <div class="text-xs text-slate-500 font-bold uppercase tracking-wide">Companies</div>
+            <div class="text-2xl font-black text-slate-900 mt-1" id="kpi-companies">42</div>
+          </div>
+          <div class="admin-card">
+            <div class="text-xs text-slate-500 font-bold uppercase tracking-wide">Vehicles</div>
+            <div class="text-2xl font-black text-slate-900 mt-1" id="kpi-vehicles">156</div>
+          </div>
+          <div class="admin-card">
+            <div class="text-xs text-slate-500 font-bold uppercase tracking-wide">Active Trips</div>
+            <div class="text-2xl font-black text-slate-900 mt-1" id="kpi-trips">24</div>
+          </div>
+        </div>
+        
+        <!-- Main Area: User Activity & Recent Alerts (Matches Mockup Screen 9) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 mb-5">
+          <!-- User Activity Bar Chart -->
+          <div class="lg:col-span-8 admin-card">
+            <h4 class="font-bold text-slate-900 mb-4">User Activity</h4>
+            <div class="h-64 relative flex items-center justify-center">
+              <canvas id="chart-admin-activity-canvas" class="w-full h-full" height="250"></canvas>
+            </div>
+          </div>
+
+          <!-- Recent Alerts List -->
+          <div class="lg:col-span-4 admin-card">
+            <h4 class="font-bold text-slate-900 mb-4">Recent Alerts</h4>
+            <div class="space-y-3">
+              <div class="p-3 bg-red-50/70 border border-red-200 rounded-xl flex items-center justify-between">
+                <span class="text-xs font-bold text-red-900">High Fuel Consumption</span>
+                <span class="px-2 py-0.5 rounded-full bg-red-200 text-red-800 text-xs font-black font-mono">3</span>
+              </div>
+              <div class="p-3 bg-amber-50/70 border border-amber-200 rounded-xl flex items-center justify-between">
+                <span class="text-xs font-bold text-amber-900">Delayed Deliveries</span>
+                <span class="px-2 py-0.5 rounded-full bg-amber-200 text-amber-800 text-xs font-black font-mono">2</span>
+              </div>
+              <div class="p-3 bg-blue-50/70 border border-blue-200 rounded-xl flex items-center justify-between">
+                <span class="text-xs font-bold text-blue-900">Vehicle Health</span>
+                <span class="px-2 py-0.5 rounded-full bg-blue-200 text-blue-800 text-xs font-black font-mono">1</span>
+              </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-100">
+              <h5 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Live Status</h5>
+              <div id="dash-recent-activity" class="text-xs text-slate-600 space-y-2"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="kpi-drivers" class="hidden"></div>
+      </div>
+
+      <!-- Live Tracking View -->
+      <div id="view-tracking" class="admin-view">
+        <h3 class="text-xl font-bold mb-4">Live Tracking (Simulated)</h3>
+        <div class="admin-map-container">
+          <div class="demo-map-bg"></div>
+          <div id="sim-dot" class="absolute w-4 h-4 bg-orange-500 border-2 border-white rounded-full shadow-[0_0_10px_rgba(234,88,12,0.8)] transition-all duration-1000 z-10" style="left:10%; top:20%;"></div>
+          <div class="z-20 bg-white/90 p-4 rounded-xl shadow border border-slate-200 text-sm font-bold absolute bottom-4 left-4">
+            System simulating vehicle telemetry data for demo purposes.
+          </div>
+        </div>
+      </div>
+
+      <!-- Drivers View -->
+      <div id="view-drivers" class="admin-view">
+        <h3 class="text-xl font-bold mb-4">Driver Management</h3>
+        <div class="admin-card admin-table-container">
+          <table class="admin-table">
+            <thead><tr><th>Name</th><th>ID</th><th>Vehicle</th><th>Location</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="table-drivers"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Companies View -->
+      <div id="view-companies" class="admin-view">
+        <h3 class="text-xl font-bold mb-4">Company Management</h3>
+        <div class="admin-card admin-table-container">
+          <table class="admin-table">
+            <thead><tr><th>Company Name</th><th>ID</th><th>Fleet Size</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="table-companies"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Vehicles View -->
+      <div id="view-vehicles" class="admin-view">
+        <h3 class="text-xl font-bold mb-4">Fleet & Vehicles</h3>
+        <div class="admin-card admin-table-container">
+          <table class="admin-table">
+            <thead><tr><th>Vehicle ID</th><th>Type</th><th>Health Score</th><th>Status</th></tr></thead>
+            <tbody id="table-vehicles"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Trips View -->
+      <div id="view-trips" class="admin-view">
+        <h3 class="text-xl font-bold mb-4">Trips</h3>
+        <div class="admin-card admin-table-container">
+          <table class="admin-table">
+            <thead><tr><th>Trip ID</th><th>Driver</th><th>Route</th><th>Progress</th><th>Status</th></tr></thead>
+            <tbody id="table-trips"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Alerts View -->
+      <div id="view-alerts" class="admin-view">
+        <h3 class="text-xl font-bold mb-4">System Alerts</h3>
+        <div id="list-alerts"></div>
+      </div>
+
+      <!-- Activity Log View -->
+      <div id="view-activity" class="admin-view">
+        <h3 class="text-xl font-bold mb-4">Activity Log</h3>
+        <div class="admin-card admin-table-container">
+          <table class="admin-table">
+            <thead><tr><th>Time</th><th>User</th><th>Event</th></tr></thead>
+            <tbody id="table-activity"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Users View -->
+      <div id="view-users" class="admin-view">
+        <h3 class="text-xl font-bold mb-4">User Accounts</h3>
+        <div class="admin-card admin-table-container">
+          <table class="admin-table">
+            <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="table-users"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>
