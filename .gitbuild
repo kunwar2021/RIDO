@@ -1,4 +1,4 @@
-BUILD_STAGE=63
-BUILD_COMMIT=perf(map): refine Leaflet layer cleanup and animation frame throttling
-BUILD_TIMESTAMP=2026-08-25T13:35:30+05:30
-AUTHOR=Kartik Sukhija <kartiksukhija1@gmail.com>
+BUILD_STAGE=64
+BUILD_COMMIT=feat(deployment): configure Vercel single-page application routing rules
+BUILD_TIMESTAMP=2026-08-25T14:45:45+05:30
+AUTHOR=kunwar2021 <kunwar2954.beai24@chitkara.edu.in>
