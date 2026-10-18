@@ -195,4 +195,28 @@ router.get('/me', verifyToken, async (req, res) => {
   });
 });
 
+// 4. GET /api/auth/users - Return real users from MongoDB
+router.get('/users', async (req, res, next) => {
+  try {
+    try {
+      const users = await User.find({}, '-password');
+      if (users && users.length > 0) {
+        return res.json({
+          success: true,
+          count: users.length,
+          users
+        });
+      }
+    } catch (e) {}
+
+    res.json({
+      success: true,
+      count: inMemoryUsers.length,
+      users: inMemoryUsers.map(u => ({ id: u.id, name: u.name, email: u.email, role: u.role, phone: u.phone }))
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;

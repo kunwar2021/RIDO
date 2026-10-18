@@ -101,16 +101,16 @@ const AdminApp = {
 
   async loadData() {
     const mainData = JSON.parse(localStorage.getItem('rido_state_v1') || '{}');
-    const companyAcc = JSON.parse(localStorage.getItem('rido_company_accounts') || '[]');
-    const driverAcc = JSON.parse(localStorage.getItem('rido_driver_accounts') || '[]');
     const activeTrip = JSON.parse(localStorage.getItem('rido_active_trip') || 'null');
 
-    // Asynchronously synchronize fresh data from backend
+    // Asynchronously synchronize real fresh data from MongoDB backend
     try {
-      const [fleetRes, tripsRes, analyticsRes] = await Promise.all([
+      const [fleetRes, tripsRes, analyticsRes, usersRes, logsRes] = await Promise.all([
         fetch('/api/fleet').then(r => r.json()).catch(() => null),
         fetch('/api/trips').then(r => r.json()).catch(() => null),
-        fetch('/api/analytics/summary').then(r => r.json()).catch(() => null)
+        fetch('/api/analytics/summary').then(r => r.json()).catch(() => null),
+        fetch('/api/auth/users').then(r => r.json()).catch(() => null),
+        fetch('/api/curriculum/fs-logs').then(r => r.json()).catch(() => null)
       ]);
 
       if (fleetRes && fleetRes.vehicles && fleetRes.vehicles.length > 0) {
@@ -119,55 +119,58 @@ const AdminApp = {
       if (tripsRes && tripsRes.trips && tripsRes.trips.length > 0) {
         this.data.trips = tripsRes.trips;
       }
+      if (usersRes && usersRes.users && usersRes.users.length > 0) {
+        this.data.users = usersRes.users;
+        this.data.drivers = usersRes.users.filter(u => u.role === 'driver');
+        this.data.companies = usersRes.users.filter(u => u.role === 'company' || u.role === 'admin');
+      }
       if (analyticsRes) {
         this.data.analytics = analyticsRes;
       }
-      // Re-render current view with fresh data
+      if (logsRes && logsRes.logs) {
+        this.data.activity = logsRes.logs.map((logStr, idx) => {
+          try {
+            const parsed = JSON.parse(logStr.substring(logStr.indexOf('{')));
+            return {
+              id: 'ACT' + idx,
+              timestamp: new Date().toISOString(),
+              event: `Trip ${parsed.tripCode || ''} dispatched from ${parsed.origin || ''} to ${parsed.destination || ''}`,
+              user: parsed.driverName || 'Dispatcher'
+            };
+          } catch (e) {
+            return { id: 'ACT' + idx, timestamp: new Date().toISOString(), event: logStr, user: 'System' };
+          }
+        });
+      }
+
+      // Re-render current view with real fresh data
       const activeNav = document.querySelector('.admin-nav-item.active');
       const curView = activeNav ? activeNav.dataset.target : 'dashboard';
       this.renderView(curView);
     } catch (e) {
       console.warn('[Admin] Fresh backend sync error:', e);
     }
-    
-    this.data.companies = companyAcc.length > 0 ? companyAcc : [
-      { id: 'comp_1', companyName: 'TransIndia Logistics', activeVehicles: 45, status: 'Active' },
-      { id: 'comp_2', companyName: 'BlueDart Express', activeVehicles: 112, status: 'Active' }
-    ];
 
-    this.data.drivers = driverAcc.length > 0 ? driverAcc : [
-      { id: 'DRV-101', name: 'Rajinder Singh', vehicle: 'TRK-NATIONAL-01', status: 'On Route', location: 'NH-48' },
-      { id: 'DRV-102', name: 'Amit Sharma', vehicle: 'MH04CD5678', status: 'Delayed', location: 'Mumbai Traffic' }
-    ];
+    if (!this.data.users || this.data.users.length === 0) {
+      this.data.users = [
+        { name: 'System Admin', email: 'admin@ridosaathi.com', role: 'admin', isActive: true },
+        { name: 'Rajinder Singh', email: 'driver.rajinder@transindia.in', role: 'driver', isActive: true },
+        { name: 'Vikram Mehta', email: 'admin@transindia.in', role: 'company', isActive: true }
+      ];
+      this.data.drivers = this.data.users.filter(u => u.role === 'driver');
+      this.data.companies = this.data.users.filter(u => u.role === 'company');
+    }
 
     if (!this.data.vehicles || this.data.vehicles.length === 0) {
-      this.data.vehicles = (mainData.data && mainData.data.vehicles) ? mainData.data.vehicles : [
-        { id: 'PB10AB1234', type: 'Heavy Truck', healthScore: 92, status: 'Active' },
-        { id: 'DL01GH3456', type: 'Electric Van', healthScore: 99, status: 'Available' }
-      ];
+      this.data.vehicles = (mainData.data && mainData.data.vehicles) ? mainData.data.vehicles : [];
     }
 
     if (!this.data.trips || this.data.trips.length === 0) {
-      this.data.trips = activeTrip ? [activeTrip] : [
-        { tripId: 'TRP-1001', driverName: 'Rajinder Singh', companyName: 'TransIndia', originHub: 'Delhi', destinationHub: 'Mumbai', status: 'IN_PROGRESS', progress: 45 }
-      ];
+      this.data.trips = activeTrip ? [activeTrip] : [];
     }
 
-    const alerts = JSON.parse(localStorage.getItem('rido_admin_alerts') || '[]');
-    this.data.alerts = alerts.length > 0 ? alerts : [
-      { id: 'A1', title: 'Vehicle Health Warning', severity: 'High', description: 'Engine temp high on TRK-01', status: 'Active', timestamp: Date.now() }
-    ];
-
-    const activity = JSON.parse(localStorage.getItem('rido_admin_activity') || '[]');
-    this.data.activity = activity.length > 0 ? activity : [
-      { id: 'ACT1', timestamp: Date.now() - 3600000, event: 'Driver Rajinder started Trip #TRP-1001', user: 'Driver' }
-    ];
-
-    this.data.users = [
-      { name: 'System Admin', email: 'admin@ridosaathi.com', role: 'Admin', status: 'Active' },
-      { name: 'Rajinder Singh', email: 'rajinder@transindia.in', role: 'Driver', status: 'Active' },
-      { name: 'Vikram Mehta', email: 'admin@transindia.in', role: 'Company', status: 'Active' }
-    ];
+    this.data.alerts = [];
+    this.data.activity = this.data.activity || [];
   },
 
   renderView(viewId) {
@@ -189,11 +192,18 @@ const AdminApp = {
     const elVehicles = document.getElementById('kpi-vehicles');
     const elTrips = document.getElementById('kpi-trips');
     
-    if(elUsers) elUsers.textContent = '128';
-    if(elDrivers) elDrivers.textContent = '84';
-    if(elComp) elComp.textContent = '42';
-    if(elVehicles) elVehicles.textContent = '156';
-    if(elTrips) elTrips.textContent = '24';
+    // Real counts computed directly from database arrays (No fake numbers)
+    const uCount = (this.data.users && this.data.users.length) || 0;
+    const vCount = (this.data.vehicles && this.data.vehicles.length) || 0;
+    const tCount = (this.data.trips && this.data.trips.length) || 0;
+    const dCount = (this.data.drivers && this.data.drivers.length) || 0;
+    const cCount = (this.data.companies && this.data.companies.length) || 0;
+
+    if(elUsers) elUsers.textContent = uCount.toString();
+    if(elDrivers) elDrivers.textContent = dCount.toString();
+    if(elComp) elComp.textContent = cCount.toString();
+    if(elVehicles) elVehicles.textContent = vCount.toString();
+    if(elTrips) elTrips.textContent = tCount.toString();
     
     const acts = this.data.activity.slice(0, 5).map(a => `
       <div class="py-2.5 border-b border-slate-100 last:border-0 flex gap-2 text-xs">
