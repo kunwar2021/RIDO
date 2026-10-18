@@ -3820,10 +3820,14 @@ const App = {
 
       container.innerHTML = `
         <div class="flex items-center gap-2 sm:gap-3">
-          <!-- Profile Circle -->
-          <div class="w-8 h-8 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center shadow-xs cursor-pointer select-none" title="${Utils.escapeHTML(this.userSession.name || 'User')}">
-            ${Utils.escapeHTML(this.userSession.initials || (isDriver ? "DR" : "VM"))}
-          </div>
+          <!-- Profile Circle (Avatar image from Google or Initials) -->
+          ${this.userSession.picture ? `
+            <img src="${Utils.escapeHTML(this.userSession.picture)}" alt="${Utils.escapeHTML(this.userSession.name || 'User')}" class="w-8 h-8 rounded-full object-cover border border-slate-200 shadow-2xs select-none cursor-pointer" title="${Utils.escapeHTML(this.userSession.name || 'User')} (${roleBadge})" />
+          ` : `
+            <div class="w-8 h-8 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center shadow-xs cursor-pointer select-none" title="${Utils.escapeHTML(this.userSession.name || 'User')} (${roleBadge})">
+              ${Utils.escapeHTML(this.userSession.initials || (isDriver ? "DR" : "VM"))}
+            </div>
+          `}
 
           <!-- Direct Prominent Sign Out Button -->
           <button type="button" class="px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 transition-all cursor-pointer flex items-center gap-1.5 shadow-sm active:scale-95 border-none" onclick="App.handleLogout()" title="Sign Out of RIDO">
@@ -3835,10 +3839,10 @@ const App = {
     } else {
       container.innerHTML = `
         <div class="flex items-center gap-2">
-          <button class="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-orange-600 bg-white hover:bg-slate-50 border border-slate-200 transition-all shadow-2xs cursor-pointer active:scale-95" onclick="App.openAuthFlow('driver');">
+          <button class="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-orange-600 bg-white hover:bg-slate-50 border border-slate-200 transition-all shadow-2xs cursor-pointer active:scale-95" onclick="App.openRoleModal('driver', 'login');">
             Sign In
           </button>
-          <button class="btn-header-signup px-4 py-2 rounded-xl text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 transition-all shadow-xs cursor-pointer active:scale-95" onclick="App.openAuthFlow('driver');">
+          <button class="btn-header-signup px-4 py-2 rounded-xl text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 transition-all shadow-xs cursor-pointer active:scale-95" onclick="App.openRoleModal('driver', 'signup');">
             Get Started
           </button>
         </div>
@@ -4987,10 +4991,9 @@ Enter code to sign in:`, generatedOtp);
         btnDrv.className = `flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${isDriver ? "bg-orange-600 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"}`;
         btnCmp.className = `flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${!isDriver ? "bg-orange-600 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"}`;
       }
-      if (lblId) lblId.textContent = isDriver ? "Driver Mobile Number" : "Company Work Email / Mobile";
+      if (lblId) lblId.textContent = isDriver ? "Driver Mobile Number / Email" : "Company Work Email / Mobile";
       if (inputId) {
-        inputId.placeholder = isDriver ? "+91 98765 43210" : "admin@transindia.in";
-        inputId.value = isDriver ? "9876543210" : "admin@transindia.in";
+        inputId.placeholder = isDriver ? "+91 98765 43210 or email" : "admin@transindia.in or mobile";
       }
     } else {
       const btnDrv = document.getElementById("auth-signup-role-driver");
@@ -5005,6 +5008,31 @@ Enter code to sign in:`, generatedOtp);
       if (extra) extra.classList.toggle("hidden", isDriver);
       if (nameLbl) nameLbl.textContent = isDriver ? "Driver Full Name" : "Authorized Representative Name";
     }
+  },
+
+  fillDemoLogin(type = 'driver') {
+    const inputId = document.getElementById("login-identifier-input");
+    const inputPass = document.getElementById("login-password-input");
+    const errEl = document.getElementById("auth-login-error");
+    if (errEl) errEl.classList.add("hidden");
+
+    if (type === 'driver') {
+      this.switchAuthRole('driver', 'login');
+      if (inputId) inputId.value = "9876543210";
+      if (inputPass) inputPass.value = "Driver@123";
+      UIManager.showToast("Loaded Driver credentials (Rajinder Singh)", "info");
+    } else if (type === 'company') {
+      this.switchAuthRole('company', 'login');
+      if (inputId) inputId.value = "admin@transindia.in";
+      if (inputPass) inputPass.value = "Company@123";
+      UIManager.showToast("Loaded Company credentials (TransIndia)", "info");
+    } else if (type === 'admin') {
+      this.switchAuthRole('company', 'login');
+      if (inputId) inputId.value = "admin@ridosaathi.com";
+      if (inputPass) inputPass.value = "Admin@123";
+      UIManager.showToast("Loaded System Admin credentials", "info");
+    }
+    UIManager.playSound("click");
   },
 
   toggleAuthMode(mode = "login") {
@@ -5035,66 +5063,85 @@ Enter code to sign in:`, generatedOtp);
     }
   },
 
-  handleMockupLogin(e) {
+  async handleMockupLogin(e) {
     if (e && e.preventDefault) e.preventDefault();
     const idInput = document.getElementById("login-identifier-input");
     const passInput = document.getElementById("login-password-input");
     const errEl = document.getElementById("auth-login-error");
+    const remInput = document.getElementById("login-remember-input");
+    const rememberMe = remInput ? remInput.checked : true;
+
+    if (errEl) { errEl.textContent = ""; errEl.classList.add("hidden"); }
 
     const identifier = idInput ? idInput.value.trim() : "";
     const password = passInput ? passInput.value.trim() : "";
 
     if (!identifier || !password) {
       if (errEl) {
-        errEl.textContent = "Please provide your login identifier and password.";
+        errEl.textContent = "Please provide both your login ID (Mobile / Email) and password.";
         errEl.classList.remove("hidden");
       }
       return;
     }
 
-    const isDriver = this._authRole === "driver";
+    const role = this._authRole || "driver";
     
-    // Create or retrieve session
-    const session = {
-      id: isDriver ? "DRV-101" : "CMP-201",
-      name: isDriver ? "Rajinder Singh" : "Vikram Mehta",
-      initials: isDriver ? "RS" : "VM",
-      role: isDriver ? "driver" : "company",
-      vehicle: isDriver ? "TRK-NATIONAL-01" : undefined,
-      companyName: isDriver ? "TransIndia Logistics" : "TransIndia Logistics Ltd.",
-      phone: identifier,
-      email: isDriver ? "driver.rajinder@transindia.in" : identifier,
-      token: "rido_auth_tok_" + Date.now()
-    };
+    // Call live MongoDB authentication API
+    const resp = await window.ApiClient?.loginUser(identifier, password, role);
 
-    StorageEngine.saveUserSession(session);
-    this.userSession = session;
-    this.renderAuthUI();
+    if (resp && resp.ok && resp.data && resp.data.success) {
+      const backendUser = resp.data.user;
+      const isDriver = backendUser.role === "driver";
 
-    UIManager.playSound("success");
-    UIManager.showToast(`Signed in successfully as ${session.name}`, "success");
+      const session = {
+        id: backendUser.id || backendUser._id,
+        name: backendUser.name,
+        initials: (backendUser.name || "User").split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2),
+        role: backendUser.role || role,
+        companyName: backendUser.companyName || (isDriver ? "Fleet Partner" : `${backendUser.name} Enterprises`),
+        phone: backendUser.phone || identifier,
+        email: backendUser.email || identifier,
+        picture: backendUser.picture,
+        token: resp.data.token
+      };
 
-    const pendingIntent = this._pendingIntentView;
-    this._pendingIntentView = null;
+      StorageEngine.saveUserSession(session, rememberMe);
+      this.userSession = session;
+      this.renderAuthUI();
 
-    if (isDriver) {
-      this.setupDriverDashboard(false);
-      if (pendingIntent && ['optimizer', 'stops', 'driver-dashboard'].includes(pendingIntent)) {
-        this.navigateTo(pendingIntent);
+      UIManager.playSound("success");
+      UIManager.showToast(`Signed in successfully! Welcome back, ${session.name}`, "success");
+
+      const pendingIntent = this._pendingIntentView;
+      this._pendingIntentView = null;
+
+      if (isDriver) {
+        this.setupDriverDashboard(false);
+        if (pendingIntent && ['optimizer', 'stops', 'driver-dashboard'].includes(pendingIntent)) {
+          this.navigateTo(pendingIntent);
+        } else {
+          this.navigateTo("driver-dashboard");
+        }
       } else {
-        this.navigateTo("driver-dashboard");
+        this.setupCompanyDashboard(false);
+        if (pendingIntent && ['optimizer', 'fleet', 'operations', 'company-fastag-costs', 'compare-fleets', 'analytics', 'stops', 'simulator', 'settings'].includes(pendingIntent)) {
+          this.navigateTo(pendingIntent);
+        } else {
+          this.navigateTo("operations");
+        }
       }
+
+      // Synchronize fresh fleet and trip records from MongoDB
+      this.syncFreshDataFromBackend();
     } else {
-      this.setupCompanyDashboard(false);
-      if (pendingIntent && ['optimizer', 'fleet', 'operations', 'company-fastag-costs', 'compare-fleets', 'analytics', 'stops', 'simulator', 'settings'].includes(pendingIntent)) {
-        this.navigateTo(pendingIntent);
-      } else {
-        this.navigateTo("operations");
+      const msg = (resp && resp.data && resp.data.message) ? resp.data.message : "Invalid credentials: Mobile/Email or password does not match.";
+      if (errEl) {
+        errEl.textContent = msg;
+        errEl.classList.remove("hidden");
       }
+      UIManager.playSound("error");
+      UIManager.showToast(msg, "error");
     }
-
-    // Synchronize fresh fleet and trip records from MongoDB database
-    this.syncFreshDataFromBackend();
   },
 
   async syncFreshDataFromBackend() {
@@ -5137,7 +5184,7 @@ Enter code to sign in:`, generatedOtp);
     }
   },
 
-  handleMockupSignUp(e) {
+  async handleMockupSignUp(e) {
     if (e && e.preventDefault) e.preventDefault();
     const nameInput = document.getElementById("signup-name-input");
     const mobileInput = document.getElementById("signup-mobile-input");
@@ -5145,6 +5192,8 @@ Enter code to sign in:`, generatedOtp);
     const confirmInput = document.getElementById("signup-confirm-input");
     const termsInput = document.getElementById("signup-terms-input");
     const errEl = document.getElementById("auth-signup-error");
+
+    if (errEl) { errEl.textContent = ""; errEl.classList.add("hidden"); }
 
     const name = nameInput ? nameInput.value.trim() : "";
     const mobile = mobileInput ? mobileInput.value.trim().replace(/\D/g, "").slice(-10) : "";
@@ -5175,43 +5224,175 @@ Enter code to sign in:`, generatedOtp);
 
     const isDriver = this._authRole === "driver";
     const compName = document.getElementById("signup-company-name-input")?.value.trim() || (isDriver ? "Fleet Partner" : name + " Enterprises");
+    const compEmail = document.getElementById("signup-company-email-input")?.value.trim() || "";
+    const email = (!isDriver && compEmail) ? compEmail : `driver.${mobile}@rido.in`;
 
-    const session = {
-      id: isDriver ? `DRV-${Math.floor(100 + Math.random() * 900)}` : `CMP-${Math.floor(100 + Math.random() * 900)}`,
-      name: name,
-      initials: name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2),
+    const payload = {
+      name,
+      email,
+      password: pass,
+      phone: mobile,
       role: isDriver ? "driver" : "company",
-      companyName: compName,
-      phone: "+91 " + mobile,
-      email: `${name.toLowerCase().replace(/\s+/g, ".")}@${compName.toLowerCase().replace(/\s+/g, "")}.in`,
-      token: "rido_auth_tok_" + Date.now()
+      companyName: compName
     };
 
-    StorageEngine.saveUserSession(session);
-    this.userSession = session;
+    const resp = await window.ApiClient?.registerUser(payload);
 
-    this.renderAuthUI();
+    if (resp && resp.ok && resp.data && resp.data.success) {
+      const backendUser = resp.data.user;
+      const session = {
+        id: backendUser.id || backendUser._id,
+        name: backendUser.name,
+        initials: (backendUser.name || "User").split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2),
+        role: backendUser.role || (isDriver ? "driver" : "company"),
+        companyName: backendUser.companyName || compName,
+        phone: backendUser.phone || "+91 " + mobile,
+        email: backendUser.email || email,
+        token: resp.data.token
+      };
 
-    UIManager.playSound("success");
-    UIManager.showToast(`Account created successfully! Welcome, ${session.name}`, "success");
+      StorageEngine.saveUserSession(session, true);
+      this.userSession = session;
+      this.renderAuthUI();
 
-    const pendingIntentSignup = this._pendingIntentView;
-    this._pendingIntentView = null;
+      UIManager.playSound("success");
+      UIManager.showToast(`Account registered successfully in MongoDB! Welcome, ${session.name}`, "success");
 
-    if (isDriver) {
-      this.setupDriverDashboard(false);
-      if (pendingIntentSignup && ['optimizer', 'stops', 'driver-dashboard'].includes(pendingIntentSignup)) {
-        this.navigateTo(pendingIntentSignup);
+      const pendingIntentSignup = this._pendingIntentView;
+      this._pendingIntentView = null;
+
+      if (isDriver) {
+        this.setupDriverDashboard(false);
+        if (pendingIntentSignup && ['optimizer', 'stops', 'driver-dashboard'].includes(pendingIntentSignup)) {
+          this.navigateTo(pendingIntentSignup);
+        } else {
+          this.navigateTo("driver-dashboard");
+        }
       } else {
-        this.navigateTo("driver-dashboard");
+        this.setupCompanyDashboard(false);
+        if (pendingIntentSignup && ['optimizer', 'fleet', 'operations', 'company-fastag-costs', 'compare-fleets', 'analytics', 'stops', 'simulator', 'settings'].includes(pendingIntentSignup)) {
+          this.navigateTo(pendingIntentSignup);
+        } else {
+          this.navigateTo("operations");
+        }
       }
+
+      this.syncFreshDataFromBackend();
     } else {
-      this.setupCompanyDashboard(false);
-      if (pendingIntentSignup && ['optimizer', 'fleet', 'operations', 'company-fastag-costs', 'compare-fleets', 'analytics', 'stops', 'simulator', 'settings'].includes(pendingIntentSignup)) {
-        this.navigateTo(pendingIntentSignup);
-      } else {
-        this.navigateTo("operations");
+      const msg = (resp && resp.data && resp.data.message) ? resp.data.message : "Registration failed. Please check your details.";
+      if (errEl) {
+        errEl.textContent = msg;
+        errEl.classList.remove("hidden");
       }
+      UIManager.playSound("error");
+      UIManager.showToast(msg, "error");
+    }
+  },
+
+  // ==========================================================================
+  // Google OAuth 2.0 Integration & Account Chooser Handlers
+  // ==========================================================================
+  handleGoogleSignIn() {
+    this.openGoogleModal();
+  },
+
+  openGoogleModal() {
+    const modal = document.getElementById("modal-google-auth");
+    if (modal) {
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+  },
+
+  closeGoogleModal() {
+    const modal = document.getElementById("modal-google-auth");
+    if (modal) {
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+  },
+
+  async selectGoogleAccount(email, name, picture) {
+    await this.completeGoogleAuth({
+      email,
+      name,
+      picture,
+      googleId: 'g_' + btoa(email).replace(/=/g, '').slice(-12),
+      role: this._authRole || 'company'
+    });
+  },
+
+  async submitCustomGoogleAccount() {
+    const input = document.getElementById("google-custom-email-input");
+    const email = input ? input.value.trim() : "";
+    if (!email || !email.includes("@")) {
+      UIManager.showToast("Please enter a valid Google email address.", "warning");
+      return;
+    }
+    const name = email.split("@")[0].replace(/[._-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    await this.completeGoogleAuth({
+      email,
+      name,
+      picture: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=4285F4&color=fff&size=128`,
+      googleId: 'g_' + btoa(email).replace(/=/g, '').slice(-12),
+      role: this._authRole || 'company'
+    });
+  },
+
+  async completeGoogleAuth(googlePayload) {
+    this.closeGoogleModal();
+    UIManager.showToast("Connecting to Google OAuth & verifying credentials...", "info");
+
+    const resp = await window.ApiClient?.googleAuth(googlePayload);
+
+    if (resp && resp.ok && resp.data && resp.data.success) {
+      const backendUser = resp.data.user;
+      const isDriver = backendUser.role === "driver";
+
+      const session = {
+        id: backendUser.id || backendUser._id,
+        name: backendUser.name,
+        initials: (backendUser.name || "User").split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2),
+        role: backendUser.role || (this._authRole || 'company'),
+        companyName: backendUser.companyName || (isDriver ? "Fleet Partner" : `${backendUser.name}'s Fleet`),
+        email: backendUser.email,
+        phone: backendUser.phone,
+        picture: backendUser.picture,
+        token: resp.data.token,
+        isGoogleAuth: true
+      };
+
+      StorageEngine.saveUserSession(session, true);
+      this.userSession = session;
+      this.renderAuthUI();
+
+      UIManager.playSound("success");
+      UIManager.showToast(`✨ Signed in with Google as ${session.name}!`, "success");
+
+      const pendingIntent = this._pendingIntentView;
+      this._pendingIntentView = null;
+
+      if (session.role === "driver") {
+        this.setupDriverDashboard(false);
+        if (pendingIntent && ['optimizer', 'stops', 'driver-dashboard'].includes(pendingIntent)) {
+          this.navigateTo(pendingIntent);
+        } else {
+          this.navigateTo("driver-dashboard");
+        }
+      } else {
+        this.setupCompanyDashboard(false);
+        if (pendingIntent && ['optimizer', 'fleet', 'operations', 'company-fastag-costs', 'compare-fleets', 'analytics', 'stops', 'simulator', 'settings'].includes(pendingIntent)) {
+          this.navigateTo(pendingIntent);
+        } else {
+          this.navigateTo("operations");
+        }
+      }
+
+      this.syncFreshDataFromBackend();
+    } else {
+      const msg = (resp && resp.data && resp.data.message) ? resp.data.message : "Google authentication was cancelled or failed.";
+      UIManager.playSound("error");
+      UIManager.showToast(msg, "error");
     }
   },
 
@@ -6582,11 +6763,18 @@ Enter code to sign in:`, generatedOtp);
   runSimScenarioAnalysis() { ScenarioEngine.runAnalysis(); UIManager.showToast("Scenario analysis computed.", "success"); },
   
   handleDemoLogin(provider = "admin") {
-    if (provider === "admin" || provider === "dispatcher" || provider === "company" || provider === "google" || provider === "microsoft") {
-      this.fillDemoCompanyLogin();
+    if (provider === "google") {
+      this.handleGoogleSignIn();
+      return;
+    }
+    if (provider === "driver") {
+      this.fillDemoLogin('driver');
+      this.handleMockupLogin({ preventDefault: () => {} });
+    } else if (provider === "admin") {
+      this.fillDemoLogin('admin');
       this.handleMockupLogin({ preventDefault: () => {} });
     } else {
-      this.fillDemoDriverLogin();
+      this.fillDemoLogin('company');
       this.handleMockupLogin({ preventDefault: () => {} });
     }
   },

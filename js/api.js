@@ -533,8 +533,57 @@ const ApiClient = {
       console.warn('[RIDO API] Backend optimize endpoint error:', e);
     }
     return null;
+  },
+
+  // ==========================================================================
+  // Authentication & Google OAuth API Integration
+  // ==========================================================================
+  async loginUser(identifier, password, role = 'driver') {
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier, password, role })
+      });
+      const data = await res.json();
+      return { ok: res.ok, status: res.status, data };
+    } catch (err) {
+      console.warn('[RIDO API] Login network failure:', err);
+      return { ok: false, status: 0, data: { success: false, message: 'Server connection offline.' } };
+    }
+  },
+
+  async registerUser(userData) {
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData)
+      });
+      const data = await res.json();
+      return { ok: res.ok, status: res.status, data };
+    } catch (err) {
+      console.warn('[RIDO API] Registration network failure:', err);
+      return { ok: false, status: 0, data: { success: false, message: 'Server connection offline.' } };
+    }
+  },
+
+  async googleAuth(googlePayload) {
+    try {
+      const res = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(googlePayload)
+      });
+      const data = await res.json();
+      return { ok: res.ok, status: res.status, data };
+    } catch (err) {
+      console.warn('[RIDO API] Google auth network failure:', err);
+      return { ok: false, status: 0, data: { success: false, message: 'Google authentication service unreachable.' } };
+    }
   }
 };
 
 window.ApiClient = ApiClient;
+
 

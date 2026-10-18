@@ -28,7 +28,9 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: [true, 'Password is required'],
+      required: function () {
+        return !this.googleId;
+      },
       minlength: [6, 'Password must be at least 6 characters long'],
       select: false // Do not return password by default in queries
     },
@@ -40,9 +42,27 @@ const userSchema = new mongoose.Schema(
       },
       default: 'company'
     },
+    companyName: {
+      type: String,
+      trim: true
+    },
     phone: {
       type: String,
-      match: [/^[6-9]\d{9}$/, 'Please enter a valid 10-digit Indian phone number']
+      trim: true,
+      validate: {
+        validator: function(v) {
+          return !v || /^[6-9]\d{9}$/.test(v);
+        },
+        message: 'Please enter a valid 10-digit Indian phone number'
+      }
+    },
+    googleId: {
+      type: String,
+      sparse: true,
+      index: true
+    },
+    picture: {
+      type: String
     },
     driverLicenseNumber: {
       type: String,
@@ -64,7 +84,7 @@ const userSchema = new mongoose.Schema(
 
 // Mongoose Pre-Save Hook: Automatically hash password using bcrypt (Lecture 39 & 41)
 userSchema.pre('save', async function () {
-  if (!this.isModified('password')) return;
+  if (!this.isModified('password') || !this.password) return;
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
