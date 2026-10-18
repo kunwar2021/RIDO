@@ -1,108 +1,81 @@
+/**
+ * ==============================================================================
+ * RIDO Enterprise Fleet Engine — Unified Modular Server
+ * ==============================================================================
+ * Implements Complete Curriculum Concepts (Lectures 31–41):
+ * - Node.js Architecture, V8, Event Loop & Modules (CommonJS)
+ * - Streams, Buffers, File System (fs), Path, EventEmitter
+ * - Express Server, Routing, Middleware Lifecycle & Error Handlers
+ * - REST CRUD APIs, JWT Authentication, bcrypt Hashing, Protected Routes
+ * - Multer Multipart File Uploads
+ * - MongoDB / Mongoose Schemas, Validation & Relational Populate
+ */
+
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const { connectDB } = require('./config/db');
+const { requestInspector, errorHandler } = require('./middleware/auth');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// Initialize MongoDB / Mongoose (Lecture 41)
+connectDB();
+
+// Core Middleware (Lectures 37 & 38)
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(requestInspector);
 
-// Serve frontend static files
+// Serve Frontend Static Files & Multer Uploads (Lectures 35 & 40)
 app.use(express.static(path.join(__dirname, '..')));
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
-// In-Memory Fleet Database
-const fleetDatabase = [
-  { id: 'tata-ace-ev', name: 'Tata Ace EV', type: 'LCV (Electric)', capacityKg: 1000, mileageKm: '154 km/charge', fuelType: 'Electric', costPerKm: 3.2, status: 'available', driver: 'Vikram Singh', location: 'Delhi Hub', battery: 94 },
-  { id: 'ashok-dost', name: 'Ashok Leyland BADA DOST', type: 'Pick-up', capacityKg: 1860, mileageKm: '13.5 km/l', fuelType: 'Diesel', costPerKm: 7.8, status: 'en-route', driver: 'Rajesh Kumar', location: 'NH-44 Ambala', fuelLevel: 72 },
-  { id: 'eicher-pro-2049', name: 'Eicher Pro 2049', type: 'ICV 4.9T', capacityKg: 2500, mileageKm: '10.5 km/l', fuelType: 'Diesel', costPerKm: 9.6, status: 'available', driver: 'Harpreet Singh', location: 'Ludhiana Depot', fuelLevel: 88 },
-  { id: 'tata-ultra-t7', name: 'Tata Ultra T.7 Electric', type: 'ICV (Electric)', capacityKg: 3700, mileageKm: '180 km/charge', fuelType: 'Electric', costPerKm: 5.4, status: 'charging', driver: 'Amit Sharma', location: 'Chandigarh Depot', battery: 45 },
-  { id: 'bharatbenz-1617r', name: 'BharatBenz 1617R', type: 'MCV 16T', capacityKg: 9500, mileageKm: '6.2 km/l', fuelType: 'Diesel', costPerKm: 15.5, status: 'en-route', driver: 'Gurpreet Singh', location: 'Karnal Toll Plaza', fuelLevel: 64 },
-  { id: 'tata-signa-4825', name: 'Tata Signa 4825.TK', type: 'HCV Tipper', capacityKg: 28000, mileageKm: '3.4 km/l', fuelType: 'Diesel', costPerKm: 27.5, status: 'maintenance', driver: 'Sukhwinder Singh', location: 'Jaipur Workshop', fuelLevel: 30 }
-];
+// ==============================================================================
+// MODULAR REST API ROUTES (Lectures 37–41)
+// ==============================================================================
+app.use('/api/auth', require('./routes/auth.routes'));
+app.use('/api/fleet', require('./routes/fleet.routes'));
+app.use('/api/trips', require('./routes/trip.routes'));
+app.use('/api/upload', require('./routes/upload.routes'));
+app.use('/api/curriculum', require('./routes/demo.routes'));
 
-// In-Memory Optimization Logs
+// ==============================================================================
+// LEGACY & REAL-TIME OPTIMIZATION ENDPOINTS (Preserved for compatibility)
+// ==============================================================================
 const optimizationLogs = [];
 
-// ==========================================
-// API ROUTES
-// ==========================================
-
-// 1. Health Check
+// 1. Health Check (Lecture 35)
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'online',
     platform: 'RIDO Enterprise Fleet Engine',
     timestamp: new Date().toISOString(),
     uptimeSeconds: Math.floor(process.uptime()),
-    activeVehicles: fleetDatabase.length
+    curriculumModule: 'Full Stack Node/Express/Mongoose Active'
   });
 });
 
-// 2. Fleet Telemetry & Roster
-app.get('/api/fleet', (req, res) => {
-  const { status, fuelType } = req.query;
-  let results = [...fleetDatabase];
-  if (status) results = results.filter(v => v.status === status);
-  if (fuelType) results = results.filter(v => v.fuelType.toLowerCase() === fuelType.toLowerCase());
-  res.json({
-    success: true,
-    count: results.length,
-    vehicles: results
-  });
-});
-
-// 3. Driver & Vehicle Assignment
-app.post('/api/fleet/assign', (req, res) => {
-  const { vehicleId, driverName, routeOrigin, routeDest } = req.body;
-  const vehicle = fleetDatabase.find(v => v.id === vehicleId);
-
-  if (!vehicle) {
-    return res.status(404).json({ success: false, message: 'Vehicle not found' });
-  }
-
-  vehicle.status = 'en-route';
-  if (driverName) vehicle.driver = driverName;
-  vehicle.currentTrip = {
-    origin: routeOrigin || 'Depot HQ',
-    destination: routeDest || 'Customer Hub',
-    dispatchedAt: new Date().toISOString()
-  };
-
-  res.json({
-    success: true,
-    message: `Vehicle ${vehicle.name} assigned to ${vehicle.driver} for dispatch.`,
-    vehicle
-  });
-});
-
-// 4. Route Optimization (2-Opt TSP & Economics Model)
+// 2. Route Optimization (2-Opt TSP & Economics Model)
 app.post('/api/optimize-route', (req, res) => {
   const { origin, destination, waypoints = [], cargoWeightKg = 1500, vehicleId } = req.body;
 
-  // Select recommended vehicle if not provided
-  let selectedVehicle = fleetDatabase.find(v => v.id === vehicleId);
-  if (!selectedVehicle) {
-    selectedVehicle = fleetDatabase.find(v => v.capacityKg >= (cargoWeightKg || 1000) && v.status !== 'maintenance') || fleetDatabase[1];
-  }
-
-  // Simulated Pan-India Geospatial Distance Matrix
-  const baseDistanceKm = Math.floor(Math.random() * 80) + 280; // ~280 - 360 km
+  const baseDistanceKm = Math.floor(Math.random() * 80) + 280;
   const totalWaypoints = waypoints.length;
   const optimizedDistanceKm = Math.round(baseDistanceKm + totalWaypoints * 24);
   const baselineUnoptimizedKm = Math.round(optimizedDistanceKm * 1.18);
   const kmSaved = baselineUnoptimizedKm - optimizedDistanceKm;
 
-  // Operating Expenditure (OpEx) Model
   const dieselPrice = 89.60;
   const fuelBurnLiters = (optimizedDistanceKm / 4.2).toFixed(1);
   const fuelCost = Math.round(fuelBurnLiters * dieselPrice);
   const fastagToll = Math.round(optimizedDistanceKm * 1.65);
   const driverBatta = Math.round(optimizedDistanceKm * 1.8 + 450);
   const totalCost = fuelCost + fastagToll + driverBatta;
-  const costSavings = Math.round(kmSaved * (selectedVehicle.costPerKm || 8.5) + (kmSaved * 1.65));
+  const costSavings = Math.round(kmSaved * 9.5 + kmSaved * 1.65);
 
   const result = {
     success: true,
@@ -117,7 +90,6 @@ app.post('/api/optimize-route', (req, res) => {
       distanceSavedKm: kmSaved,
       estimatedDurationHours: +(optimizedDistanceKm / 48).toFixed(1)
     },
-    vehicle: selectedVehicle,
     economics: {
       totalCostInr: totalCost,
       fuelCostInr: fuelCost,
@@ -134,7 +106,7 @@ app.post('/api/optimize-route', (req, res) => {
   res.json(result);
 });
 
-// 5. Analytics Summary
+// 3. Analytics Summary
 app.get('/api/analytics/summary', (req, res) => {
   res.json({
     success: true,
@@ -148,13 +120,16 @@ app.get('/api/analytics/summary', (req, res) => {
   });
 });
 
-// Fallback to index.html for SPA client navigation (Express v5 compliant)
+// Centralized Error Handling Middleware (Lecture 38 & 39)
+app.use(errorHandler);
+
+// SPA Routing Fallback
 app.use((req, res) => {
   res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
 
-// Start Server
+// Start Server (Lecture 35 & 37)
 app.listen(PORT, () => {
   console.log(`🚀 [RIDO Backend Server] Live on http://localhost:${PORT}`);
-  console.log(`📡 REST API Endpoints ready at /api/health, /api/fleet, /api/optimize-route, /api/analytics/summary`);
+  console.log(`📡 Full Stack Node/Express API loaded with Auth, Fleet CRUD, Multer, Streams & Mongoose.`);
 });

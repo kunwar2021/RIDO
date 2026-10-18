@@ -1,0 +1,200 @@
+{
+  "info": {
+    "name": "RIDO Logistics Platform API Collection",
+    "description": "Comprehensive Postman API Collection covering Lectures 35 to 41:\n- Health Check & Diagnostics\n- JWT Authentication & bcrypt Registration\n- Fleet Management REST CRUD\n- Trip Dispatches & EventEmitter\n- Node.js Stream CSV Export\n- Multer File Uploads\n- MongoDB & Mongoose Relations",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "jwtToken", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Core & Diagnostics (Lectures 31-36)",
+      "item": [
+        {
+          "name": "Health Check (Lecture 35)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/health"
+          }
+        },
+        {
+          "name": "Event Loop Trace (Lectures 31-32)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/curriculum/event-loop"
+          }
+        },
+        {
+          "name": "V8 Runtime Diagnostics (Lecture 31)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/curriculum/v8-diagnostics"
+          }
+        },
+        {
+          "name": "Buffer Encoding (Lecture 34)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"manifestCode\": \"MNF-2026-X1\",\n  \"weightKg\": 4500,\n  \"priority\": \"Urgent\"\n}"
+            },
+            "url": "{{baseUrl}}/api/curriculum/buffers"
+          }
+        },
+        {
+          "name": "EventEmitter Realtime Signals (Lecture 34)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/curriculum/events"
+          }
+        },
+        {
+          "name": "File System fs.promises Logs (Lecture 33)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/curriculum/fs-logs"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Authentication & JWT Security (Lectures 38-39)",
+      "item": [
+        {
+          "name": "Register User with bcrypt (Lecture 39)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Vikram Sharma\",\n  \"email\": \"vikram.dispatcher@rido.in\",\n  \"password\": \"SecurePass@123\",\n  \"role\": \"fleet_manager\",\n  \"phone\": \"9876543210\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/register"
+          }
+        },
+        {
+          "name": "Login User & Get JWT (Lecture 39)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"vikram.dispatcher@rido.in\",\n  \"password\": \"SecurePass@123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          }
+        },
+        {
+          "name": "Get Authenticated Profile (Protected Route - Lecture 39)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwtToken}}" }],
+            "url": "{{baseUrl}}/api/auth/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Fleet REST CRUD APIs (Lectures 37, 38, 41)",
+      "item": [
+        {
+          "name": "List Fleet Vehicles (Query Filtering)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/fleet?status=available"
+          }
+        },
+        {
+          "name": "Get Single Vehicle by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/fleet/tata-ace-ev"
+          }
+        },
+        {
+          "name": "Create New Fleet Vehicle (Protected - Role: Admin/Manager)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customId\": \"tata-ultra-ev-09\",\n  \"name\": \"Tata Ultra EV Prime\",\n  \"category\": \"ICV (Electric)\",\n  \"capacityKg\": 4200,\n  \"powertrain\": \"Electric (EV)\",\n  \"fuelEfficiency\": \"190 km/charge\",\n  \"costPerKm\": 4.8\n}"
+            },
+            "url": "{{baseUrl}}/api/fleet"
+          }
+        },
+        {
+          "name": "Update Vehicle Telemetry",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"en-route\",\n  \"currentLocation\": \"NH-48 Jaipur Bypass\"\n}"
+            },
+            "url": "{{baseUrl}}/api/fleet/tata-ace-ev"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Trips & Stream Manifests (Lectures 34, 41)",
+      "item": [
+        {
+          "name": "List Trips (Mongoose Relational Populate)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/trips"
+          }
+        },
+        {
+          "name": "Dispatch Trip (Fires EventEmitter & FS Log)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vehicleId\": \"tata-ace-ev\",\n  \"driverName\": \"Vikram Singh\",\n  \"origin\": \"Delhi Hub\",\n  \"destination\": \"Chandigarh Depot\",\n  \"distanceKm\": 248,\n  \"tollCost\": 420\n}"
+            },
+            "url": "{{baseUrl}}/api/trips/dispatch"
+          }
+        },
+        {
+          "name": "Stream Trip Manifest CSV (Node Transform Stream)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/trips/export/csv"
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Multer File Uploads (Lecture 40)",
+      "item": [
+        {
+          "name": "Upload Proof of Delivery Receipt (Multer)",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "pod", "type": "file", "src": "" }
+              ]
+            },
+            "url": "{{baseUrl}}/api/upload/pod"
+          }
+        }
+      ]
+    }
+  ]
+}
