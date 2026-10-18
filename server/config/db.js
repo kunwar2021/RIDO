@@ -21,6 +21,8 @@ const connectDB = async () => {
     isConnected = true;
     console.log(`[MongoDB] Connected successfully to host: ${conn.connection.host}`);
     console.log(`[MongoDB] Database Name: ${conn.connection.name}`);
+    const { seedFreshDatabase } = require('./seed');
+    await seedFreshDatabase(false);
     return true;
   } catch (error) {
     isConnected = false;

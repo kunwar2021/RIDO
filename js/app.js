@@ -62,6 +62,7 @@ const App = {
     try { this.initHeroTruckParallax(); } catch (e) { console.warn("hero parallax error:", e); }
     try { window.TestimonialsCarousel?.init(); } catch (e) { console.warn("Testimonials init error:", e); }
     try { this.checkBackendStatus(); } catch (e) { console.warn("backend status check error:", e); }
+    try { this.syncFreshDataFromBackend(); } catch (e) { console.warn("syncFreshData error:", e); }
 
     // Strictly validate authenticated session on startup
     this.userSession = StorageEngine.loadUserSession();
@@ -5090,6 +5091,49 @@ Enter code to sign in:`, generatedOtp);
       } else {
         this.navigateTo("operations");
       }
+    }
+
+    // Synchronize fresh fleet and trip records from MongoDB database
+    this.syncFreshDataFromBackend();
+  },
+
+  async syncFreshDataFromBackend() {
+    try {
+      console.log("[RIDO Fresh Data] Querying backend for live MongoDB fleet and trips...");
+      const [backendVehicles, backendTrips, analytics] = await Promise.all([
+        window.ApiClient?.fetchBackendFleet(),
+        window.ApiClient?.fetchBackendTrips(),
+        window.ApiClient?.fetchBackendAnalytics()
+      ]);
+
+      let updated = false;
+      if (backendVehicles && backendVehicles.length > 0) {
+        this.data.vehicles = backendVehicles.map((bv) => ({
+          ...bv,
+          id: bv.customId || bv.id,
+          payloadMax: bv.capacityKg,
+          driver: bv.driverName || bv.driver,
+          icon: bv.powertrain === "Electric (EV)" ? "⚡" : "🚛"
+        }));
+        updated = true;
+      }
+
+      if (backendTrips && backendTrips.length > 0) {
+        this.data.trips = backendTrips;
+        updated = true;
+      }
+
+      if (updated) {
+        this.saveState();
+        this.updateAllUI();
+        try { FleetManager?.renderFleetRoster(); } catch (e) {}
+        try { this.renderVehicleSelector(); } catch (e) {}
+        try { this.updateOperationsDashboard(); } catch (e) {}
+        try { this.updateDriverDashboardUI(); } catch (e) {}
+        UIManager.showToast("✨ Fresh fleet data & live telemetry synchronized from MongoDB!", "success");
+      }
+    } catch (err) {
+      console.warn("[RIDO Sync] Could not synchronize fresh data:", err);
     }
   },
 

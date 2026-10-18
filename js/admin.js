@@ -34,13 +34,35 @@ const AdminApp = {
     }
   },
 
-  handleLogin(e) {
+  async handleLogin(e) {
     e.preventDefault();
-    const email = document.getElementById('email').value;
-    const pass = document.getElementById('password').value;
+    const email = document.getElementById('email').value.trim();
+    const pass = document.getElementById('password').value.trim();
     const err = document.getElementById('login-error');
 
-    if (email === 'admin@ridosaathi.com' && pass === 'Admin@123') {
+    // Attempt live JWT login against /api/auth/login
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password: pass })
+      });
+      const data = await res.json();
+      if (data.success && data.token) {
+        localStorage.setItem('rido_admin_session', JSON.stringify({
+          email: data.user.email,
+          name: data.user.name,
+          role: data.user.role,
+          token: data.token,
+          timestamp: Date.now()
+        }));
+        window.location.href = 'admin-dashboard.html';
+        return;
+      }
+    } catch (netErr) {}
+
+    // Fallback credentials
+    if ((email === 'admin@ridosaathi.com' || email === 'admin@rido.in') && pass === 'Admin@123') {
       localStorage.setItem('rido_admin_session', JSON.stringify({
         email, name: 'System Admin', role: 'admin', timestamp: Date.now()
       }));
@@ -77,11 +99,36 @@ const AdminApp = {
     this.renderView(viewId);
   },
 
-  loadData() {
+  async loadData() {
     const mainData = JSON.parse(localStorage.getItem('rido_state_v1') || '{}');
     const companyAcc = JSON.parse(localStorage.getItem('rido_company_accounts') || '[]');
     const driverAcc = JSON.parse(localStorage.getItem('rido_driver_accounts') || '[]');
     const activeTrip = JSON.parse(localStorage.getItem('rido_active_trip') || 'null');
+
+    // Asynchronously synchronize fresh data from backend
+    try {
+      const [fleetRes, tripsRes, analyticsRes] = await Promise.all([
+        fetch('/api/fleet').then(r => r.json()).catch(() => null),
+        fetch('/api/trips').then(r => r.json()).catch(() => null),
+        fetch('/api/analytics/summary').then(r => r.json()).catch(() => null)
+      ]);
+
+      if (fleetRes && fleetRes.vehicles && fleetRes.vehicles.length > 0) {
+        this.data.vehicles = fleetRes.vehicles;
+      }
+      if (tripsRes && tripsRes.trips && tripsRes.trips.length > 0) {
+        this.data.trips = tripsRes.trips;
+      }
+      if (analyticsRes) {
+        this.data.analytics = analyticsRes;
+      }
+      // Re-render current view with fresh data
+      const activeNav = document.querySelector('.admin-nav-item.active');
+      const curView = activeNav ? activeNav.dataset.target : 'dashboard';
+      this.renderView(curView);
+    } catch (e) {
+      console.warn('[Admin] Fresh backend sync error:', e);
+    }
     
     this.data.companies = companyAcc.length > 0 ? companyAcc : [
       { id: 'comp_1', companyName: 'TransIndia Logistics', activeVehicles: 45, status: 'Active' },
@@ -93,14 +140,18 @@ const AdminApp = {
       { id: 'DRV-102', name: 'Amit Sharma', vehicle: 'MH04CD5678', status: 'Delayed', location: 'Mumbai Traffic' }
     ];
 
-    this.data.vehicles = (mainData.data && mainData.data.vehicles) ? mainData.data.vehicles : [
-      { id: 'PB10AB1234', type: 'Heavy Truck', healthScore: 92, status: 'Active' },
-      { id: 'DL01GH3456', type: 'Electric Van', healthScore: 99, status: 'Available' }
-    ];
+    if (!this.data.vehicles || this.data.vehicles.length === 0) {
+      this.data.vehicles = (mainData.data && mainData.data.vehicles) ? mainData.data.vehicles : [
+        { id: 'PB10AB1234', type: 'Heavy Truck', healthScore: 92, status: 'Active' },
+        { id: 'DL01GH3456', type: 'Electric Van', healthScore: 99, status: 'Available' }
+      ];
+    }
 
-    this.data.trips = activeTrip ? [activeTrip] : [
-      { tripId: 'TRP-1001', driverName: 'Rajinder Singh', companyName: 'TransIndia', originHub: 'Delhi', destinationHub: 'Mumbai', status: 'IN_PROGRESS', progress: 45 }
-    ];
+    if (!this.data.trips || this.data.trips.length === 0) {
+      this.data.trips = activeTrip ? [activeTrip] : [
+        { tripId: 'TRP-1001', driverName: 'Rajinder Singh', companyName: 'TransIndia', originHub: 'Delhi', destinationHub: 'Mumbai', status: 'IN_PROGRESS', progress: 45 }
+      ];
+    }
 
     const alerts = JSON.parse(localStorage.getItem('rido_admin_alerts') || '[]');
     this.data.alerts = alerts.length > 0 ? alerts : [

@@ -87,4 +87,15 @@ router.get('/db-status', (req, res) => {
   });
 });
 
+// 7. Seed Fresh Data on demand (Vehicles, Users, Trips)
+router.post('/seed-fresh-data', async (req, res, next) => {
+  try {
+    const { seedFreshDatabase } = require('../config/seed');
+    const result = await seedFreshDatabase(true);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;

@@ -494,6 +494,31 @@ const ApiClient = {
     return null;
   },
 
+  async fetchBackendTrips() {
+    try {
+      const res = await fetch('/api/trips');
+      if (res.ok) {
+        const data = await res.json();
+        return data.trips || [];
+      }
+    } catch (e) {
+      console.warn('[RIDO API] Backend trips endpoint unavailable.');
+    }
+    return null;
+  },
+
+  async fetchBackendAnalytics() {
+    try {
+      const res = await fetch('/api/analytics/summary');
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (e) {
+      console.warn('[RIDO API] Backend analytics endpoint unavailable.');
+    }
+    return null;
+  },
+
   async callBackendOptimizeRoute(payload) {
     try {
       const res = await fetch('/api/optimize-route', {
