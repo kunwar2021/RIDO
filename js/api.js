@@ -464,7 +464,52 @@ const ApiClient = {
       console.warn("[RIDO API] Nominatim geocode request failed:", err);
       return [];
     }
+  },
+
+  // ==========================================================================
+  // RIDO Local Express REST API Endpoints Integration
+  // ==========================================================================
+  async checkBackendHealth() {
+    try {
+      const res = await fetch('/api/health');
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (e) {
+      console.log('[RIDO Backend] Server running in client-side standalone mode.');
+    }
+    return null;
+  },
+
+  async fetchBackendFleet() {
+    try {
+      const res = await fetch('/api/fleet');
+      if (res.ok) {
+        const data = await res.json();
+        return data.vehicles || [];
+      }
+    } catch (e) {
+      console.warn('[RIDO API] Local backend fleet endpoint unavailable.');
+    }
+    return null;
+  },
+
+  async callBackendOptimizeRoute(payload) {
+    try {
+      const res = await fetch('/api/optimize-route', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (e) {
+      console.warn('[RIDO API] Backend optimize endpoint error:', e);
+    }
+    return null;
   }
 };
 
 window.ApiClient = ApiClient;
+

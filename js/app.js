@@ -61,6 +61,7 @@ const App = {
     try { this.startHeroTextAnimation(); } catch (e) { console.warn("hero text error:", e); }
     try { this.initHeroTruckParallax(); } catch (e) { console.warn("hero parallax error:", e); }
     try { window.TestimonialsCarousel?.init(); } catch (e) { console.warn("Testimonials init error:", e); }
+    try { this.checkBackendStatus(); } catch (e) { console.warn("backend status check error:", e); }
 
     // Strictly validate authenticated session on startup
     this.userSession = StorageEngine.loadUserSession();
@@ -3731,6 +3732,24 @@ const App = {
   initHeroTruckParallax() {
     // Disabled - Keep hero truck completely still and stationary
     return;
+  },
+
+  async checkBackendStatus() {
+    const indicator = document.getElementById("backend-live-indicator");
+    const statusText = document.getElementById("backend-status-text");
+    if (!indicator || !statusText) return;
+
+    try {
+      const health = await window.ApiClient?.checkBackendHealth();
+      if (health && health.status === "online") {
+        indicator.classList.remove("hidden");
+        indicator.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse"></span><span>Live Backend API Active • Port 5000 (${health.activeVehicles} Vehicles Ready)</span>`;
+      } else {
+        indicator.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400"></span><span>Client-Side Standalone Mode</span>`;
+      }
+    } catch (e) {
+      indicator.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400"></span><span>Client-Side Standalone Mode</span>`;
+    }
   },
 
   updateLandingRoiEstimator(kmVal) {

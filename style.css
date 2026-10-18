@@ -8145,3 +8145,47 @@ img, svg, canvas {
   }
 }
 
+/* ==========================================================================
+   RIDO Obsidian Dark Theme (Exact Match to User Visual)
+   ========================================================================== */
+body, html {
+  background-color: #08080a !important;
+  color: #f1f5f9;
+}
+
+#view-landing {
+  background-color: #08080a !important;
+}
+
+/* Make secondary sections elegant dark cards */
+#view-landing .bg-white {
+  background-color: #0f1015 !important;
+  border-color: rgba(255, 255, 255, 0.07) !important;
+  color: #f8fafc !important;
+}
+
+#view-landing .bg-slate-50 {
+  background-color: #14161f !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+#view-landing .text-slate-900 {
+  color: #ffffff !important;
+}
+
+#view-landing .text-slate-700 {
+  color: #cbd5e1 !important;
+}
+
+#view-landing .text-slate-600,
+#view-landing .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+#view-landing .border-slate-200,
+#view-landing .border-slate-200\/90,
+#view-landing .border-slate-200\/80 {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+

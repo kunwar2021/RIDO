@@ -1,0 +1,18 @@
+{
+  "name": "rido-fleet-platform",
+  "version": "8.0.0",
+  "description": "RIDO — Intelligent Fleet Optimization & Logistics Operations Platform",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "server": "node server/server.js",
+    "dev": "node server/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.8",
+    "express": "^5.3.0",
+    "morgan": "^1.12.1",
+    "motion": "^14.3.0"
+  }
+}
