@@ -15,16 +15,13 @@
       if (this.initialized) return;
       this.initialized = true;
 
-      // 1. Bind mouse parallax to Hero Stage
-      this.initHeroParallax();
-
-      // 2. Bind dynamic 3D tilt to cards and interactive panels
+      // 1. Bind dynamic 3D tilt to cards and interactive panels
       this.init3DTilt();
 
-      // 3. Bind floating physics to badges, pins, and HUD elements
+      // 2. Bind floating physics to badges, pins, and HUD elements
       this.initFloatingBadges();
 
-      // 4. Hook 3D View Transitions
+      // 3. Hook 3D View Transitions
       this.initViewTransitions();
 
       console.log('⚡ [RIDO 3D Engine] Active with high-depth 3D perspective and parallax!');
