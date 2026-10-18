@@ -5176,33 +5176,11 @@ Enter code to sign in:`, generatedOtp);
     const isDriver = this._authRole === "driver";
     const compName = document.getElementById("signup-company-name-input")?.value.trim() || (isDriver ? "Fleet Partner" : name + " Enterprises");
 
-    // Extract Registered Vehicle for Driver
-    let driverVehId = "TRK-NATIONAL-01";
-    let driverVehName = "Tata Prima 5530.S";
-    let driverVehPlate = "PB 10 CQ 4821";
-    let driverVehFuel = "Diesel";
-    let driverVehType = "truck";
-    let driverFastag = "ICICI-FASTAG-9821";
-
-    if (isDriver) {
-      driverVehType = document.getElementById("signup-driver-veh-type")?.value || "truck";
-      driverVehPlate = document.getElementById("signup-driver-veh-plate")?.value.trim() || "PB 10 CQ 4821";
-      driverVehName = document.getElementById("signup-driver-veh-model")?.value || "Tata Prima 5530.S";
-      driverVehFuel = document.getElementById("signup-driver-veh-fuel")?.value || "Diesel";
-      driverFastag = document.getElementById("signup-driver-veh-fastag")?.value.trim() || "ICICI-FASTAG-9821";
-      driverVehId = `TRK-${driverVehPlate.replace(/\s+/g, "-").toUpperCase().slice(-7)}`;
-    }
-
     const session = {
       id: isDriver ? `DRV-${Math.floor(100 + Math.random() * 900)}` : `CMP-${Math.floor(100 + Math.random() * 900)}`,
       name: name,
       initials: name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2),
       role: isDriver ? "driver" : "company",
-      vehicle: isDriver ? driverVehId : undefined,
-      vehicleName: isDriver ? driverVehName : undefined,
-      vehiclePlate: isDriver ? driverVehPlate : undefined,
-      vehicleFuel: isDriver ? driverVehFuel : undefined,
-      fastagId: isDriver ? driverFastag : undefined,
       companyName: compName,
       phone: "+91 " + mobile,
       email: `${name.toLowerCase().replace(/\s+/g, ".")}@${compName.toLowerCase().replace(/\s+/g, "")}.in`,
@@ -5212,41 +5190,10 @@ Enter code to sign in:`, generatedOtp);
     StorageEngine.saveUserSession(session);
     this.userSession = session;
 
-    // Register Driver's Vehicle into active dataset
-    if (isDriver && this.data && Array.isArray(this.data.vehicles)) {
-      const existingIdx = this.data.vehicles.findIndex(v => v.id === driverVehId);
-      const isEV = driverVehFuel === "Electric (EV)";
-      const spec = (window.OptimizerEngine && window.OptimizerEngine.VEHICLE_CATALOG) ? window.OptimizerEngine.VEHICLE_CATALOG[driverVehName] : null;
-      const newVeh = {
-        id: driverVehId,
-        name: driverVehName,
-        plate: driverVehPlate,
-        type: spec ? spec.type : (driverVehType === "pickup" ? "Small Pickup" : "Heavy Truck"),
-        powertrain: driverVehFuel,
-        driver: name,
-        payloadMax: spec ? spec.payloadMax : (driverVehType === "pickup" ? 1700 : 28000),
-        efficiency: spec ? spec.efficiency : (isEV ? 6.0 : (driverVehType === "pickup" ? 14.5 : 4.2)),
-        costPerKm: isEV ? 4.5 : (driverVehType === "pickup" ? 9.5 : 28.0),
-        fuelLevel: 85,
-        healthScore: 98,
-        status: "Available",
-        fastagId: driverFastag,
-        icon: isEV ? "⚡" : (driverVehType === "pickup" ? "🛻" : "🚛")
-      };
-
-      if (existingIdx >= 0) {
-        this.data.vehicles[existingIdx] = newVeh;
-      } else {
-        this.data.vehicles.unshift(newVeh);
-      }
-      this.optimizerState.selectedVehicleId = driverVehId;
-      this.saveState();
-    }
-
     this.renderAuthUI();
 
     UIManager.playSound("success");
-    UIManager.showToast(`Account & ${isDriver ? 'Vehicle' : 'Fleet'} Registered! Welcome, ${session.name}`, "success");
+    UIManager.showToast(`Account created successfully! Welcome, ${session.name}`, "success");
 
     const pendingIntentSignup = this._pendingIntentView;
     this._pendingIntentView = null;
@@ -5265,44 +5212,6 @@ Enter code to sign in:`, generatedOtp);
       } else {
         this.navigateTo("operations");
       }
-    }
-  },
-
-  onDriverSignupVehTypeChange() {
-    const type = document.getElementById("signup-driver-veh-type")?.value || "truck";
-    const modelSelect = document.getElementById("signup-driver-veh-model");
-    if (!modelSelect) return;
-    if (type === "pickup") {
-      modelSelect.innerHTML = `
-        <option value="Mahindra Bolero Maxi Truck" selected>Mahindra Bolero Maxi Truck</option>
-        <option value="Tata Ace Gold (Diesel)">Tata Ace Gold (Diesel)</option>
-        <option value="Tata Ace Gold (CNG)">Tata Ace Gold (CNG)</option>
-        <option value="Ashok Leyland Dost+">Ashok Leyland Dost+</option>
-        <option value="Tata Ace EV Ultra">Tata Ace EV Ultra</option>
-        <option value="Mahindra Zor Grand EV">Mahindra Zor Grand EV</option>
-      `;
-    } else {
-      modelSelect.innerHTML = `
-        <option value="Tata Prima 5530.S" selected>Tata Prima 5530.S</option>
-        <option value="BharatBenz 2823R">BharatBenz 2823R</option>
-        <option value="Eicher Pro 3019">Eicher Pro 3019</option>
-        <option value="Ashok Leyland 4220">Ashok Leyland 4220</option>
-        <option value="Tata 407 LPT">Tata 407 LPT</option>
-      `;
-    }
-    this.onDriverSignupModelChange();
-  },
-
-  onDriverSignupModelChange() {
-    const model = document.getElementById("signup-driver-veh-model")?.value || "";
-    const fuelSelect = document.getElementById("signup-driver-veh-fuel");
-    if (!fuelSelect) return;
-    if (model.includes("EV") || model.includes("Zor Grand")) {
-      fuelSelect.value = "Electric (EV)";
-    } else if (model.includes("CNG")) {
-      fuelSelect.value = "CNG";
-    } else {
-      fuelSelect.value = "Diesel";
     }
   },
 
