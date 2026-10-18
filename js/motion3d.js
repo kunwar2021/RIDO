@@ -1,257 +1,163 @@
 /**
  * ==============================================================================
- * RIDO — 3D Motion & Interactive Physics Engine (`js/motion3d.js`)
- * Powered by Motion & Modern CSS 3D Transforms / Parallax / Spring Physics
+ * RIDO — Enhanced 3D Motion & Physics Engine (`js/motion3d.js`)
+ * Real 3D Perspective, Parallax Hover, Dynamic Lighting & Float Animations
  * ==============================================================================
  */
 
 (function () {
   'use strict';
 
-  // 3D Motion System Namespace
   const Motion3D = {
     initialized: false,
-    elementsWithTilt: new WeakSet(),
 
     init() {
       if (this.initialized) return;
       this.initialized = true;
 
-      // 1. Initialize Interactive 3D Cursor Tilt Physics
-      this.initTiltEffects();
+      // 1. Bind mouse parallax to Hero Stage
+      this.initHeroParallax();
 
-      // 2. Initialize Hero 3D Parallax & Floating Vehicle Stage
-      this.initHero3DParallax();
+      // 2. Bind dynamic 3D tilt to cards and interactive panels
+      this.init3DTilt();
 
-      // 3. Initialize Staggered 3D Scroll Entrances
-      this.init3DScrollEntrances();
+      // 3. Bind floating physics to badges, pins, and HUD elements
+      this.initFloatingBadges();
 
-      // 4. Initialize 3D View Transitions
-      this.hookViewTransitions();
+      // 4. Hook 3D View Transitions
+      this.initViewTransitions();
 
-      // 5. Initialize 3D Depth on Buttons & Modals
-      this.initInteractiveDepth();
-
-      console.log('⚡ [RIDO 3D Engine] Motion 3D Physics & Depth layers initialized.');
+      console.log('⚡ [RIDO 3D Engine] Active with high-depth 3D perspective and parallax!');
     },
 
     /**
-     * 1. 3D Perspective Tilt on Interactive Cards (Cards, Fleet Items, Metrics)
+     * Interactive 3D tilt on mousemove for cards and containers
      */
-    initTiltEffects() {
-      const tiltSelectors = [
+    init3DTilt() {
+      const cardSelectors = [
+        '.bg-white.border.border-slate-200',
+        '.bg-slate-50.border.border-slate-200',
+        '.landing-hero-split > div',
+        '.testimonial-card',
+        '#interactive-fleet-map',
+        '#rido-results-main-grid > div',
         '.kpi-stat-card',
-        '.ops-stat-card',
-        '.landing-value-card',
-        '.landing-step-card',
-        '.fleet-card-container',
-        '.fleet-vehicle-card',
-        '.card-3d',
-        '.metric-box',
-        '#rido-recommended-trucks-container > div',
-        '#rido-best-recommendation-container',
-        '#hero-truck-container'
+        '.ops-stat-card'
       ];
 
-      const applyTiltToElement = (el, maxTilt = 8, scale = 1.02) => {
-        if (!el || this.elementsWithTilt.has(el)) return;
-        this.elementsWithTilt.add(el);
+      const applyTilt = (el) => {
+        if (!el || el.dataset.tilt3d === 'true') return;
+        el.dataset.tilt3d = 'true';
+        el.style.transformStyle = 'preserve-3d';
+        el.style.transition = 'transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease';
 
-        el.classList.add('perspective-card-3d');
+        el.addEventListener('mousemove', (e) => {
+          const rect = el.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
 
-        let isHovered = false;
-        let bounds = null;
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
 
-        const onMouseEnter = () => {
-          isHovered = true;
-          bounds = el.getBoundingClientRect();
-          el.style.transition = 'transform 0.12s cubic-bezier(0.2, 0, 0.38, 0.9)';
-          el.style.willChange = 'transform';
-        };
+          const rotateX = ((centerY - y) / centerY) * 7.5;
+          const rotateY = ((x - centerX) / centerX) * 8.5;
 
-        const onMouseMove = (e) => {
-          if (!isHovered || !bounds) return;
-          const mouseX = e.clientX - bounds.left;
-          const mouseY = e.clientY - bounds.top;
+          el.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateZ(8px) scale3d(1.015, 1.015, 1.015)`;
+          el.style.boxShadow = `0 20px 35px -10px rgba(15, 23, 42, 0.14), 0 10px 15px -5px rgba(234, 88, 12, 0.08)`;
+        });
 
-          const xPct = (mouseX / bounds.width - 0.5) * 2; // -1 to 1
-          const yPct = (mouseY / bounds.height - 0.5) * 2; // -1 to 1
-
-          const rotateY = (xPct * maxTilt).toFixed(2);
-          const rotateX = (-yPct * maxTilt).toFixed(2);
-
-          el.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(${scale}, ${scale}, ${scale}) translateZ(10px)`;
-        };
-
-        const onMouseLeave = () => {
-          isHovered = false;
-          el.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
-          el.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1) translateZ(0px)';
-        };
-
-        el.addEventListener('mouseenter', onMouseEnter, { passive: true });
-        el.addEventListener('mousemove', onMouseMove, { passive: true });
-        el.addEventListener('mouseleave', onMouseLeave, { passive: true });
-      };
-
-      const scanAndApply = () => {
-        tiltSelectors.forEach(selector => {
-          document.querySelectorAll(selector).forEach(el => applyTiltToElement(el));
+        el.addEventListener('mouseleave', () => {
+          el.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px) scale3d(1, 1, 1)';
+          el.style.boxShadow = '';
         });
       };
 
-      scanAndApply();
+      const refreshCards = () => {
+        cardSelectors.forEach(sel => {
+          document.querySelectorAll(sel).forEach(el => applyTilt(el));
+        });
+      };
 
-      // Mutation observer to auto-apply 3D tilt on dynamically rendered cards
-      const observer = new MutationObserver(() => scanAndApply());
-      observer.observe(document.body, { childList: true, subtree: true });
+      refreshCards();
+      const obs = new MutationObserver(() => refreshCards());
+      obs.observe(document.body, { childList: true, subtree: true });
     },
 
     /**
-     * 2. Hero 3D Gyroscope & Mouse Tracking Floating Truck & Waypoint Stage
+     * Mouse tracking 3D parallax on the Hero vehicle stage
      */
-    initHero3DParallax() {
-      const heroStage = document.getElementById('hero-truck-container');
-      const heroTruck = document.querySelector('.hero-truck-stage');
-      const heroAura = document.querySelector('.hero-truck-aura');
-      const heroVector = document.querySelector('.hero-truck-vector-bg');
+    initHeroParallax() {
+      const container = document.getElementById('hero-truck-container');
+      const stage = document.querySelector('.hero-truck-stage');
+      const aura = document.querySelector('.hero-truck-aura');
+      const vector = document.querySelector('.hero-truck-vector-bg');
 
-      if (!heroStage || !heroTruck) return;
+      if (!container || !stage) return;
 
-      heroStage.classList.add('hero-3d-stage');
-
-      let currentX = 0;
-      let currentY = 0;
-      let targetX = 0;
-      let targetY = 0;
+      let mouseX = 0;
+      let mouseY = 0;
+      let curX = 0;
+      let curY = 0;
 
       window.addEventListener('mousemove', (e) => {
-        const xPct = (e.clientX / window.innerWidth - 0.5) * 2;
-        const yPct = (e.clientY / window.innerHeight - 0.5) * 2;
-        targetX = xPct;
-        targetY = yPct;
+        mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+        mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
       }, { passive: true });
 
-      const animateHero = () => {
-        // Smooth lerp (linear interpolation)
-        currentX += (targetX - currentX) * 0.08;
-        currentY += (targetY - currentY) * 0.08;
+      const loop = () => {
+        curX += (mouseX - curX) * 0.07;
+        curY += (mouseY - curY) * 0.07;
 
-        const rotX = (-currentY * 12).toFixed(2);
-        const rotY = (currentX * 16).toFixed(2);
-        const transZ = 24;
+        const rotX = (-curY * 16).toFixed(2);
+        const rotY = (curX * 20).toFixed(2);
 
-        if (heroTruck) {
-          heroTruck.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateZ(${transZ}px)`;
+        stage.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateZ(30px)`;
+
+        if (aura) {
+          aura.style.transform = `translate3d(${-curX * 25}px, ${-curY * 20}px, -20px) scale(1.15)`;
         }
 
-        if (heroAura) {
-          heroAura.style.transform = `translate3d(${currentX * -20}px, ${currentY * -15}px, -30px) scale(1.08)`;
+        if (vector) {
+          vector.style.transform = `perspective(1100px) rotateX(${rotX * 0.5}deg) rotateY(${rotY * 0.5}deg) translateZ(15px)`;
         }
 
-        if (heroVector) {
-          heroVector.style.transform = `perspective(1200px) rotateX(${rotX * 0.6}deg) rotateY(${rotY * 0.6}deg) translateZ(10px)`;
-        }
-
-        requestAnimationFrame(animateHero);
+        requestAnimationFrame(loop);
       };
 
-      animateHero();
+      loop();
     },
 
     /**
-     * 3. 3D Scroll In-View Entrance Animations
+     * Floating physics on badges and pill elements
      */
-    init3DScrollEntrances() {
-      const animatableElements = document.querySelectorAll(`
-        .landing-hero-split,
-        .landing-step-card,
-        .landing-value-card,
-        .landing-features-strip,
-        .kpi-stat-card,
-        .ops-stat-card,
-        #interactive-fleet-map,
-        #rido-fleet-results-section
-      `);
-
-      if (!('IntersectionObserver' in window)) return;
-
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('in-3d-view');
-            observer.unobserve(entry.target);
-          }
-        });
-      }, {
-        threshold: 0.12,
-        rootMargin: '0px 0px -40px 0px'
-      });
-
-      animatableElements.forEach((el) => {
-        el.classList.add('scroll-3d-reveal');
-        observer.observe(el);
+    initFloatingBadges() {
+      const badges = document.querySelectorAll('.landing-badge, .hud-speed-badge, .nav-search-pill');
+      badges.forEach(b => {
+        b.style.animation = 'floatBadge3D 3.5s ease-in-out infinite alternate';
       });
     },
 
     /**
-     * 4. 3D Smooth View Transitions Hook
+     * 3D View Transition animation when switching tabs
      */
-    hookViewTransitions() {
-      const origNavigate = window.App?.navigateTo;
-      if (!origNavigate) return;
-
-      // Wrap view navigation in 3D depth flip/glide
-      const enhanceViewTransition = (viewId) => {
-        const targetSection = document.getElementById(`view-${viewId}`) || 
-                              document.getElementById(viewId === 'dashboard' ? 'view-operations' : `view-${viewId}`);
-
-        if (targetSection) {
-          targetSection.classList.remove('view-3d-slide-in');
-          // Trigger reflow to restart animation
-          void targetSection.offsetWidth;
-          targetSection.classList.add('view-3d-slide-in');
-        }
-      };
-
-      // Listen to navigation events
-      window.addEventListener('rido:navigate', (e) => {
-        if (e.detail?.view) enhanceViewTransition(e.detail.view);
-      });
-
-      // Hook click events on primary navigation
-      document.querySelectorAll('[data-nav]').forEach(btn => {
+    initViewTransitions() {
+      document.querySelectorAll('[data-nav], [data-mob-nav]').forEach(btn => {
         btn.addEventListener('click', () => {
-          const v = btn.getAttribute('data-nav');
-          if (v) setTimeout(() => enhanceViewTransition(v), 50);
+          setTimeout(() => {
+            const activePanel = document.querySelector('.view-panel.active');
+            if (activePanel) {
+              activePanel.style.animation = 'none';
+              void activePanel.offsetHeight; // trigger reflow
+              activePanel.style.animation = 'panel3DIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+            }
+          }, 30);
         });
-      });
-    },
-
-    /**
-     * 5. Interactive 3D Depth on Buttons & Action Elements
-     */
-    initInteractiveDepth() {
-      const buttons = document.querySelectorAll(`
-        .btn-hero-primary,
-        .btn-hero-secondary,
-        .btn-hero-tertiary,
-        .btn-header-signup,
-        .style-pill,
-        button[onclick*="calculateRidoRoute"],
-        button[onclick*="App.openFareBreakdownModal"]
-      `);
-
-      buttons.forEach(btn => {
-        btn.classList.add('btn-3d-press');
       });
     }
   };
 
-  // Expose globally
   window.Motion3D = Motion3D;
 
-  // Auto initialize on DOMContentLoaded
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => Motion3D.init());
   } else {
