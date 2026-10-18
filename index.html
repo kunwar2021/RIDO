@@ -325,63 +325,19 @@
 
             <!-- Right Hero Visual (Group B: 50% Column, Centered Vehicle Stage) -->
             <div class="w-full flex items-center justify-center relative select-none z-10" id="hero-truck-container">
-              <div class="hero-truck-stage">
+              <div class="hero-truck-stage relative flex items-center justify-center w-full max-w-[620px] min-h-[420px]">
                 
-                <!-- 1. Soft Ambient Warm Aura -->
+                <!-- 1. Motion.dev Style Ambient Golden Glow Halo -->
                 <div class="hero-truck-aura"></div>
 
-                <!-- 2. Animated Speed Streaks Behind Truck -->
-                <div class="hero-speed-streaks">
-                  <span class="speed-streak s1"></span>
-                  <span class="speed-streak s2"></span>
-                  <span class="speed-streak s3"></span>
-                </div>
+                <!-- 2. Three.js 3D Glowing Particle Truck Canvas Container -->
+                <div id="three-truck-canvas-container" class="w-full h-[400px] sm:h-[440px] flex items-center justify-center relative z-10"></div>
 
-                <!-- 3. Minimal Elegant Route Arc, Traveling Dot & Waypoint Pin -->
-                <svg class="hero-truck-vector-bg" viewBox="0 0 720 420" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <defs>
-                    <linearGradient id="heroTruckPathGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stop-color="#ea580c" stop-opacity="0.85" />
-                      <stop offset="50%" stop-color="#f97316" stop-opacity="0.65" />
-                      <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.45" />
-                    </linearGradient>
-                  </defs>
-
-                  <!-- Faint Subtle Route Arc in Background (Smooth 5.4s Loop Stream) -->
-                  <path id="heroRouteTrajectoryPath" d="M 140,300 C 200,160 320,24 435,16 C 535,12 620,80 655,250" fill="none" stroke="url(#heroTruckPathGrad)" stroke-width="2" class="hero-route-stream-active" />
-                  
-                  <!-- Traveling Orange Navigation Dot on Route -->
-                  <circle r="6" fill="#ea580c" fill-opacity="0.25">
-                    <animateMotion dur="5.4s" repeatCount="indefinite">
-                      <mpath href="#heroRouteTrajectoryPath"/>
-                    </animateMotion>
-                  </circle>
-                  <circle r="3" fill="#ea580c" stroke="#ffffff" stroke-width="1.5">
-                    <animateMotion dur="5.4s" repeatCount="indefinite">
-                      <mpath href="#heroRouteTrajectoryPath"/>
-                    </animateMotion>
-                  </circle>
-
-                  <!-- Orange Destination Pin at Apex with Gentle Periodic Pulse -->
-                  <g transform="translate(435, 16)" class="cursor-pointer">
-                    <circle cx="8" cy="8" r="14" fill="#ea580c" fill-opacity="0.12" class="hero-waypoint-pulse" />
-                    <path d="M8 0C3.58 0 0 3.58 0 8c0 6 8 16 8 16s8-10 8-16c0-4.42-3.58-8-8-8zm0 11c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z" fill="#ea580c"/>
-                    <circle cx="8" cy="8" r="2.5" fill="#ffffff" />
-                  </g>
-                </svg>
-
-                <!-- 4. Hand-Drawn Moving Overloaded Delivery Truck (Transparent & Motion Animated) -->
-                <div class="hero-truck-wrapper" id="hero-truck-interactive">
-                  <img src="truck_hero.png?v=6.0" alt="RIDO Overloaded Fleet Delivery Truck in Motion" class="hero-truck-img">
-                </div>
-
-                <!-- 5. Floating Live Telemetry HUD Badge -->
+                <!-- 3. Floating Live Telemetry HUD Badge -->
                 <div class="hero-truck-hud-badge">
                   <span class="hud-dot"></span>
-                  <span>64 km/h • NH-44 Freight Traversal</span>
+                  <span>3D Telemetry • Active Fleet Particle Stream</span>
                 </div>
-
-              </div>
 
               </div>
             </div>
@@ -4832,6 +4788,10 @@
   <script src="js/ui.js?v=101.0"></script>
   <script src="js/testimonials.js?v=101.0"></script>
   <script src="js/app.js?v=101.0"></script>
+  <!-- Three.js 3D Particle Graphic Engine -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- RIDO 3D Particle Truck Engine (Motion.dev Aesthetic) -->
+  <script src="js/truck3d.js?v=101.0"></script>
   <script src="js/motion3d.js?v=101.0"></script>
   <script src="script.js?v=101.0"></script>
 </body>
