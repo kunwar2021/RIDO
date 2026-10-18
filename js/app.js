@@ -3729,20 +3729,8 @@ const App = {
   },
 
   initHeroTruckParallax() {
-    const hero = document.querySelector(".landing-hero-split");
-    const truck = document.getElementById("hero-truck-interactive");
-    if (!hero || !truck) return;
-
-    hero.addEventListener(
-      "mousemove",
-      (e) => {
-        const rect = hero.getBoundingClientRect();
-        const relX = (e.clientX - rect.left) / rect.width - 0.5;
-        const relY = (e.clientY - rect.top) / rect.height - 0.5;
-        truck.style.transform = `translate(${relX * 12}px, ${relY * 6}px)`;
-      },
-      { passive: true }
-    );
+    // Disabled - Keep hero truck completely still and stationary
+    return;
   },
 
   updateLandingRoiEstimator(kmVal) {
