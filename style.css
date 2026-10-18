@@ -8018,3 +8018,100 @@ img, svg, canvas {
   opacity: 0.08;
   pointer-events: none;
 }
+
+/* ==========================================================================
+   RIDO 3D Depth & Spatial Motion System
+   ========================================================================== */
+
+/* 1. Global 3D Perspective Preservation */
+.perspective-card-3d {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.perspective-card-3d:hover {
+  box-shadow: 
+    0 20px 35px -10px rgba(15, 23, 42, 0.12),
+    0 10px 15px -5px rgba(234, 88, 12, 0.06),
+    0 0 0 1px rgba(234, 88, 12, 0.15) !important;
+}
+
+/* 2. Hero 3D Interactive Stage */
+.hero-3d-stage {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+.hero-truck-stage {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.hero-truck-stage img,
+.hero-truck-vector-bg {
+  transform: translateZ(25px);
+  filter: drop-shadow(0 25px 25px rgba(15, 23, 42, 0.14));
+}
+
+.hero-truck-aura {
+  transform: translateZ(-30px);
+  filter: blur(40px);
+}
+
+/* 3. 3D Scroll Reveal Animations */
+.scroll-3d-reveal {
+  opacity: 0;
+  transform: perspective(1000px) rotateX(10deg) translateY(35px) scale(0.97);
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.scroll-3d-reveal.in-3d-view {
+  opacity: 1;
+  transform: perspective(1000px) rotateX(0deg) translateY(0) scale(1);
+}
+
+/* 4. Smooth 3D Panel View Transitions */
+@keyframes view3DSlideIn {
+  0% {
+    opacity: 0;
+    transform: perspective(1200px) translateY(24px) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1200px) translateY(0) scale(1);
+  }
+}
+
+.view-3d-slide-in {
+  animation: view3DSlideIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 5. 3D Tactile Push Buttons */
+.btn-3d-press {
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.btn-3d-press:hover {
+  transform: translateY(-2.5px) scale(1.015) !important;
+  box-shadow: 0 10px 20px -5px rgba(234, 88, 12, 0.3) !important;
+}
+
+.btn-3d-press:active {
+  transform: translateY(1px) scale(0.985) !important;
+  box-shadow: 0 2px 6px rgba(234, 88, 12, 0.2) !important;
+}
+
+/* 6. Subtle Floating 3D Micro-Badges */
+.landing-badge {
+  transform: translateZ(15px);
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.12);
+}
+
+/* 7. Map Container Elevation */
+#interactive-fleet-map {
+  box-shadow: 0 14px 35px -8px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(0, 0, 0, 0.03);
+  transition: box-shadow 0.3s ease;
+}
+
