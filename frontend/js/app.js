@@ -358,6 +358,14 @@ const App = {
     }, 700);
   },
 
+  handleLogoClick() {
+    if (this.userSession) {
+      this.navigateTo('operations');
+    } else {
+      this.navigateTo('landing');
+    }
+  },
+
   navigateTo(viewId) {
     try {
       this.closeMobileMenu();
@@ -4031,8 +4039,12 @@ const App = {
             </div>
           `}
 
-          <!-- Direct Prominent Sign Out Button -->
-          <button type="button" class="px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 transition-all cursor-pointer flex items-center gap-1.5 shadow-sm active:scale-95 border-none" onclick="App.handleLogout()" title="Sign Out of RIDO">
+          <!-- Direct Control Tower & Sign Out Buttons -->
+          <button type="button" class="px-3 py-1.5 rounded-xl text-xs font-bold text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-200 transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs active:scale-95" onclick="App.navigateTo('operations')" title="Go to RIDO Control Tower">
+            <span>🏢</span>
+            <span>Control Tower</span>
+          </button>
+          <button type="button" class="px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 transition-all cursor-pointer flex items-center gap-1.5 shadow-sm active:scale-95 border-none" onclick="App.handleLogout()" title="Sign Out of RIDO">
             <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
             <span>Sign Out</span>
           </button>
