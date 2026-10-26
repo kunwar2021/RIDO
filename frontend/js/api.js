@@ -506,9 +506,20 @@ const ApiClient = {
   // RIDO Local & Cloud Deployed Express REST API Integration
   // ==========================================================================
   getBackendUrl(endpoint) {
-    const base = (window.CONFIG && window.CONFIG.BACKEND_BASE_URL)
+    let base = (window.CONFIG && window.CONFIG.BACKEND_BASE_URL)
       ? window.CONFIG.BACKEND_BASE_URL.replace(/\/+$/, '')
       : (localStorage.getItem('rido_deployed_api_url') || '').replace(/\/+$/, '');
+
+    // Auto-fallback to local Node backend on port 5000 if running locally without custom base
+    if (!base && typeof window !== 'undefined') {
+      const port = window.location.port;
+      const proto = window.location.protocol;
+      const host = window.location.hostname;
+      if (proto === 'file:' || (host === 'localhost' || host === '127.0.0.1') && port !== '5000') {
+        base = 'http://localhost:5000';
+      }
+    }
+
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
     return base ? base + cleanEndpoint : cleanEndpoint;
   },

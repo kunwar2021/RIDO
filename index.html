@@ -149,7 +149,7 @@
       <div class="w-full max-w-[1540px] 3xl:max-w-[1880px] 4k:max-w-[2480px] ultra:max-w-[3600px] mx-auto flex items-center justify-between gap-3">
         
         <!-- 1. Left (Brand Logo - Enlarged & Prominent) -->
-        <div class="flex items-center gap-2 cursor-pointer select-none py-0.5 shrink-0" onclick="App.navigateTo('landing')" title="RIDO — Logistics & Delivery">
+        <div class="flex items-center gap-2 cursor-pointer select-none py-0.5 shrink-0" onclick="App.handleBrandLogoClick()" title="RIDO — Logistics & Delivery">
           <img src="logo.png" alt="RIDO Logistics & Delivery" class="h-8 sm:h-10 lg:h-12 w-auto object-contain transition-transform hover:scale-105" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
           <div class="hidden items-center gap-2">
             <div class="w-8 h-8 rounded-xl bg-orange-600 text-white flex items-center justify-center font-black text-sm shadow-sm">R</div>
@@ -1142,6 +1142,274 @@
       </section>
 
       
+
+    <!-- ============================================== -->
+        <!-- VIEW 7: AUTHENTICATION (LOG IN & SIGN UP)      -->
+        <!-- ============================================== -->
+        <!-- ============================================== -->
+        <!-- VIEW 7: AUTHENTICATION (LOG IN & SIGN UP)      -->
+        <!-- ============================================== -->
+        <section class="view-panel" id="view-auth">
+          <div class="w-full max-w-[1080px] mx-auto py-6 lg:py-8 flex flex-col items-start">
+            
+            <!-- Top Navigation Back Link & Logo -->
+            <div class="mb-4 flex items-center justify-between w-full">
+              <button type="button" class="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-orange-600 transition cursor-pointer border-none bg-transparent" onclick="App.navigateTo('landing')">
+                <span>←</span>
+                <span id="auth-back-label">Back to Home</span>
+              </button>
+              <img src="logo.png" alt="RIDO" class="h-8 w-auto object-contain cursor-pointer" onclick="App.navigateTo('landing')" />
+            </div>
+
+            <!-- Outer Auth Split Container (Matches Mockup Screens 2 & 3) -->
+            <div class="mockup-auth-container w-full bg-white border border-slate-200 rounded-3xl shadow-lg grid grid-cols-1 lg:grid-cols-12 min-h-[580px] overflow-hidden text-left">
+              
+              <!-- Left Form Area (7 Cols) -->
+              <div class="lg:col-span-7 p-6 sm:p-10 flex flex-col justify-between">
+                <div>
+                  
+                  <!-- ================= LOGIN MODE ================= -->
+                  <div id="mockup-login-mode">
+                    <!-- Heading -->
+                    <div class="mb-5">
+                      <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Welcome Back</h2>
+                      <p class="text-xs text-slate-500 mt-1 font-medium">Sign in to your RIDO account</p>
+                    </div>
+
+                    <!-- Role Toggle Tabs: Driver vs Company (Matches Mockup Screen 2) -->
+                    <div class="flex items-center p-1 bg-slate-100 rounded-2xl w-full max-w-[280px] mb-5 border border-slate-200">
+                      <button type="button" class="flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer bg-orange-600 text-white shadow-xs" id="auth-login-role-driver" onclick="App.switchAuthRole('driver', 'login')">
+                        Driver
+                      </button>
+                      <button type="button" class="flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer text-slate-600 hover:text-slate-900" id="auth-login-role-company" onclick="App.switchAuthRole('company', 'login')">
+                        Company
+                      </button>
+                    </div>
+
+                    <!-- Quick Demo Credentials Helper Bar -->
+                    <div class="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-200 rounded-2xl mb-4 text-[11px]">
+                      <span class="text-slate-500 font-bold flex items-center gap-1.5 shrink-0">
+                        <span>⚡</span>
+                        <span class="font-extrabold text-slate-700">Quick Test:</span>
+                      </span>
+                      <div class="flex items-center gap-1.5 flex-wrap">
+                        <button type="button" class="px-2.5 py-1 rounded-xl bg-white hover:bg-orange-50 border border-slate-200 text-slate-700 hover:text-orange-600 font-bold cursor-pointer transition shadow-2xs text-[11px]" onclick="App.fillDemoLogin('driver')">🚚 Driver</button>
+                        <button type="button" class="px-2.5 py-1 rounded-xl bg-white hover:bg-orange-50 border border-slate-200 text-slate-700 hover:text-orange-600 font-bold cursor-pointer transition shadow-2xs text-[11px]" onclick="App.fillDemoLogin('company')">🏢 Company</button>
+                        <button type="button" class="px-2.5 py-1 rounded-xl bg-white hover:bg-orange-50 border border-slate-200 text-slate-700 hover:text-orange-600 font-bold cursor-pointer transition shadow-2xs text-[11px]" onclick="App.fillDemoLogin('admin')">🛡️ Admin</button>
+                      </div>
+                    </div>
+
+                    <!-- Login Form -->
+                    <form onsubmit="App.handleMockupLogin(event)" class="space-y-4">
+                      <div id="auth-login-error" class="hidden p-3 bg-red-50 text-red-600 text-xs rounded-xl border border-red-200 font-semibold"></div>
+
+                      <!-- Mobile / Identifier -->
+                      <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1" id="login-identifier-label">Mobile Number / Email</label>
+                        <div class="relative">
+                          <input type="text" id="login-identifier-input" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500" placeholder="+91 98765 43210 or email@domain.com" required>
+                          <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                        </div>
+                      </div>
+
+                      <!-- Password -->
+                      <div>
+                        <div class="flex items-center justify-between mb-1">
+                          <label class="block text-xs font-bold text-slate-700">Password</label>
+                          <a href="javascript:void(0)" onclick="App.handleForgotPassword()" class="text-xs font-bold text-orange-600 hover:text-orange-700 hover:underline">Forgot Password?</a>
+                        </div>
+                        <div class="relative">
+                          <input type="password" id="login-password-input" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500" placeholder="Enter your password" required>
+                          <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                          <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer" onclick="App.togglePasswordVisibility('login-password-input', this)">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- Remember Me -->
+                      <div class="flex items-center justify-between text-xs text-slate-600">
+                        <label class="flex items-center gap-2 cursor-pointer select-none">
+                          <input type="checkbox" id="login-remember-input" class="w-4 h-4 text-orange-600 rounded border-slate-300" checked>
+                          <span class="font-medium">Remember Me</span>
+                        </label>
+                      </div>
+
+                      <!-- Sign In Button -->
+                      <button type="submit" class="w-full py-3 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs shadow-md transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-2 border-none">
+                        <span>Sign In</span>
+                      </button>
+                    </form>
+
+                    <!-- Divider -->
+                    <div class="relative flex items-center justify-center my-4">
+                      <div class="border-t border-slate-200 w-full"></div>
+                      <span class="bg-white px-3 text-[11px] font-mono text-slate-400 uppercase tracking-wider relative">or continue with</span>
+                    </div>
+
+                    <!-- Social / Google Sign-In Buttons -->
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                      <button type="button" class="py-2.5 px-4 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs hover:border-slate-300 active:scale-98" onclick="App.handleGoogleSignIn()">
+                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.65v3.05h3.9c2.27-2.09 3.645-5.17 3.645-9.14z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.9-3.05c-1.08.72-2.45 1.16-4.03 1.16-3.1 0-5.73-2.1-6.66-4.92H1.28v3.13C3.3 21.43 7.37 24 12 24z"/><path fill="#FBBC05" d="M5.34 14.28c-.24-.72-.38-1.49-.38-2.28s.14-1.56.38-2.28V6.59H1.28C.46 8.21 0 10.05 0 12s.46 3.79 1.28 5.41l4.06-3.13z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.37 0 3.3 2.57 1.28 6.59l4.06 3.13c.93-2.82 3.56-4.97 6.66-4.97z"/></svg>
+                        <span>Google</span>
+                      </button>
+                      <button type="button" class="py-2.5 px-4 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs hover:border-slate-300 active:scale-98" onclick="App.handleDemoLogin('company')">
+                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24"><rect x="1" y="1" width="10" height="10" fill="#F25022"/><rect x="13" y="1" width="10" height="10" fill="#7FBA00"/><rect x="1" y="13" width="10" height="10" fill="#00A4EF"/><rect x="13" y="13" width="10" height="10" fill="#FFB900"/></svg>
+                        <span>Microsoft</span>
+                      </button>
+                    </div>
+
+                    <!-- Switch to Signup -->
+                    <div class="text-center text-xs text-slate-600">
+                      <span>Don't have an account?</span>
+                      <button type="button" class="font-extrabold text-orange-600 hover:text-orange-700 ml-1 cursor-pointer bg-transparent border-none" onclick="App.toggleAuthMode('signup')">Sign Up</button>
+                    </div>
+                  </div>
+
+
+                  <!-- ================= SIGNUP MODE ================= -->
+                  <div id="mockup-signup-mode" class="hidden">
+                    
+                    <!-- Role Toggle Tabs: Driver Signup vs Company Signup (Matches Mockup Screen 3) -->
+                    <div class="flex items-center p-1 bg-slate-100 rounded-2xl w-full max-w-[320px] mb-5 border border-slate-200">
+                      <button type="button" class="flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer bg-orange-600 text-white shadow-xs" id="auth-signup-role-driver" onclick="App.switchAuthRole('driver', 'signup')">
+                        Driver Signup
+                      </button>
+                      <button type="button" class="flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer text-slate-600 hover:text-slate-900" id="auth-signup-role-company" onclick="App.switchAuthRole('company', 'signup')">
+                        Company Signup
+                      </button>
+                    </div>
+
+                    <!-- Signup Form -->
+                    <form onsubmit="App.handleMockupSignUp(event)" class="space-y-3">
+                      <div id="auth-signup-error" class="hidden p-3 bg-red-50 text-red-600 text-xs rounded-xl border border-red-200 font-semibold"></div>
+
+                      <!-- Full Name -->
+                      <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1" id="signup-name-label">Full Name</label>
+                        <input type="text" id="signup-name-input" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-orange-500" placeholder="Enter your name" required>
+                      </div>
+
+                      <!-- Note: Vehicle Registration is completed after login inside the Driver Console -->
+
+                      <!-- Company Fields (Shown only when Company Signup active) -->
+                      <div id="signup-company-extra-fields" class="hidden space-y-2.5 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl">
+                        <div class="flex items-center gap-1.5 pb-1 border-b border-slate-200">
+                          <span class="text-xs">🏢</span>
+                          <span class="text-[11px] font-black text-slate-900 uppercase tracking-wider">Company Fleet Onboarding</span>
+                        </div>
+                        <div>
+                          <label class="block text-[10px] font-bold text-slate-700 mb-1">Company / Enterprise Legal Name</label>
+                          <input type="text" id="signup-company-name-input" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-orange-500" placeholder="e.g. TransIndia Logistics Ltd.">
+                        </div>
+                        <div>
+                          <label class="block text-[10px] font-bold text-slate-700 mb-1">Corporate Business Email</label>
+                          <input type="email" id="signup-company-email-input" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-orange-500" placeholder="operations@transindia.in">
+                        </div>
+                        <div>
+                          <label class="block text-[10px] font-bold text-slate-700 mb-1">Primary Fleet Composition</label>
+                          <select id="signup-company-fleet-type" class="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold">
+                            <option value="mixed" selected>🚛 Heavy Multi-Axle & 🛻 City Pickups (Mixed Fleet)</option>
+                            <option value="heavy_only">🚛 Interstate Long-Haul Heavy Trucks Only</option>
+                            <option value="pickups_only">🛻 Intracity Pickups & Electric Vans Only</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <!-- Mobile Number with +91 -->
+                      <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Mobile Number</label>
+                        <div class="relative flex">
+                          <span class="inline-flex items-center px-3 text-xs font-bold text-slate-500 bg-slate-100 border border-r-0 border-slate-200 rounded-l-xl select-none">+91</span>
+                          <input type="tel" id="signup-mobile-input" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-r-xl text-xs font-medium focus:outline-none focus:border-orange-500" placeholder="Enter mobile number" required>
+                        </div>
+                      </div>
+
+                      <!-- Password -->
+                      <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Password</label>
+                        <div class="relative">
+                          <input type="password" id="signup-password-input" class="w-full pl-3.5 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-orange-500" placeholder="••••••••••••" required minlength="6">
+                          <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer" onclick="App.togglePasswordVisibility('signup-password-input', this)">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- Confirm Password -->
+                      <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Confirm Password</label>
+                        <div class="relative">
+                          <input type="password" id="signup-confirm-input" class="w-full pl-3.5 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-orange-500" placeholder="Confirm password" required minlength="6">
+                          <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer" onclick="App.togglePasswordVisibility('signup-confirm-input', this)">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- Terms -->
+                      <div class="flex items-start gap-2 text-[11px] text-slate-600 pt-1">
+                        <input type="checkbox" id="signup-terms-input" class="w-4 h-4 mt-0.5 text-orange-600 rounded border-slate-300 cursor-pointer" required>
+                        <label for="signup-terms-input" class="cursor-pointer">I agree to the <a href="javascript:void(0)" class="text-orange-600 font-bold hover:underline">Terms & Conditions</a></label>
+                      </div>
+
+                      <!-- Sign Up Button -->
+                      <button type="submit" class="w-full py-3 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs shadow-md transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-2 border-none mt-2">
+                        <span>Create Account</span>
+                      </button>
+                    </form>
+
+                    <!-- Divider -->
+                    <div class="relative flex items-center justify-center my-4">
+                      <div class="border-t border-slate-200 w-full"></div>
+                      <span class="bg-white px-3 text-[11px] font-mono text-slate-400 uppercase tracking-wider relative">or sign up with</span>
+                    </div>
+
+                    <!-- Social / Google Sign-Up Buttons -->
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                      <button type="button" class="py-2.5 px-4 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs hover:border-slate-300 active:scale-98" onclick="App.handleGoogleSignIn()">
+                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.65v3.05h3.9c2.27-2.09 3.645-5.17 3.645-9.14z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.9-3.05c-1.08.72-2.45 1.16-4.03 1.16-3.1 0-5.73-2.1-6.66-4.92H1.28v3.13C3.3 21.43 7.37 24 12 24z"/><path fill="#FBBC05" d="M5.34 14.28c-.24-.72-.38-1.49-.38-2.28s.14-1.56.38-2.28V6.59H1.28C.46 8.21 0 10.05 0 12s.46 3.79 1.28 5.41l4.06-3.13z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.37 0 3.3 2.57 1.28 6.59l4.06 3.13c.93-2.82 3.56-4.97 6.66-4.97z"/></svg>
+                        <span>Google</span>
+                      </button>
+                      <button type="button" class="py-2.5 px-4 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs hover:border-slate-300 active:scale-98" onclick="App.handleDemoLogin('company')">
+                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24"><rect x="1" y="1" width="10" height="10" fill="#F25022"/><rect x="13" y="1" width="10" height="10" fill="#7FBA00"/><rect x="1" y="13" width="10" height="10" fill="#00A4EF"/><rect x="13" y="13" width="10" height="10" fill="#FFB900"/></svg>
+                        <span>Microsoft</span>
+                      </button>
+                    </div>
+
+                    <!-- Switch to Signin -->
+                    <div class="text-center text-xs text-slate-600 mt-4">
+                      <span>Already have an account?</span>
+                      <button type="button" class="font-extrabold text-orange-600 hover:text-orange-700 ml-1 cursor-pointer bg-transparent border-none" onclick="App.toggleAuthMode('login')">Sign In</button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Right Illustration & Pitch Area (5 Cols - Matches Mockup Screens 2 & 3) -->
+              <div class="lg:col-span-5 mockup-auth-right-hero relative flex flex-col items-center justify-center p-8">
+                <div class="mockup-truck-halo"></div>
+                
+                <div class="relative z-10 flex flex-col items-center text-center max-w-[340px]">
+                  <img src="truck_hero.png" alt="RIDO Fleet" class="max-h-48 object-contain mb-4 select-none pointer-events-none drop-shadow-sm">
+                  
+                  <div id="auth-right-pitch-login">
+                    <h3 class="text-lg font-black text-slate-900 tracking-tight leading-tight">Smarter Routes. Lower Costs.</h3>
+                    <p class="text-xs text-slate-500 mt-1 font-medium">Logistics made simple.</p>
+                  </div>
+
+                  <div id="auth-right-pitch-signup" class="hidden">
+                    <h3 class="text-lg font-black text-slate-900 tracking-tight leading-tight">Join RIDO</h3>
+                    <p class="text-xs text-slate-500 mt-1 font-medium">Plan Smarter. Deliver Faster.</p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </section>
 
     <!-- ENTERPRISE UNIFIED APP SHELL (Persistent Left Sidebar Across All Pages) -->
     <div id="rido-app-shell" class="w-full max-w-[1780px] mx-auto flex flex-col lg:flex-row items-start gap-5 p-3 sm:p-5 lg:p-6" style="display: none;">
@@ -3424,273 +3692,7 @@
         </section>
       </div>
     </div>
-    <!-- ============================================== -->
-        <!-- VIEW 7: AUTHENTICATION (LOG IN & SIGN UP)      -->
-        <!-- ============================================== -->
-        <!-- ============================================== -->
-        <!-- VIEW 7: AUTHENTICATION (LOG IN & SIGN UP)      -->
-        <!-- ============================================== -->
-        <section class="view-panel" id="view-auth">
-          <div class="w-full max-w-[1080px] mx-auto py-6 lg:py-8 flex flex-col items-start">
-            
-            <!-- Top Navigation Back Link & Logo -->
-            <div class="mb-4 flex items-center justify-between w-full">
-              <button type="button" class="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-orange-600 transition cursor-pointer border-none bg-transparent" onclick="App.navigateTo('landing')">
-                <span>←</span>
-                <span id="auth-back-label">Back to Home</span>
-              </button>
-              <img src="logo.png" alt="RIDO" class="h-8 w-auto object-contain cursor-pointer" onclick="App.navigateTo('landing')" />
-            </div>
-
-            <!-- Outer Auth Split Container (Matches Mockup Screens 2 & 3) -->
-            <div class="mockup-auth-container w-full bg-white border border-slate-200 rounded-3xl shadow-lg grid grid-cols-1 lg:grid-cols-12 min-h-[580px] overflow-hidden text-left">
-              
-              <!-- Left Form Area (7 Cols) -->
-              <div class="lg:col-span-7 p-6 sm:p-10 flex flex-col justify-between">
-                <div>
-                  
-                  <!-- ================= LOGIN MODE ================= -->
-                  <div id="mockup-login-mode">
-                    <!-- Heading -->
-                    <div class="mb-5">
-                      <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Welcome Back</h2>
-                      <p class="text-xs text-slate-500 mt-1 font-medium">Sign in to your RIDO account</p>
-                    </div>
-
-                    <!-- Role Toggle Tabs: Driver vs Company (Matches Mockup Screen 2) -->
-                    <div class="flex items-center p-1 bg-slate-100 rounded-2xl w-full max-w-[280px] mb-5 border border-slate-200">
-                      <button type="button" class="flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer bg-orange-600 text-white shadow-xs" id="auth-login-role-driver" onclick="App.switchAuthRole('driver', 'login')">
-                        Driver
-                      </button>
-                      <button type="button" class="flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer text-slate-600 hover:text-slate-900" id="auth-login-role-company" onclick="App.switchAuthRole('company', 'login')">
-                        Company
-                      </button>
-                    </div>
-
-                    <!-- Quick Demo Credentials Helper Bar -->
-                    <div class="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-200 rounded-2xl mb-4 text-[11px]">
-                      <span class="text-slate-500 font-bold flex items-center gap-1.5 shrink-0">
-                        <span>⚡</span>
-                        <span class="font-extrabold text-slate-700">Quick Test:</span>
-                      </span>
-                      <div class="flex items-center gap-1.5 flex-wrap">
-                        <button type="button" class="px-2.5 py-1 rounded-xl bg-white hover:bg-orange-50 border border-slate-200 text-slate-700 hover:text-orange-600 font-bold cursor-pointer transition shadow-2xs text-[11px]" onclick="App.fillDemoLogin('driver')">🚚 Driver</button>
-                        <button type="button" class="px-2.5 py-1 rounded-xl bg-white hover:bg-orange-50 border border-slate-200 text-slate-700 hover:text-orange-600 font-bold cursor-pointer transition shadow-2xs text-[11px]" onclick="App.fillDemoLogin('company')">🏢 Company</button>
-                        <button type="button" class="px-2.5 py-1 rounded-xl bg-white hover:bg-orange-50 border border-slate-200 text-slate-700 hover:text-orange-600 font-bold cursor-pointer transition shadow-2xs text-[11px]" onclick="App.fillDemoLogin('admin')">🛡️ Admin</button>
-                      </div>
-                    </div>
-
-                    <!-- Login Form -->
-                    <form onsubmit="App.handleMockupLogin(event)" class="space-y-4">
-                      <div id="auth-login-error" class="hidden p-3 bg-red-50 text-red-600 text-xs rounded-xl border border-red-200 font-semibold"></div>
-
-                      <!-- Mobile / Identifier -->
-                      <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1" id="login-identifier-label">Mobile Number / Email</label>
-                        <div class="relative">
-                          <input type="text" id="login-identifier-input" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500" placeholder="+91 98765 43210 or email@domain.com" required>
-                          <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                        </div>
-                      </div>
-
-                      <!-- Password -->
-                      <div>
-                        <div class="flex items-center justify-between mb-1">
-                          <label class="block text-xs font-bold text-slate-700">Password</label>
-                          <a href="javascript:void(0)" onclick="App.handleForgotPassword()" class="text-xs font-bold text-orange-600 hover:text-orange-700 hover:underline">Forgot Password?</a>
-                        </div>
-                        <div class="relative">
-                          <input type="password" id="login-password-input" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500" placeholder="Enter your password" required>
-                          <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                          <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer" onclick="App.togglePasswordVisibility('login-password-input', this)">
-                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                          </button>
-                        </div>
-                      </div>
-
-                      <!-- Remember Me -->
-                      <div class="flex items-center justify-between text-xs text-slate-600">
-                        <label class="flex items-center gap-2 cursor-pointer select-none">
-                          <input type="checkbox" id="login-remember-input" class="w-4 h-4 text-orange-600 rounded border-slate-300" checked>
-                          <span class="font-medium">Remember Me</span>
-                        </label>
-                      </div>
-
-                      <!-- Sign In Button -->
-                      <button type="submit" class="w-full py-3 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs shadow-md transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-2 border-none">
-                        <span>Sign In</span>
-                      </button>
-                    </form>
-
-                    <!-- Divider -->
-                    <div class="relative flex items-center justify-center my-4">
-                      <div class="border-t border-slate-200 w-full"></div>
-                      <span class="bg-white px-3 text-[11px] font-mono text-slate-400 uppercase tracking-wider relative">or continue with</span>
-                    </div>
-
-                    <!-- Social / Google Sign-In Buttons -->
-                    <div class="grid grid-cols-2 gap-3 mb-4">
-                      <button type="button" class="py-2.5 px-4 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs hover:border-slate-300 active:scale-98" onclick="App.handleGoogleSignIn()">
-                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.65v3.05h3.9c2.27-2.09 3.645-5.17 3.645-9.14z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.9-3.05c-1.08.72-2.45 1.16-4.03 1.16-3.1 0-5.73-2.1-6.66-4.92H1.28v3.13C3.3 21.43 7.37 24 12 24z"/><path fill="#FBBC05" d="M5.34 14.28c-.24-.72-.38-1.49-.38-2.28s.14-1.56.38-2.28V6.59H1.28C.46 8.21 0 10.05 0 12s.46 3.79 1.28 5.41l4.06-3.13z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.37 0 3.3 2.57 1.28 6.59l4.06 3.13c.93-2.82 3.56-4.97 6.66-4.97z"/></svg>
-                        <span>Google</span>
-                      </button>
-                      <button type="button" class="py-2.5 px-4 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs hover:border-slate-300 active:scale-98" onclick="App.handleDemoLogin('company')">
-                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24"><rect x="1" y="1" width="10" height="10" fill="#F25022"/><rect x="13" y="1" width="10" height="10" fill="#7FBA00"/><rect x="1" y="13" width="10" height="10" fill="#00A4EF"/><rect x="13" y="13" width="10" height="10" fill="#FFB900"/></svg>
-                        <span>Microsoft</span>
-                      </button>
-                    </div>
-
-                    <!-- Switch to Signup -->
-                    <div class="text-center text-xs text-slate-600">
-                      <span>Don't have an account?</span>
-                      <button type="button" class="font-extrabold text-orange-600 hover:text-orange-700 ml-1 cursor-pointer bg-transparent border-none" onclick="App.toggleAuthMode('signup')">Sign Up</button>
-                    </div>
-                  </div>
-
-
-                  <!-- ================= SIGNUP MODE ================= -->
-                  <div id="mockup-signup-mode" class="hidden">
-                    
-                    <!-- Role Toggle Tabs: Driver Signup vs Company Signup (Matches Mockup Screen 3) -->
-                    <div class="flex items-center p-1 bg-slate-100 rounded-2xl w-full max-w-[320px] mb-5 border border-slate-200">
-                      <button type="button" class="flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer bg-orange-600 text-white shadow-xs" id="auth-signup-role-driver" onclick="App.switchAuthRole('driver', 'signup')">
-                        Driver Signup
-                      </button>
-                      <button type="button" class="flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer text-slate-600 hover:text-slate-900" id="auth-signup-role-company" onclick="App.switchAuthRole('company', 'signup')">
-                        Company Signup
-                      </button>
-                    </div>
-
-                    <!-- Signup Form -->
-                    <form onsubmit="App.handleMockupSignUp(event)" class="space-y-3">
-                      <div id="auth-signup-error" class="hidden p-3 bg-red-50 text-red-600 text-xs rounded-xl border border-red-200 font-semibold"></div>
-
-                      <!-- Full Name -->
-                      <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1" id="signup-name-label">Full Name</label>
-                        <input type="text" id="signup-name-input" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-orange-500" placeholder="Enter your name" required>
-                      </div>
-
-                      <!-- Note: Vehicle Registration is completed after login inside the Driver Console -->
-
-                      <!-- Company Fields (Shown only when Company Signup active) -->
-                      <div id="signup-company-extra-fields" class="hidden space-y-2.5 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl">
-                        <div class="flex items-center gap-1.5 pb-1 border-b border-slate-200">
-                          <span class="text-xs">🏢</span>
-                          <span class="text-[11px] font-black text-slate-900 uppercase tracking-wider">Company Fleet Onboarding</span>
-                        </div>
-                        <div>
-                          <label class="block text-[10px] font-bold text-slate-700 mb-1">Company / Enterprise Legal Name</label>
-                          <input type="text" id="signup-company-name-input" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-orange-500" placeholder="e.g. TransIndia Logistics Ltd.">
-                        </div>
-                        <div>
-                          <label class="block text-[10px] font-bold text-slate-700 mb-1">Corporate Business Email</label>
-                          <input type="email" id="signup-company-email-input" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-orange-500" placeholder="operations@transindia.in">
-                        </div>
-                        <div>
-                          <label class="block text-[10px] font-bold text-slate-700 mb-1">Primary Fleet Composition</label>
-                          <select id="signup-company-fleet-type" class="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold">
-                            <option value="mixed" selected>🚛 Heavy Multi-Axle & 🛻 City Pickups (Mixed Fleet)</option>
-                            <option value="heavy_only">🚛 Interstate Long-Haul Heavy Trucks Only</option>
-                            <option value="pickups_only">🛻 Intracity Pickups & Electric Vans Only</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <!-- Mobile Number with +91 -->
-                      <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Mobile Number</label>
-                        <div class="relative flex">
-                          <span class="inline-flex items-center px-3 text-xs font-bold text-slate-500 bg-slate-100 border border-r-0 border-slate-200 rounded-l-xl select-none">+91</span>
-                          <input type="tel" id="signup-mobile-input" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-r-xl text-xs font-medium focus:outline-none focus:border-orange-500" placeholder="Enter mobile number" required>
-                        </div>
-                      </div>
-
-                      <!-- Password -->
-                      <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Password</label>
-                        <div class="relative">
-                          <input type="password" id="signup-password-input" class="w-full pl-3.5 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-orange-500" placeholder="••••••••••••" required minlength="6">
-                          <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer" onclick="App.togglePasswordVisibility('signup-password-input', this)">
-                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                          </button>
-                        </div>
-                      </div>
-
-                      <!-- Confirm Password -->
-                      <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Confirm Password</label>
-                        <div class="relative">
-                          <input type="password" id="signup-confirm-input" class="w-full pl-3.5 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-orange-500" placeholder="Confirm password" required minlength="6">
-                          <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer" onclick="App.togglePasswordVisibility('signup-confirm-input', this)">
-                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                          </button>
-                        </div>
-                      </div>
-
-                      <!-- Terms -->
-                      <div class="flex items-start gap-2 text-[11px] text-slate-600 pt-1">
-                        <input type="checkbox" id="signup-terms-input" class="w-4 h-4 mt-0.5 text-orange-600 rounded border-slate-300 cursor-pointer" required>
-                        <label for="signup-terms-input" class="cursor-pointer">I agree to the <a href="javascript:void(0)" class="text-orange-600 font-bold hover:underline">Terms & Conditions</a></label>
-                      </div>
-
-                      <!-- Sign Up Button -->
-                      <button type="submit" class="w-full py-3 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs shadow-md transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-2 border-none mt-2">
-                        <span>Create Account</span>
-                      </button>
-                    </form>
-
-                    <!-- Divider -->
-                    <div class="relative flex items-center justify-center my-4">
-                      <div class="border-t border-slate-200 w-full"></div>
-                      <span class="bg-white px-3 text-[11px] font-mono text-slate-400 uppercase tracking-wider relative">or sign up with</span>
-                    </div>
-
-                    <!-- Social / Google Sign-Up Buttons -->
-                    <div class="grid grid-cols-2 gap-3 mb-4">
-                      <button type="button" class="py-2.5 px-4 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs hover:border-slate-300 active:scale-98" onclick="App.handleGoogleSignIn()">
-                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.65v3.05h3.9c2.27-2.09 3.645-5.17 3.645-9.14z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.9-3.05c-1.08.72-2.45 1.16-4.03 1.16-3.1 0-5.73-2.1-6.66-4.92H1.28v3.13C3.3 21.43 7.37 24 12 24z"/><path fill="#FBBC05" d="M5.34 14.28c-.24-.72-.38-1.49-.38-2.28s.14-1.56.38-2.28V6.59H1.28C.46 8.21 0 10.05 0 12s.46 3.79 1.28 5.41l4.06-3.13z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.37 0 3.3 2.57 1.28 6.59l4.06 3.13c.93-2.82 3.56-4.97 6.66-4.97z"/></svg>
-                        <span>Google</span>
-                      </button>
-                      <button type="button" class="py-2.5 px-4 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs hover:border-slate-300 active:scale-98" onclick="App.handleDemoLogin('company')">
-                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24"><rect x="1" y="1" width="10" height="10" fill="#F25022"/><rect x="13" y="1" width="10" height="10" fill="#7FBA00"/><rect x="1" y="13" width="10" height="10" fill="#00A4EF"/><rect x="13" y="13" width="10" height="10" fill="#FFB900"/></svg>
-                        <span>Microsoft</span>
-                      </button>
-                    </div>
-
-                    <!-- Switch to Signin -->
-                    <div class="text-center text-xs text-slate-600 mt-4">
-                      <span>Already have an account?</span>
-                      <button type="button" class="font-extrabold text-orange-600 hover:text-orange-700 ml-1 cursor-pointer bg-transparent border-none" onclick="App.toggleAuthMode('login')">Sign In</button>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-
-              <!-- Right Illustration & Pitch Area (5 Cols - Matches Mockup Screens 2 & 3) -->
-              <div class="lg:col-span-5 mockup-auth-right-hero relative flex flex-col items-center justify-center p-8">
-                <div class="mockup-truck-halo"></div>
-                
-                <div class="relative z-10 flex flex-col items-center text-center max-w-[340px]">
-                  <img src="truck_hero.png" alt="RIDO Fleet" class="max-h-48 object-contain mb-4 select-none pointer-events-none drop-shadow-sm">
-                  
-                  <div id="auth-right-pitch-login">
-                    <h3 class="text-lg font-black text-slate-900 tracking-tight leading-tight">Smarter Routes. Lower Costs.</h3>
-                    <p class="text-xs text-slate-500 mt-1 font-medium">Logistics made simple.</p>
-                  </div>
-
-                  <div id="auth-right-pitch-signup" class="hidden">
-                    <h3 class="text-lg font-black text-slate-900 tracking-tight leading-tight">Join RIDO</h3>
-                    <p class="text-xs text-slate-500 mt-1 font-medium">Plan Smarter. Deliver Faster.</p>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-          </div>
-        </section>
+    
     </main>
     </div>
 

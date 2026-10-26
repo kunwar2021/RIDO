@@ -4003,62 +4003,90 @@ const App = {
   // --------------------------------------------------------------------------
   initAuth() {
     this.userSession = StorageEngine.loadUserSession();
-        const notifBtn = document.getElementById("notif-toggle-btn");
-    const searchPills = document.querySelectorAll(".nav-search-pill, button[onclick*='openCommandPalette']");
-
-    if (this.userSession) {
-      if (notifBtn) notifBtn.style.display = "inline-flex";
-      searchPills.forEach(el => el.style.display = "");
+    if (this.userSession && (this.userSession.role === "driver" || this.userSession.role === "company")) {
+      document.body.classList.remove('role-guest');
+      document.body.classList.add(`role-${this.userSession.role}`);
       if (this.userSession.role === "driver") {
         this.setupDriverDashboard(false);
       } else {
         this.setupCompanyDashboard(false);
       }
+    } else {
+      this.userSession = null;
+      document.body.classList.remove('role-company', 'role-driver');
+      document.body.classList.add('role-guest');
     }
     this.renderAuthUI();
   },
 
   renderAuthUI() {
     const container = document.getElementById("nav-auth-container");
-    if (!container) return;
+    const notifBtn = document.getElementById("notif-toggle-btn");
+    const searchPills = document.querySelectorAll(".nav-search-pill, button[onclick*='openCommandPalette']");
 
-    if (this.userSession) {
-      const isDriver = this.userSession.role === "driver";
-      const roleBadge = isDriver ? "Driver" : "Company";
-      const roleIcon = isDriver ? "🚚" : "🏢";
-      const displayName = this.userSession.name ? this.userSession.name.split(" ")[0] : (isDriver ? "Driver" : "Company");
+    const active = this.activeView || 'landing';
 
-      container.innerHTML = `
-        <div class="flex items-center gap-2 sm:gap-3">
-          <!-- Profile Circle (Avatar image from Google or Initials) -->
-          ${this.userSession.picture ? `
-            <img src="${Utils.escapeHTML(this.userSession.picture)}" alt="${Utils.escapeHTML(this.userSession.name || 'User')}" class="w-8 h-8 rounded-full object-cover border border-slate-200 shadow-2xs select-none cursor-pointer" title="${Utils.escapeHTML(this.userSession.name || 'User')} (${roleBadge})" />
-          ` : `
-            <div class="w-8 h-8 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center shadow-xs cursor-pointer select-none" title="${Utils.escapeHTML(this.userSession.name || 'User')} (${roleBadge})">
-              ${Utils.escapeHTML(this.userSession.initials || (isDriver ? "DR" : "VM"))}
-            </div>
-          `}
-
-          <!-- Direct Control Tower & Sign Out Buttons -->
-          <button type="button" class="px-3 py-1.5 rounded-xl text-xs font-bold text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-200 transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs active:scale-95" onclick="App.navigateTo('operations')" title="Go to RIDO Control Tower">
-            <span>🏢</span>
-            <span>Control Tower</span>
-          </button>
-          <button type="button" class="px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 transition-all cursor-pointer flex items-center gap-1.5 shadow-sm active:scale-95 border-none" onclick="App.handleLogout()" title="Sign Out of RIDO">
-            <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            <span>Sign Out</span>
-          </button>
-        </div>
-      `;
-        } else {
+    // 1. In Auth view, top bar must strictly show Back to Home
+    if (active === 'auth') {
       if (notifBtn) notifBtn.style.display = "none";
       searchPills.forEach(el => el.style.display = "none");
+      if (container) {
+        container.innerHTML = `
+          <button type="button" class="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-orange-600 bg-white hover:bg-slate-50 border border-slate-200 transition-all shadow-2xs cursor-pointer active:scale-95 flex items-center gap-1.5" onclick="App.navigateTo('landing')">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            <span>Back to Home</span>
+          </button>
+        `;
+      }
+      return;
+    }
+
+    // 2. If logged in AND on an internal app view (operations, optimizer, fleet, analytics, etc.)
+    if (this.userSession && active !== 'landing') {
+      if (notifBtn) notifBtn.style.display = "inline-flex";
+      searchPills.forEach(el => el.style.display = "");
+
+      if (container) {
+        const isDriver = this.userSession.role === "driver";
+        const roleBadge = isDriver ? "Driver" : "Company";
+        const displayName = this.userSession.name || (isDriver ? "Driver" : "Vikram Mehta");
+
+        container.innerHTML = `
+          <div class="flex items-center gap-2 sm:gap-3">
+            ${this.userSession.picture ? `
+              <img src="${Utils.escapeHTML(this.userSession.picture)}" alt="${Utils.escapeHTML(displayName)}" class="w-8 h-8 rounded-full object-cover border border-slate-200 shadow-2xs select-none" title="${Utils.escapeHTML(displayName)} (${roleBadge})" />
+            ` : `
+              <div class="w-8 h-8 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center shadow-xs select-none" title="${Utils.escapeHTML(displayName)} (${roleBadge})">
+                ${Utils.escapeHTML(this.userSession.initials || (isDriver ? "DR" : "VM"))}
+              </div>
+            `}
+            <div class="hidden sm:flex flex-col text-left">
+              <span class="text-xs font-bold text-slate-900 leading-tight">${Utils.escapeHTML(displayName)}</span>
+              <span class="text-[10px] text-slate-600 font-semibold uppercase tracking-wider">${roleBadge} Admin</span>
+            </div>
+            <button type="button" class="px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 transition-all cursor-pointer flex items-center gap-1.5 shadow-sm active:scale-95 border-none ml-1" onclick="App.handleLogout()" title="Sign Out of RIDO">
+              <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              <span>Sign Out</span>
+            </button>
+          </div>
+        `;
+      }
+      this.updateSidebarUserProfile();
+      this.renderNavItems();
+      return;
+    }
+
+    // 3. Otherwise (landing page or guest): Hide notif & search, show clean Sign In & Get Started
+    if (notifBtn) notifBtn.style.display = "none";
+    searchPills.forEach(el => el.style.display = "none");
+
+    if (container) {
       container.innerHTML = `
         <div class="flex items-center gap-2">
-          <button class="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-orange-600 bg-white hover:bg-slate-50 border border-slate-200 transition-all shadow-2xs cursor-pointer active:scale-95" onclick="App.openRoleModal('driver', 'login');">
+          <button class="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-orange-600 bg-white hover:bg-slate-50 border border-slate-200 transition-all shadow-2xs cursor-pointer active:scale-95" onclick="App.openRoleModal('company', 'login');">
             Sign In
           </button>
-          <button class="btn-header-signup px-4 py-2 rounded-xl text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 transition-all shadow-xs cursor-pointer active:scale-95" onclick="App.openRoleModal('driver', 'signup');">
+          <button class="btn-header-signup px-4 py-2 rounded-xl text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 transition-all shadow-xs cursor-pointer active:scale-95" onclick="App.openRoleModal('company', 'signup');">
             Get Started
           </button>
         </div>
@@ -5305,8 +5333,8 @@ Enter code to sign in:`, generatedOtp);
 
       StorageEngine.saveUserSession(session, rememberMe);
       this.userSession = session;
-      this.renderAuthUI();
-      this.updateSidebarUserProfile();
+      document.body.classList.remove('role-guest');
+      document.body.classList.add(isDriver ? 'role-driver' : 'role-company');
 
       UIManager.playSound("success");
       UIManager.showToast(`Signed in successfully! Welcome back, ${session.name}`, "success");
@@ -5322,6 +5350,8 @@ Enter code to sign in:`, generatedOtp);
         this.navigateTo(pendingIntent && ['optimizer', 'fleet', 'operations', 'analytics', 'stops', 'settings'].includes(pendingIntent) ? pendingIntent : "operations");
       }
 
+      this.renderAuthUI();
+      this.updateSidebarUserProfile();
       this.syncFreshDataFromBackend();
     } else {
       // Instant resilient fallback for demo credentials
@@ -5337,12 +5367,14 @@ Enter code to sign in:`, generatedOtp);
         };
         StorageEngine.saveUserSession(session, rememberMe);
         this.userSession = session;
-        this.renderAuthUI();
-        this.updateSidebarUserProfile();
+        document.body.classList.remove('role-guest');
+        document.body.classList.add('role-company');
         UIManager.playSound("success");
         UIManager.showToast("Signed in successfully as TransIndia Logistics!", "success");
         this.setupCompanyDashboard(false);
         this.navigateTo("operations");
+        this.renderAuthUI();
+        this.updateSidebarUserProfile();
         return;
       }
 
@@ -5358,12 +5390,14 @@ Enter code to sign in:`, generatedOtp);
         };
         StorageEngine.saveUserSession(session, rememberMe);
         this.userSession = session;
-        this.renderAuthUI();
-        this.updateSidebarUserProfile();
+        document.body.classList.remove('role-guest');
+        document.body.classList.add('role-driver');
         UIManager.playSound("success");
         UIManager.showToast("Signed in successfully as Driver Rajinder Singh!", "success");
         this.setupDriverDashboard(false);
         this.navigateTo("driver-dashboard");
+        this.renderAuthUI();
+        this.updateSidebarUserProfile();
         return;
       }
 
@@ -6924,6 +6958,16 @@ Enter code to sign in:`, generatedOtp);
   triggerSOS() {
     UIManager.playSound("alert");
     UIManager.showToast("🚨 SOS Emergency Alert Sent! Dispatcher and local rescue fleet notified with live GPS coordinates.", "error");
+  },
+
+  handleBrandLogoClick() {
+    if (this.userSession && (this.userSession.role === 'company' || this.userSession.role === 'admin')) {
+      this.navigateTo('operations');
+    } else if (this.userSession && this.userSession.role === 'driver') {
+      this.navigateTo('driver-dashboard');
+    } else {
+      this.navigateTo('landing');
+    }
   },
 
   handleLogout() {

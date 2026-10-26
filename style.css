@@ -8198,3 +8198,17 @@ body:not(.role-company):not(.role-driver) button[onclick*="openCommandPalette"] 
   opacity: 0 !important;
   pointer-events: none !important;
 }
+
+/* Hide enterprise shell and left sidebar on public landing and auth views, or for guests */
+body.role-guest #rido-app-shell,
+body.on-landing-view #rido-app-shell,
+body.on-auth-view #rido-app-shell,
+body:not(.role-company):not(.role-driver) #rido-app-shell,
+body.role-guest #rido-persistent-sidebar,
+body.on-landing-view #rido-persistent-sidebar,
+body.on-auth-view #rido-persistent-sidebar,
+body:not(.role-company):not(.role-driver) #rido-persistent-sidebar {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
