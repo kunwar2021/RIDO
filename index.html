@@ -2463,6 +2463,26 @@
             <p class="text-xs text-slate-500 max-w-md mx-auto">Enter an origin and destination above, then click <strong class="text-orange-600">"⚡ CALCULATE ROUTE & OPTIMIZE FLEET"</strong> to view trip economics and suitable fleet recommendations.</p>
           </div>
 
+          <!-- Dispatched / Assigned Trip Prompt (Shows after Assigning a Truck) -->
+          <div id="rido-fleet-assigned-prompt" class="p-8 text-center bg-white rounded-3xl border border-emerald-200 shadow-xs mb-8 hidden">
+            <div class="text-3xl mb-2">🚚</div>
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black mb-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              TRUCK ASSIGNED & DISPATCHED
+            </div>
+            <h4 class="text-sm font-black text-slate-900 mb-1" id="rido-fleet-assigned-title">Driver Assigned & Dispatched</h4>
+            <p class="text-xs text-slate-500 max-w-md mx-auto mb-4" id="rido-fleet-assigned-desc">This trip has been dispatched and driver is currently en route. You can monitor live GPS telemetry on the Live Tracking screen.</p>
+            <div class="flex items-center justify-center gap-3">
+              <button type="button" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-xl shadow-xs border-none cursor-pointer flex items-center gap-2 transition" onclick="App.navigateTo('live-tracking')">
+                <span>🛰️ Open Live Tracking</span>
+                <span>→</span>
+              </button>
+              <button type="button" class="px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs rounded-xl border border-slate-200 shadow-2xs cursor-pointer" onclick="App.resetOptimizerForm()">
+                Plan Another Trip
+              </button>
+            </div>
+          </div>
+
           <!-- ============================================================== -->
           <!-- LOWER SECTION: SUITABLE FLEET VEHICLES & BEST RECOMMENDATION    -->
           <!-- ============================================================== -->

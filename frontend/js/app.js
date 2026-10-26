@@ -522,6 +522,9 @@ const App = {
     const emptyPrompt = document.getElementById("rido-fleet-empty-prompt");
     if (emptyPrompt) emptyPrompt.classList.remove("hidden");
 
+    const assignedPrompt = document.getElementById("rido-fleet-assigned-prompt");
+    if (assignedPrompt) assignedPrompt.classList.add("hidden");
+
     const resultCard = document.getElementById("rido-trip-result-card");
     if (resultCard) resultCard.classList.add("hidden");
 
@@ -6211,6 +6214,9 @@ Enter code to sign in:`, generatedOtp);
       const emptyPrompt = document.getElementById("rido-fleet-empty-prompt");
       if (emptyPrompt) emptyPrompt.classList.add("hidden");
 
+      const assignedPrompt = document.getElementById("rido-fleet-assigned-prompt");
+      if (assignedPrompt) assignedPrompt.classList.add("hidden");
+
       this.renderRecommendedVehicles(suitableVehicles, bestMatch, intel.distanceKm, cargoWeight);
 
       // 13. Render Interactive Map
@@ -6425,15 +6431,26 @@ Enter code to sign in:`, generatedOtp);
     UIManager.playSound("success");
     UIManager.showToast(`🚀 Trip ${tripId} Assigned & Dispatched to Driver ${driverName}!`, "success");
 
+    // IMMEDIATELY remove / hide Recommended Drivers & Trucks section after assignment
+    const resultsSection = document.getElementById("rido-fleet-results-section");
+    if (resultsSection) resultsSection.classList.add("hidden");
+
+    const emptyPrompt = document.getElementById("rido-fleet-empty-prompt");
+    if (emptyPrompt) emptyPrompt.classList.add("hidden");
+
+    const assignedPrompt = document.getElementById("rido-fleet-assigned-prompt");
+    if (assignedPrompt) {
+      assignedPrompt.classList.remove("hidden");
+      const titleEl = document.getElementById("rido-fleet-assigned-title");
+      if (titleEl) titleEl.textContent = `Driver ${driverName} Assigned (${vehicle.name})`;
+    }
+
     this.updateAllUI();
-    setTimeout(() => {
-      UIManager.showToast(`Trip ${tripId} is now live on Live Tracking.`, "info");
-      if (window.LiveDispatch && window.LiveDispatch.dispatchAndTrack) {
-        window.LiveDispatch.dispatchAndTrack(vehicle.id, driverName, vehicle);
-      } else {
-        this.navigateTo("live-tracking");
-      }
-    }, 600);
+    if (window.LiveDispatch && window.LiveDispatch.dispatchAndTrack) {
+      window.LiveDispatch.dispatchAndTrack(vehicle.id, driverName, vehicle);
+    } else {
+      this.navigateTo("live-tracking");
+    }
   },
 
   // --------------------------------------------------------------------------

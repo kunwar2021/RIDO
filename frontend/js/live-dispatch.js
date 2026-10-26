@@ -165,6 +165,14 @@ const LiveDispatch = {
     // Build simulated route points
     this._buildRoutePoints();
 
+    // IMMEDIATELY remove / hide Recommended Drivers & Trucks section in Route Optimizer
+    const resultsSection = document.getElementById("rido-fleet-results-section");
+    if (resultsSection) resultsSection.classList.add("hidden");
+    const emptyPrompt = document.getElementById("rido-fleet-empty-prompt");
+    if (emptyPrompt) emptyPrompt.classList.add("hidden");
+    const assignedPrompt = document.getElementById("rido-fleet-assigned-prompt");
+    if (assignedPrompt) assignedPrompt.classList.remove("hidden");
+
     // Navigate to live tracking view
     window.App?.navigateTo('live-tracking');
 
