@@ -3986,7 +3986,12 @@ const App = {
   // --------------------------------------------------------------------------
   initAuth() {
     this.userSession = StorageEngine.loadUserSession();
+        const notifBtn = document.getElementById("notif-toggle-btn");
+    const searchPills = document.querySelectorAll(".nav-search-pill, button[onclick*='openCommandPalette']");
+
     if (this.userSession) {
+      if (notifBtn) notifBtn.style.display = "inline-flex";
+      searchPills.forEach(el => el.style.display = "");
       if (this.userSession.role === "driver") {
         this.setupDriverDashboard(false);
       } else {
@@ -4024,7 +4029,9 @@ const App = {
           </button>
         </div>
       `;
-    } else {
+        } else {
+      if (notifBtn) notifBtn.style.display = "none";
+      searchPills.forEach(el => el.style.display = "none");
       container.innerHTML = `
         <div class="flex items-center gap-2">
           <button class="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-orange-600 bg-white hover:bg-slate-50 border border-slate-200 transition-all shadow-2xs cursor-pointer active:scale-95" onclick="App.openRoleModal('driver', 'login');">

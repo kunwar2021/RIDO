@@ -8181,3 +8181,20 @@ body:not(.role-company):not(.role-driver) #mobile-bottom-nav {
 .sidebar-nav-btn:active {
   transform: scale(0.98);
 }
+
+
+/* Hide notification bell, search pills, and mobile bottom nav before login / on landing */
+body.role-guest #notif-toggle-btn,
+body.on-landing-view #notif-toggle-btn,
+body:not(.role-company):not(.role-driver) #notif-toggle-btn,
+body.role-guest .nav-search-pill,
+body.on-landing-view .nav-search-pill,
+body:not(.role-company):not(.role-driver) .nav-search-pill,
+body.role-guest button[onclick*="openCommandPalette"],
+body.on-landing-view button[onclick*="openCommandPalette"],
+body:not(.role-company):not(.role-driver) button[onclick*="openCommandPalette"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
