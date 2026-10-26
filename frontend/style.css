@@ -8212,3 +8212,11 @@ body:not(.role-company):not(.role-driver) #rido-persistent-sidebar {
   visibility: hidden !important;
   pointer-events: none !important;
 }
+
+/* Strictly hide site header and mobile bottom nav on the dedicated Authentication view */
+body.on-auth-view header,
+body.on-auth-view #mobile-bottom-nav {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
