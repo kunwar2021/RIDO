@@ -32,6 +32,9 @@ const CONFIG = {
   },
   LEGACY_STORAGE_KEYS: ["rido_user_session", "routesaathi_state_v1", "optipath_data_v5", "optipath_data_v4", "optipath_data_v3"],
 
+  // Backend Server Endpoint (Configurable for Local vs Deployed Cloud API)
+  BACKEND_BASE_URL: (typeof window !== 'undefined' && (window.DEPLOYED_API_URL || localStorage.getItem('rido_deployed_api_url'))) || "",
+
   // External APIs & Network Endpoints
   API: {
     OSRM_ROUTING_BASE: "https://router.project-osrm.org/route/v1/driving",

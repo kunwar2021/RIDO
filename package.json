@@ -1,12 +1,15 @@
 {
   "name": "rido-fleet-platform",
   "version": "8.0.0",
-  "description": "RIDO — Intelligent Fleet Optimization & Logistics Operations Platform",
-  "main": "server/server.js",
+  "description": "RIDO — Intelligent Fleet Optimization & Logistics Operations Platform (MVC Architecture)",
+  "main": "backend/server.js",
   "scripts": {
-    "start": "node server/server.js",
-    "server": "node server/server.js",
-    "dev": "node server/server.js"
+    "start": "node backend/server.js",
+    "server": "node backend/server.js",
+    "backend": "cd backend && node server.js",
+    "dev": "node backend/server.js",
+    "test": "node tests/verify_curriculum.js",
+    "test:api": "node tests/test_api_endpoints.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

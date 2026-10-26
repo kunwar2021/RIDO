@@ -467,11 +467,33 @@ const ApiClient = {
   },
 
   // ==========================================================================
-  // RIDO Local Express REST API Endpoints Integration
+  // RIDO Local & Cloud Deployed Express REST API Integration
   // ==========================================================================
+  getBackendUrl(endpoint) {
+    const base = (window.CONFIG && window.CONFIG.BACKEND_BASE_URL)
+      ? window.CONFIG.BACKEND_BASE_URL.replace(/\/+$/, '')
+      : (localStorage.getItem('rido_deployed_api_url') || '').replace(/\/+$/, '');
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
+    return base ? base + cleanEndpoint : cleanEndpoint;
+  },
+
+  setDeployedApiUrl(url) {
+    const clean = (url || '').trim().replace(/\/+$/, '');
+    if (clean) {
+      localStorage.setItem('rido_deployed_api_url', clean);
+      if (window.CONFIG) window.CONFIG.BACKEND_BASE_URL = clean;
+    } else {
+      localStorage.removeItem('rido_deployed_api_url');
+      if (window.CONFIG) window.CONFIG.BACKEND_BASE_URL = '';
+    }
+  },
+
+  getDeployedApiUrl() {
+    return localStorage.getItem('rido_deployed_api_url') || (window.CONFIG && window.CONFIG.BACKEND_BASE_URL) || '';
+  },
   async checkBackendHealth() {
     try {
-      const res = await fetch('/api/health');
+      const res = await fetch(this.getBackendUrl("/api/health"));
       if (res.ok) {
         return await res.json();
       }
@@ -483,7 +505,7 @@ const ApiClient = {
 
   async fetchBackendFleet() {
     try {
-      const res = await fetch('/api/fleet');
+      const res = await fetch(this.getBackendUrl("/api/fleet"));
       if (res.ok) {
         const data = await res.json();
         return data.vehicles || [];
@@ -496,7 +518,7 @@ const ApiClient = {
 
   async fetchBackendTrips() {
     try {
-      const res = await fetch('/api/trips');
+      const res = await fetch(this.getBackendUrl("/api/trips"));
       if (res.ok) {
         const data = await res.json();
         return data.trips || [];
@@ -509,7 +531,7 @@ const ApiClient = {
 
   async fetchBackendAnalytics() {
     try {
-      const res = await fetch('/api/analytics/summary');
+      const res = await fetch(this.getBackendUrl("/api/analytics/summary"));
       if (res.ok) {
         return await res.json();
       }
@@ -521,7 +543,7 @@ const ApiClient = {
 
   async callBackendOptimizeRoute(payload) {
     try {
-      const res = await fetch('/api/optimize-route', {
+      const res = await fetch(this.getBackendUrl("/api/optimize-route"), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -540,7 +562,7 @@ const ApiClient = {
   // ==========================================================================
   async loginUser(identifier, password, role = 'driver') {
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(this.getBackendUrl("/api/auth/login"), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ identifier, password, role })
@@ -555,7 +577,7 @@ const ApiClient = {
 
   async registerUser(userData) {
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch(this.getBackendUrl("/api/auth/register"), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData)
@@ -570,7 +592,7 @@ const ApiClient = {
 
   async googleAuth(googlePayload) {
     try {
-      const res = await fetch('/api/auth/google', {
+      const res = await fetch(this.getBackendUrl("/api/auth/google"), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(googlePayload)

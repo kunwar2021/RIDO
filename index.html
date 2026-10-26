@@ -218,6 +218,10 @@
 
           <!-- Dynamic Auth Container (Get Started) -->
           <div id="nav-auth-container" class="flex items-center gap-2 relative">
+            <button type="button" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-all shadow-2xs cursor-pointer active:scale-95" onclick="CloudApiModal.open()" title="Toggle Local vs Deployed Cloud API (Evaluation 2)">
+              <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>🌐 Cloud API</span>
+            </button>
             <button type="button" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-all shadow-2xs cursor-pointer active:scale-95" onclick="CurriculumLab.openModal()" title="Open Full-Stack Curriculum Lab (Lectures 1–41)">
               <span>🎓</span>
               <span>Curriculum Lab</span>
@@ -4893,6 +4897,7 @@
   <script src="js/ui.js?v=101.0"></script>
   <script src="js/testimonials.js?v=101.0"></script>
   <script src="js/app.js?v=101.0"></script>
+  <script src="js/cloud-api-modal.js?v=101.0"></script>
   <script src="js/curriculum-lab.js?v=101.0"></script>
   <script src="script.js?v=101.0"></script>
 </body>

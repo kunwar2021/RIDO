@@ -1,0 +1,138 @@
+{
+  "client": "Thunder Client",
+  "collectionName": "RIDO Logistics & Fleet Platform API",
+  "dateExported": "2026-10-26T07:19:22.248Z",
+  "version": "1.1",
+  "folders": [
+    {
+      "_id": "f_health",
+      "name": "00. Health & MVC Architecture"
+    },
+    {
+      "_id": "f_auth",
+      "name": "01. Authentication & Security"
+    },
+    {
+      "_id": "f_fleet",
+      "name": "02. Fleet Management (MongoDB CRUD)"
+    },
+    {
+      "_id": "f_trips",
+      "name": "03. Trip Dispatch & Route Engine"
+    },
+    {
+      "_id": "f_analytics",
+      "name": "04. MongoDB Analytics & KPIs"
+    },
+    {
+      "_id": "f_curriculum",
+      "name": "05. Node.js V8 & Runtime Diagnostics"
+    }
+  ],
+  "requests": [
+    {
+      "_id": "req_health",
+      "colId": "rido_thunder",
+      "containerId": "f_health",
+      "name": "Health & System Status",
+      "url": "{{baseUrl}}/api/health",
+      "method": "GET"
+    },
+    {
+      "_id": "req_register",
+      "colId": "rido_thunder",
+      "containerId": "f_auth",
+      "name": "Register Manager",
+      "url": "{{baseUrl}}/api/auth/register",
+      "method": "POST",
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"name\": \"Evaluation Officer\",\n  \"email\": \"evaluator@logiroute.in\",\n  \"phone\": \"9876543210\",\n  \"password\": \"Password123!\",\n  \"role\": \"manager\"\n}"
+      }
+    },
+    {
+      "_id": "req_login",
+      "colId": "rido_thunder",
+      "containerId": "f_auth",
+      "name": "Login with Credentials",
+      "url": "{{baseUrl}}/api/auth/login",
+      "method": "POST",
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"email\": \"evaluator@logiroute.in\",\n  \"password\": \"Password123!\"\n}"
+      }
+    },
+    {
+      "_id": "req_me",
+      "colId": "rido_thunder",
+      "containerId": "f_auth",
+      "name": "Get Current User Profile",
+      "url": "{{baseUrl}}/api/auth/me",
+      "method": "GET",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{authToken}}"
+        }
+      ]
+    },
+    {
+      "_id": "req_fleet_list",
+      "colId": "rido_thunder",
+      "containerId": "f_fleet",
+      "name": "Get All Vehicles",
+      "url": "{{baseUrl}}/api/fleet",
+      "method": "GET"
+    },
+    {
+      "_id": "req_fleet_create",
+      "colId": "rido_thunder",
+      "containerId": "f_fleet",
+      "name": "Create Vehicle Record",
+      "url": "{{baseUrl}}/api/fleet",
+      "method": "POST",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{authToken}}"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"registrationNumber\": \"MH-12-EV-9999\",\n  \"type\": \"heavy-truck\",\n  \"capacityKg\": 16000,\n  \"fuelType\": \"electric\",\n  \"driverName\": \"Arjun Verma\",\n  \"driverPhone\": \"+91-9988776655\",\n  \"currentSpeed\": 58,\n  \"batteryLevel\": 94\n}"
+      }
+    },
+    {
+      "_id": "req_trips_list",
+      "colId": "rido_thunder",
+      "containerId": "f_trips",
+      "name": "Get All Trips (Populate)",
+      "url": "{{baseUrl}}/api/trips",
+      "method": "GET"
+    },
+    {
+      "_id": "req_analytics_kpi",
+      "colId": "rido_thunder",
+      "containerId": "f_analytics",
+      "name": "Dashboard KPIs Aggregation",
+      "url": "{{baseUrl}}/api/analytics/kpis",
+      "method": "GET"
+    },
+    {
+      "_id": "req_node_eventloop",
+      "colId": "rido_thunder",
+      "containerId": "f_curriculum",
+      "name": "Event Loop Metrics",
+      "url": "{{baseUrl}}/api/curriculum/event-loop",
+      "method": "GET"
+    },
+    {
+      "_id": "req_node_dbstatus",
+      "colId": "rido_thunder",
+      "containerId": "f_curriculum",
+      "name": "MongoDB Diagnostics",
+      "url": "{{baseUrl}}/api/curriculum/db-status",
+      "method": "GET"
+    }
+  ]
+}

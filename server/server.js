@@ -1,14 +1,9 @@
 /**
  * ==============================================================================
- * RIDO Enterprise Fleet Engine — Unified Modular Server
+ * RIDO Enterprise Fleet Engine — MVC Modular Backend Server
  * ==============================================================================
- * Implements Complete Curriculum Concepts (Lectures 31–41):
- * - Node.js Architecture, V8, Event Loop & Modules (CommonJS)
- * - Streams, Buffers, File System (fs), Path, EventEmitter
- * - Express Server, Routing, Middleware Lifecycle & Error Handlers
- * - REST CRUD APIs, JWT Authentication, bcrypt Hashing, Protected Routes
- * - Multer Multipart File Uploads
- * - MongoDB / Mongoose Schemas, Validation & Relational Populate
+ * Architecture: Model-View-Controller (MVC)
+ * Tech Stack: Node.js, Express.js, MongoDB (Local & Atlas), Mongoose ORM, JWT, Multer
  */
 
 require('dotenv').config();
@@ -18,158 +13,79 @@ const path = require('path');
 const { connectDB } = require('./config/db');
 const { requestInspector, errorHandler } = require('./middleware/auth');
 
+// Controllers for root endpoints
+const analyticsController = require('./controllers/analytics.controller');
+const tripController = require('./controllers/trip.controller');
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Initialize MongoDB / Mongoose (Lecture 41)
+// 1. Connect Database (MongoDB Atlas Cloud / Local Community Server)
 connectDB();
 
-// Core Middleware (Lectures 37 & 38)
-app.use(cors());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// 2. Cross-Origin Resource Sharing (CORS) Configuration
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
+}));
+
+// 3. Body Parsing Middleware
+app.use(express.json({ limit: '15mb' }));
+app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 app.use(requestInspector);
 
-// Serve Frontend Static Files & Multer Uploads (Lectures 35 & 40)
-app.use(express.static(path.join(__dirname, '..')));
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+// 4. Static Files & Multer Uploads Hosting
+const frontendDir = path.join(__dirname, '..', 'frontend');
+const rootDir = path.join(__dirname, '..');
+const uploadsDir = path.join(__dirname, '..', 'uploads');
+
+app.use('/uploads', express.static(uploadsDir));
+app.use(express.static(frontendDir));
+app.use(express.static(rootDir));
 
 // ==============================================================================
-// MODULAR REST API ROUTES (Lectures 37–41)
+// 5. MVC REST API ROUTING
 // ==============================================================================
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/fleet', require('./routes/fleet.routes'));
 app.use('/api/trips', require('./routes/trip.routes'));
 app.use('/api/upload', require('./routes/upload.routes'));
+app.use('/api/analytics', require('./routes/analytics.routes'));
 app.use('/api/curriculum', require('./routes/demo.routes'));
 
-// ==============================================================================
-// LEGACY & REAL-TIME OPTIMIZATION ENDPOINTS (Preserved for compatibility)
-// ==============================================================================
-const optimizationLogs = [];
+// Platform Health & Real-time Optimization Direct Shortcuts
+app.get('/api/health', analyticsController.getHealth);
+app.get('/api/analytics/summary', analyticsController.getAnalyticsSummary);
+app.post('/api/optimize-route', tripController.optimizeRoute);
 
-// 1. Health Check (Lecture 35)
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'online',
-    platform: 'RIDO Enterprise Fleet Engine',
-    timestamp: new Date().toISOString(),
-    uptimeSeconds: Math.floor(process.uptime()),
-    curriculumModule: 'Full Stack Node/Express/Mongoose Active'
-  });
+// API 404 handler (ensures API routes return JSON, not HTML)
+app.use('/api', (req, res) => {
+  res.status(404).json({ success: false, message: `API endpoint '${req.originalUrl}' not found.` });
 });
 
-// 2. Route Optimization (2-Opt TSP & Economics Model)
-app.post('/api/optimize-route', (req, res) => {
-  const { origin, destination, waypoints = [], cargoWeightKg = 1500, vehicleId } = req.body;
-
-  const baseDistanceKm = Math.floor(Math.random() * 80) + 280;
-  const totalWaypoints = waypoints.length;
-  const optimizedDistanceKm = Math.round(baseDistanceKm + totalWaypoints * 24);
-  const baselineUnoptimizedKm = Math.round(optimizedDistanceKm * 1.18);
-  const kmSaved = baselineUnoptimizedKm - optimizedDistanceKm;
-
-  const dieselPrice = 89.60;
-  const fuelBurnLiters = (optimizedDistanceKm / 4.2).toFixed(1);
-  const fuelCost = Math.round(fuelBurnLiters * dieselPrice);
-  const fastagToll = Math.round(optimizedDistanceKm * 1.65);
-  const driverBatta = Math.round(optimizedDistanceKm * 1.8 + 450);
-  const totalCost = fuelCost + fastagToll + driverBatta;
-  const costSavings = Math.round(kmSaved * 9.5 + kmSaved * 1.65);
-
-  const result = {
-    success: true,
-    id: `RIDO-OPT-${Date.now()}`,
-    timestamp: new Date().toISOString(),
-    route: {
-      origin: origin || 'Ludhiana Transport Nagar',
-      destination: destination || 'Okhla Industrial Area, Delhi',
-      waypointSequence: waypoints.map((w, idx) => ({ stop: idx + 1, name: typeof w === 'string' ? w : w.name, etaMins: (idx + 1) * 45 })),
-      optimizedDistanceKm,
-      baselineDistanceKm: baselineUnoptimizedKm,
-      distanceSavedKm: kmSaved,
-      estimatedDurationHours: +(optimizedDistanceKm / 48).toFixed(1)
-    },
-    economics: {
-      totalCostInr: totalCost,
-      fuelCostInr: fuelCost,
-      fastagTollInr: fastagToll,
-      driverBattaInr: driverBatta,
-      costSavingsInr: costSavings,
-      co2AbatementKg: Math.round(kmSaved * 0.268)
-    }
-  };
-
-  optimizationLogs.unshift(result);
-  if (optimizationLogs.length > 50) optimizationLogs.pop();
-
-  res.json(result);
-});
-
-// 3. Real Analytics Summary (Live Database Aggregates, No Fake Data)
-app.get('/api/analytics/summary', async (req, res) => {
-  try {
-    const Vehicle = require('./models/Vehicle');
-    const Trip = require('./models/Trip');
-    const User = require('./models/User');
-
-    let totalVehicles = 0;
-    let totalTrips = 0;
-    let totalUsers = 0;
-    let trips = [];
-
-    try {
-      [totalVehicles, totalTrips, totalUsers, trips] = await Promise.all([
-        Vehicle.countDocuments(),
-        Trip.countDocuments(),
-        User.countDocuments(),
-        Trip.find()
-      ]);
-    } catch (e) {}
-
-    const totalDistKm = trips.reduce((sum, t) => sum + (Number(t.distanceKm) || 0), 0);
-    const totalTolls = trips.reduce((sum, t) => sum + (Number(t.estimatedTollCost) || 0), 0);
-    const fuelSaved = Math.round(totalDistKm * 0.18);
-    const costSavings = Math.round(totalDistKm * 4.2);
-
-    res.json({
-      success: true,
-      totalDispatchedTrips: totalTrips,
-      totalVehicles: totalVehicles,
-      totalUsers: totalUsers,
-      totalDistanceOptimizedKm: totalDistKm,
-      totalFuelSavedLiters: fuelSaved,
-      totalCostSavingsInr: costSavings,
-      fleetEfficiencyRate: totalVehicles > 0 ? '98.2%' : '0%',
-      activeAlertsCount: 0,
-      recentOptimizations: optimizationLogs.slice(0, 5)
-    });
-  } catch (err) {
-    res.json({
-      success: true,
-      totalDispatchedTrips: optimizationLogs.length,
-      totalVehicles: 6,
-      totalUsers: 4,
-      totalDistanceOptimizedKm: 0,
-      totalFuelSavedLiters: 0,
-      totalCostSavingsInr: 0,
-      fleetEfficiencyRate: '100%',
-      activeAlertsCount: 0,
-      recentOptimizations: []
-    });
-  }
-});
-
-// Centralized Error Handling Middleware (Lecture 38 & 39)
+// Centralized Error Handling Middleware
 app.use(errorHandler);
 
-// SPA Routing Fallback
+// SPA Fallback: serve frontend index.html for page navigation
 app.use((req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'index.html'));
+  const fs = require('fs');
+  const frontendIndex = path.join(frontendDir, 'index.html');
+  if (fs.existsSync(frontendIndex)) {
+    return res.sendFile(frontendIndex);
+  }
+  res.sendFile(path.join(rootDir, 'index.html'));
 });
 
-// Start Server (Lecture 35 & 37)
-app.listen(PORT, () => {
-  console.log(`🚀 [RIDO Backend Server] Live on http://localhost:${PORT}`);
-  console.log(`📡 Full Stack Node/Express API loaded with Auth, Fleet CRUD, Multer, Streams & Mongoose.`);
-});
+// Start Server Listener
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`\n=================================================================`);
+    console.log(`🚀 [RIDO Backend Server] Live on http://localhost:${PORT}`);
+    console.log(`🏛️ Architecture: Model-View-Controller (MVC) Structure Active`);
+    console.log(`📦 Database: MongoDB Community / Atlas Mongoose Layer`);
+    console.log(`=================================================================\n`);
+  });
+}
+
+module.exports = app;
