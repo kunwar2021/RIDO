@@ -6383,7 +6383,7 @@ Enter code to sign in:`, generatedOtp);
   dispatchTripToDriver(vehicleId) {
     const fromInput = document.getElementById("opt-depot-from-search");
     const toInput = document.getElementById("opt-depot-to-search");
-    const origin = fromInput?.value.trim() || this.optimizerState?.origin || "Ludhiana Central Cargo Hub (Industrial Area-A)";
+    const origin = fromInput?.value.trim() || this.optimizerState?.origin || "Ludhiana Central Cargo Hub";
     const destination = toInput?.value.trim() || this.optimizerState?.destination || "Rajpura Focal Point Logistics Hub";
 
     const vehicle = (this.getAvailableMarketplaceVehicles() || []).find(v => v.id === vehicleId) || (this.data?.vehicles || []).find(v => v.id === vehicleId) || (this.data?.vehicles || [])[0];
@@ -6401,7 +6401,13 @@ Enter code to sign in:`, generatedOtp);
     const stops = selectedStopIds.map(id => (this.data.stops || []).find(s => s.id === id)).filter(Boolean);
 
     const tripId = `TRP-${Date.now().toString().slice(-6)}`;
-    const driverName = vehicle.driver || "Partner Pilot";
+    const driverName = vehicle.driver || vehicle.driverName || "Manoj Yadav";
+
+    const tripDist = Number(optStats.distance || routeRes.distanceKm || 84.5);
+    const tripCost = Number(vehicle.costs?.totalTripCost || optStats.cost || 2082);
+    const tripFuelCost = Number(vehicle.costs?.fuelCost || (optStats.fuel ? optStats.fuel * 90 : 1132));
+    const tripTollCost = Number(vehicle.costs?.tollCost || optStats.tollCost || 0);
+    const tripAllowance = Number(vehicle.costs?.driverAllowance || optStats.driverAllowance || 300);
 
     const activeTrip = {
       tripId,
@@ -6411,7 +6417,7 @@ Enter code to sign in:`, generatedOtp);
       driverMobile: vehicle.driverMobile || "9876543210",
       vehicleId: vehicle.id,
       vehicleName: vehicle.name,
-      vehicleReg: vehicle.plate || vehicle.id,
+      vehicleReg: vehicle.plate || vehicle.registration || vehicle.id,
       vehicleCategory: vehicle.type || vehicle.category || "Commercial Carrier",
       powertrain: vehicle.powertrain || "Diesel BS-VI",
       origin: origin,
@@ -6427,19 +6433,14 @@ Enter code to sign in:`, generatedOtp);
         lng: s.lng
       })),
       coordinates: routeRes.coordinates || [],
-      distanceKm: Number(distKm.toFixed(1)),
-      durationHours: Number((distKm / 55).toFixed(2)),
-      durationFormatted: `${Math.floor(distKm / 55)}h ${Math.round(((distKm / 55) % 1) * 60)}m`,
-      eta: `~ ${Math.floor(distKm / 55)}h ${Math.round(((distKm / 55) % 1) * 60)}m`,
-      fuelCost: bestMatch ? bestMatch.costs.fuelCost : totalFuelCost,
-      tollCost: bestMatch ? bestMatch.costs.tollCost : totalTollCost,
-      durationHours: (optStats.time || 180) / 60,
-      durationFormatted: `${Math.floor((optStats.time || 180) / 60)}h ${Math.round((optStats.time || 180) % 60)}m`,
-      eta: `~ ${Math.floor((optStats.time || 180) / 60)}h ${Math.round((optStats.time || 180) % 60)}m`,
-      fuelCost: optStats.fuel ? optStats.fuel * (this.data.settings?.fuelPrice || 90) : 2500,
-      tollCost: optStats.tollCost || 450,
-      driverAllowance: optStats.driverAllowance || 650,
-      totalCost: optStats.cost || 3600,
+      distanceKm: tripDist,
+      durationHours: Number((tripDist / 55).toFixed(2)),
+      durationFormatted: `${Math.floor(tripDist / 55)}h ${Math.round(((tripDist / 55) % 1) * 60)}m`,
+      eta: `~ ${Math.floor(tripDist / 55)}h ${Math.round(((tripDist / 55) % 1) * 60)}m`,
+      fuelCost: tripFuelCost,
+      tollCost: tripTollCost,
+      driverAllowance: tripAllowance,
+      totalCost: tripCost,
       tolls: (routeRes.tolls && routeRes.tolls.length > 0) ? routeRes.tolls.map(t => ({ ...t, status: 'upcoming' })) : [],
       status: CONFIG.TRIP_STATUS.ASSIGNED,
       progress: 0.05,
