@@ -6086,6 +6086,11 @@ Enter code to sign in:`, generatedOtp);
         waypoints: routeWaypoints
       });
 
+      // If official Google Routes API provided the toll, use Google toll
+      if (osrmResult.isGoogleRoute && osrmResult.tollCost !== undefined) {
+        intel.totalTollCost = osrmResult.tollCost;
+      }
+
       // 7. Find suitable vehicles from Logistics Marketplace / Available Fleet
       const allVehicles = this.getAvailableMarketplaceVehicles();
       const suitableVehicles = allVehicles
@@ -6202,6 +6207,11 @@ Enter code to sign in:`, generatedOtp);
       setEl("nav-stat-time", `${estH}h ${estM.toString().padStart(2, '0')}m`);
       setEl("nav-stat-days", distKm > 450 ? `${daysCount} Days` : 'Same Day');
       setEl("nav-stat-speed", `55 km/h`);
+      const providerBadge = document.getElementById("route-provider-text");
+      if (providerBadge) {
+        providerBadge.textContent = osrmResult.isGoogleRoute ? "Google Maps Routes API v2" : "Calibrated Road Engine";
+        providerBadge.className = osrmResult.isGoogleRoute ? "text-emerald-700 font-bold" : "text-slate-500 font-medium";
+      }
       setEl("nav-stat-toll", totalTollCost > 0 ? `₹ ${Math.round(totalTollCost).toLocaleString()}` : "₹ 0 (Toll-Free)");
       setEl("nav-stat-trucks", `${suitableVehicles.length} Available`);
 

@@ -183,4 +183,165 @@ exports.optimizeRoute = (req, res) => {
   res.json(result);
 };
 
+// Google Encoded Polyline Algorithm Format decoder
+function decodePolyline(encoded) {
+  if (!encoded) return [];
+  const points = [];
+  let index = 0, len = encoded.length;
+  let lat = 0, lng = 0;
+
+  while (index < len) {
+    let b, shift = 0, result = 0;
+    do {
+      b = encoded.charCodeAt(index++) - 63;
+      result |= (b & 0x1f) << shift;
+      shift += 5;
+    } while (b >= 0x20);
+    const dlat = ((result & 1) ? ~(result >> 1) : (result >> 1));
+    lat += dlat;
+
+    shift = 0;
+    result = 0;
+    do {
+      b = encoded.charCodeAt(index++) - 63;
+      result |= (b & 0x1f) << shift;
+      shift += 5;
+    } while (b >= 0x20);
+    const dlng = ((result & 1) ? ~(result >> 1) : (result >> 1));
+    lng += dlng;
+
+    points.push([lat / 1e5, lng / 1e5]);
+  }
+  return points;
+}
+
+// 5. Query Official Google Routes API v2 (POST /api/trips/google-directions)
+exports.getGoogleDirections = async (req, res, next) => {
+  try {
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    const { waypoints } = req.body;
+
+    if (!apiKey || apiKey.trim() === '' || apiKey.includes('YOUR_GOOGLE')) {
+      return res.json({
+        success: false,
+        hasGoogleKey: false,
+        message: 'GOOGLE_MAPS_API_KEY is not configured in .env. Falling back to calibrated OSRM + NHAI engine.'
+      });
+    }
+
+    if (!waypoints || !Array.isArray(waypoints) || waypoints.length < 2) {
+      return res.status(400).json({
+        success: false,
+        message: 'At least origin and destination waypoints are required.'
+      });
+    }
+
+    const origin = waypoints[0];
+    const destination = waypoints[waypoints.length - 1];
+    const intermediates = waypoints.slice(1, -1).map(wp => ({
+      location: {
+        latLng: {
+          latitude: Number(wp.lat),
+          longitude: Number(wp.lng)
+        }
+      }
+    }));
+
+    const googleBody = {
+      origin: {
+        location: {
+          latLng: {
+            latitude: Number(origin.lat),
+            longitude: Number(origin.lng)
+          }
+        }
+      },
+      destination: {
+        location: {
+          latLng: {
+            latitude: Number(destination.lat),
+            longitude: Number(destination.lng)
+          }
+        }
+      },
+      intermediates: intermediates.length > 0 ? intermediates : undefined,
+      travelMode: "DRIVE",
+      routingPreference: "TRAFFIC_AWARE",
+      extraComputations: ["TOLLS"],
+      units: "METRIC"
+    };
+
+    const googleRes = await fetch("https://routes.googleapis.com/directions/v2:computeRoutes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": apiKey,
+        "X-Goog-FieldMask": "routes.distanceMeters,routes.duration,routes.polyline.encodedPolyline,routes.legs,routes.travelAdvisory.tollInfo"
+      },
+      body: JSON.stringify(googleBody)
+    });
+
+    if (!googleRes.ok) {
+      const errText = await googleRes.text();
+      console.warn("[Google Routes API Error]:", errText);
+      return res.json({
+        success: false,
+        hasGoogleKey: true,
+        error: errText,
+        message: 'Google Routes API error. Falling back to calibrated local routing engine.'
+      });
+    }
+
+    const data = await googleRes.json();
+    const route = data.routes && data.routes[0];
+    if (!route) {
+      return res.json({
+        success: false,
+        hasGoogleKey: true,
+        message: 'No route found by Google Routes API.'
+      });
+    }
+
+    const distanceKm = Number(((route.distanceMeters || 0) / 1000).toFixed(1));
+    const durationSeconds = parseInt(route.duration || "0", 10);
+    const durationMinutes = Math.round(durationSeconds / 60);
+
+    // Parse Google FASTag Toll Information
+    let tollCost = 0;
+    let tollCurrency = 'INR';
+    if (route.travelAdvisory && route.travelAdvisory.tollInfo && route.travelAdvisory.tollInfo.estimatedPrice) {
+      const prices = route.travelAdvisory.tollInfo.estimatedPrice;
+      if (prices && prices.length > 0) {
+        tollCost = Number(prices[0].units || 0);
+        tollCurrency = prices[0].currencyCode || 'INR';
+      }
+    }
+
+    const coordinates = decodePolyline(route.polyline?.encodedPolyline);
+
+    return res.json({
+      success: true,
+      hasGoogleKey: true,
+      provider: "Google Maps Platform (Routes API v2)",
+      distanceKm,
+      distanceMeters: route.distanceMeters,
+      durationMinutes,
+      durationSeconds,
+      tollCost,
+      tollCurrency,
+      coordinates,
+      legs: route.legs || [],
+      calculatedAt: Date.now()
+    });
+  } catch (err) {
+    console.error("[getGoogleDirections exception]:", err);
+    res.json({
+      success: false,
+      hasGoogleKey: true,
+      error: err.message,
+      message: 'Failed to connect to Google Routes API.'
+    });
+  }
+};
+
 exports.getOptimizationLogs = () => optimizationLogs;

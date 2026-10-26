@@ -15,5 +15,6 @@ router.post('/', tripController.createTrip);
 router.post('/dispatch', tripController.createTrip);
 router.get('/export/csv', tripController.exportTripsCsv);
 router.post('/optimize', tripController.optimizeRoute);
+router.post('/google-directions', tripController.getGoogleDirections);
 
 module.exports = router;

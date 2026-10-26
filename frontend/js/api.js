@@ -37,6 +37,42 @@ const ApiClient = {
       return this.geocodeCache.get(cacheKey);
     }
 
+    // 1. Check Google Maps Platform (Routes API v2) via secure backend proxy
+    try {
+      const googleRes = await fetch("/api/trips/google-directions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ waypoints: validPoints }),
+        signal: externalSignal
+      });
+      if (googleRes.ok) {
+        const gData = await googleRes.json();
+        if (gData.success && gData.coordinates && gData.coordinates.length > 1) {
+          console.log(`[RIDO ROUTE] Google Routes API v2 Result: ${gData.distanceKm} km, Toll: ₹${gData.tollCost}`);
+          const routeResult = {
+            status: "success",
+            provider: "Google Maps Platform (Routes API v2)",
+            isRealRoadRoute: true,
+            isGoogleRoute: true,
+            coordinates: gData.coordinates,
+            distanceMeters: gData.distanceMeters,
+            distanceKm: gData.distanceKm,
+            durationSeconds: gData.durationSeconds,
+            durationMinutes: gData.durationMinutes,
+            tollCost: gData.tollCost || 0,
+            tollCurrency: gData.tollCurrency || 'INR',
+            legs: gData.legs || [],
+            steps: [],
+            calculatedAt: Date.now()
+          };
+          this.geocodeCache.set(cacheKey, routeResult);
+          return routeResult;
+        }
+      }
+    } catch (gErr) {
+      console.log("[RIDO ROUTE] Google proxy bypass (using calibrated OSRM fallback):", gErr.message);
+    }
+
     const endpointUrl = `${CONFIG.API.OSRM_ROUTING_BASE}/${coordinateQuery}?overview=full&geometries=geojson&steps=true&annotations=true`;
 
     console.log("[RIDO ROUTE] Request started -> OSRM API call for coordinates:", coordinateQuery);
