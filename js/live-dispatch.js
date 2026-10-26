@@ -454,14 +454,27 @@ const LiveDispatch = {
     }
 
     const firstPt = this._routePoints[0] || { lat: 30.9010, lng: 75.8573 };
+    const routeLatLngs = (this._routePoints && this._routePoints.length > 0)
+      ? this._routePoints.map(p => [p.lat, p.lng])
+      : [[firstPt.lat, firstPt.lng], [firstPt.lat + 0.05, firstPt.lng + 0.05]];
 
     // Cleanly reuse existing map or remove previous instance to prevent 'Map container is already initialized' error
+    if (this._liveMap) {
+      try {
+        this._liveMap.remove();
+      } catch (e) {}
+      this._liveMap = null;
+    }
     if (window.App?._liveTrackingMap) {
       try {
         window.App._liveTrackingMap.remove();
       } catch(e) {}
       window.App._liveTrackingMap = null;
       window.App._liveGpsMarker = null;
+    }
+
+    if (mapEl._leaflet_id) {
+      mapEl._leaflet_id = null;
     }
 
     try {
@@ -474,11 +487,14 @@ const LiveDispatch = {
       }
     }
 
-    L.tileLayer(CONFIG.MAP.TILES.STREETS.URL, {
+    this._tileLayer = L.tileLayer(CONFIG.MAP.TILES.STREETS.URL, {
       subdomains: CONFIG.MAP.TILES.STREETS.SUBDOMAINS,
       attribution: CONFIG.MAP.TILES.STREETS.ATTRIBUTION,
       maxZoom: CONFIG.MAP.TILES.STREETS.MAX_ZOOM
     }).addTo(this._liveMap);
+    if (window.App) {
+      window.App._liveTrackingTileLayer = this._tileLayer;
+    }
 
     L.control.zoom({ position: 'bottomright' }).addTo(this._liveMap);
     window.App._liveTrackingMap = this._liveMap;
