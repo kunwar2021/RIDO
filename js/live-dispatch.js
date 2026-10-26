@@ -1,3 +1,76 @@
+// Robust Indian Cities & Logistics Hubs Coordinate Geocoder
+function resolveCoordinatesForLocation(placeText) {
+  if (!placeText || typeof placeText !== 'string') return null;
+  const clean = placeText.toLowerCase().trim();
+
+  // 1. Check ALL_INDIA_CITIES_DATABASE
+  const db = (typeof ALL_INDIA_CITIES_DATABASE !== 'undefined' && ALL_INDIA_CITIES_DATABASE) || (typeof window !== 'undefined' && window.ALL_INDIA_CITIES_DATABASE) || [];
+  for (const c of db) {
+    const cName = (c.name || '').toLowerCase();
+    const cDist = (c.district || '').toLowerCase();
+    if (clean.includes(cName) || cName.includes(clean)) {
+      return { lat: Number(c.lat), lng: Number(c.lng), name: c.name };
+    }
+    if (cDist && clean.includes(cDist)) {
+      return { lat: Number(c.lat), lng: Number(c.lng), name: c.name };
+    }
+  }
+
+  // 2. Comprehensive city & freight hub keyword database
+  const cityMap = [
+    { key: "ludhiana", lat: 30.9010, lng: 75.8573 },
+    { key: "rajpura", lat: 30.4839, lng: 76.5939 },
+    { key: "ambala", lat: 30.3782, lng: 76.7767 },
+    { key: "chandigarh", lat: 30.7333, lng: 76.7794 },
+    { key: "patiala", lat: 30.3398, lng: 76.3869 },
+    { key: "jalandhar", lat: 31.3260, lng: 75.5762 },
+    { key: "amritsar", lat: 31.6340, lng: 74.8723 },
+    { key: "panipat", lat: 29.3909, lng: 76.9635 },
+    { key: "sonipat", lat: 28.9931, lng: 77.0151 },
+    { key: "karnal", lat: 29.6857, lng: 76.9905 },
+    { key: "kurukshetra", lat: 29.9695, lng: 76.8783 },
+    { key: "delhi", lat: 28.6139, lng: 77.2090 },
+    { key: "okhla", lat: 28.5355, lng: 77.2631 },
+    { key: "gurugram", lat: 28.4595, lng: 77.0266 },
+    { key: "gurgaon", lat: 28.4595, lng: 77.0266 },
+    { key: "manesar", lat: 28.3540, lng: 76.9380 },
+    { key: "noida", lat: 28.5355, lng: 77.3910 },
+    { key: "faridabad", lat: 28.4089, lng: 77.3178 },
+    { key: "jaipur", lat: 26.9124, lng: 75.7873 },
+    { key: "neemrana", lat: 27.9889, lng: 76.3889 },
+    { key: "mumbai", lat: 19.0760, lng: 72.8777 },
+    { key: "bhiwandi", lat: 19.2812, lng: 73.0483 },
+    { key: "jnpt", lat: 18.9499, lng: 72.9511 },
+    { key: "pune", lat: 18.5204, lng: 73.8567 },
+    { key: "chakan", lat: 18.7606, lng: 73.8636 },
+    { key: "ahmedabad", lat: 23.0225, lng: 72.5714 },
+    { key: "sanand", lat: 22.9868, lng: 72.3813 },
+    { key: "surat", lat: 21.1702, lng: 72.8311 },
+    { key: "vadodara", lat: 22.3072, lng: 73.1812 },
+    { key: "bengaluru", lat: 12.9716, lng: 77.5946 },
+    { key: "bangalore", lat: 12.9716, lng: 77.5946 },
+    { key: "whitefield", lat: 12.9698, lng: 77.7499 },
+    { key: "chennai", lat: 13.0827, lng: 80.2707 },
+    { key: "sriperumbudur", lat: 12.9699, lng: 79.9405 },
+    { key: "hosur", lat: 12.7409, lng: 77.8253 },
+    { key: "hyderabad", lat: 17.3850, lng: 78.4867 },
+    { key: "kolkata", lat: 22.5726, lng: 88.3639 },
+    { key: "lucknow", lat: 26.8467, lng: 80.9462 },
+    { key: "kanpur", lat: 26.4499, lng: 80.3319 },
+    { key: "indore", lat: 22.7196, lng: 75.8577 },
+    { key: "bhopal", lat: 23.2599, lng: 77.4126 },
+    { key: "nagpur", lat: 21.1458, lng: 79.0882 }
+  ];
+
+  for (const item of cityMap) {
+    if (clean.includes(item.key)) {
+      return { lat: item.lat, lng: item.lng, name: placeText };
+    }
+  }
+
+  return null;
+}
+
 /**
  * ==============================================================================
  * RIDO — Ola/Uber-Style Live Dispatch Tracking Engine (`live-dispatch.js`)
@@ -89,27 +162,80 @@ const LiveDispatch = {
   // 2. BUILD SIMULATED ROUTE WAYPOINTS
   // ============================================================================
   _buildRoutePoints() {
-    // If corridor points exist in MapEngine/REGIONAL_FLEET_CORRIDORS
-    const corridor = (typeof REGIONAL_FLEET_CORRIDORS !== 'undefined') && REGIONAL_FLEET_CORRIDORS[this._tripData.vehicleId];
-    if (corridor && corridor.points && corridor.points.length >= 2) {
-      this._routePoints = corridor.points.map(p => ({ lat: p[0], lng: p[1] }));
-    } else {
-      // Default Delhi-NCR corridor simulation
-      this._routePoints = [
-        { lat: 28.5355, lng: 77.2631 },  // Okhla Industrial
-        { lat: 28.5520, lng: 77.2480 },  // Kalkaji
-        { lat: 28.5708, lng: 77.2300 },  // AIIMS
-        { lat: 28.5860, lng: 77.2100 },  // India Gate
-        { lat: 28.5750, lng: 77.1850 },  // Dhaula Kuan
-        { lat: 28.5580, lng: 77.1500 },  // Mahipalpur
-        { lat: 28.5300, lng: 77.1200 },  // NH-48 Junction
-        { lat: 28.4950, lng: 77.0895 }   // DLF Cyber City, Gurugram
-      ];
+    const activeTrip = (typeof StorageEngine !== 'undefined' && StorageEngine.loadActiveTrip) ? StorageEngine.loadActiveTrip() : null;
+    let points = [];
+
+    // 1. Check if activeTrip or optimizerState has actual calculated route coordinates
+    const sourceCoords = (activeTrip && Array.isArray(activeTrip.coordinates) && activeTrip.coordinates.length > 1)
+      ? activeTrip.coordinates
+      : (window.App?.optimizerState?.routeResult?.coordinates || []);
+
+    if (sourceCoords && sourceCoords.length > 1) {
+      points = sourceCoords.map(pt => {
+        let lat = Number(pt.lat !== undefined ? pt.lat : (Array.isArray(pt) ? pt[0] : 0));
+        let lng = Number(pt.lng !== undefined ? pt.lng : (Array.isArray(pt) ? pt[1] : 0));
+        // Normalize if coordinates are [lng, lat]
+        if (lat > 65 && lng < 40) {
+          const tmp = lat; lat = lng; lng = tmp;
+        }
+        return { lat, lng };
+      }).filter(p => p.lat > 0 && p.lng > 0);
     }
+
+    // 2. If no valid coordinates found, dynamically resolve from Origin and Destination
+    if (points.length < 2) {
+      const originName = this._tripData.origin || activeTrip?.origin || 'Ludhiana Central Cargo Hub (Industrial Area-A)';
+      const destName = this._tripData.destination || activeTrip?.destination || 'Rajpura Focal Point Logistics Hub';
+
+      const startCoord = resolveCoordinatesForLocation(originName) || { lat: 30.9010, lng: 75.8573 };
+      const endCoord = resolveCoordinatesForLocation(destName) || { lat: 30.4839, lng: 76.5939 };
+
+      // Calculate real Haversine distance
+      const realDistKm = (typeof Utils !== 'undefined' && Utils.haversineDistance)
+        ? Math.round(Utils.haversineDistance(startCoord.lat, startCoord.lng, endCoord.lat, endCoord.lng))
+        : Math.round(Math.hypot(endCoord.lat - startCoord.lat, endCoord.lng - startCoord.lng) * 111);
+
+      this._tripData.distanceKm = Number(this._tripData.distanceKm) || realDistKm || 50.4;
+
+      // Collect waypoints [Origin -> Intermediate Stops -> Destination]
+      const waypoints = [startCoord];
+      const stops = (activeTrip?.stops || activeTrip?.waypoints || []);
+      stops.forEach(s => {
+        const c = (s && s.lat && s.lng) ? { lat: Number(s.lat), lng: Number(s.lng) } : resolveCoordinatesForLocation(s.name || s.address);
+        if (c) waypoints.push(c);
+      });
+      waypoints.push(endCoord);
+
+      // Generate realistic highway route points connecting each segment
+      points = [];
+      for (let w = 0; w < waypoints.length - 1; w++) {
+        const segStart = waypoints[w];
+        const segEnd = waypoints[w + 1];
+        const segSteps = 20;
+        for (let s = 0; s < segSteps; s++) {
+          const frac = s / segSteps;
+          const curve = Math.sin(frac * Math.PI) * 0.012;
+          points.push({
+            lat: +(segStart.lat + (segEnd.lat - segStart.lat) * frac + curve).toFixed(5),
+            lng: +(segStart.lng + (segEnd.lng - segStart.lng) * frac - curve).toFixed(5)
+          });
+        }
+      }
+      points.push({ lat: +endCoord.lat.toFixed(5), lng: +endCoord.lng.toFixed(5) });
+
+      // Save resolved coordinates back into activeTrip so all views share exact same coordinates
+      if (activeTrip) {
+        activeTrip.coordinates = points.map(p => [p.lat, p.lng]);
+        activeTrip.distanceKm = this._tripData.distanceKm;
+        StorageEngine.saveActiveTrip(activeTrip);
+      }
+    }
+
+    this._routePoints = points;
     this._currentPointIndex = 0;
-    this._totalDistance = this._tripData.distanceKm;
+    this._totalDistance = Number(this._tripData.distanceKm) || 50.4;
     this._distanceRemaining = this._totalDistance;
-    this._etaSeconds = Math.round((this._totalDistance / 45) * 3600); // ~45 km/h avg
+    this._etaSeconds = Math.round((this._totalDistance / 48) * 3600);
   },
 
   // ============================================================================
@@ -290,17 +416,30 @@ const LiveDispatch = {
     const mapEl = document.getElementById('live-tracking-map');
     if (!mapEl) return;
 
-    // Destroy existing map if any
+    if (this._routePoints.length === 0) {
+      this._buildRoutePoints();
+    }
+
+    const firstPt = this._routePoints[0] || { lat: 30.9010, lng: 75.8573 };
+
+    // Cleanly reuse existing map or remove previous instance to prevent 'Map container is already initialized' error
     if (window.App?._liveTrackingMap) {
-      try { window.App._liveTrackingMap.remove(); } catch(e) {}
+      try {
+        window.App._liveTrackingMap.remove();
+      } catch(e) {}
       window.App._liveTrackingMap = null;
       window.App._liveGpsMarker = null;
     }
 
-    // Create fresh map
-    this._liveMap = L.map('live-tracking-map', { zoomControl: false }).setView(
-      [this._routePoints[0].lat, this._routePoints[0].lng], 12
-    );
+    try {
+      this._liveMap = L.map('live-tracking-map', { zoomControl: false }).setView([firstPt.lat, firstPt.lng], 11);
+    } catch (err) {
+      // If already initialized on this DOM element, get container and clear
+      if (mapEl._leaflet_id) {
+        mapEl._leaflet_id = null;
+        this._liveMap = L.map('live-tracking-map', { zoomControl: false }).setView([firstPt.lat, firstPt.lng], 11);
+      }
+    }
 
     L.tileLayer(CONFIG.MAP.TILES.STREETS.URL, {
       subdomains: CONFIG.MAP.TILES.STREETS.SUBDOMAINS,
@@ -309,12 +448,9 @@ const LiveDispatch = {
     }).addTo(this._liveMap);
 
     L.control.zoom({ position: 'bottomright' }).addTo(this._liveMap);
-
-    // Store reference for App compatibility
     window.App._liveTrackingMap = this._liveMap;
 
-    // Draw the full route polyline
-    const routeLatLngs = this._routePoints.map(p => [p.lat, p.lng]);
+    // Draw route lines
     this._routeLine = L.polyline(routeLatLngs, {
       color: '#94a3b8',
       weight: 5,
@@ -342,7 +478,6 @@ const LiveDispatch = {
       .bindPopup(`<b>📍 ${Utils.escapeHTML(this._tripData.destinationShort)}</b><br>Destination`);
 
     // Origin marker (dark pin)
-    const firstPt = this._routePoints[0];
     L.marker([firstPt.lat, firstPt.lng], {
       icon: L.divIcon({
         className: 'dispatch-origin-marker',

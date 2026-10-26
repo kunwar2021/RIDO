@@ -6354,8 +6354,8 @@ Enter code to sign in:`, generatedOtp);
   dispatchTripToDriver(vehicleId) {
     const fromInput = document.getElementById("opt-depot-from-search");
     const toInput = document.getElementById("opt-depot-to-search");
-    const origin = fromInput?.value.trim() || "Starting Hub";
-    const destination = toInput?.value.trim() || "Destination Hub";
+    const origin = fromInput?.value.trim() || this.optimizerState?.origin || "Ludhiana Central Cargo Hub (Industrial Area-A)";
+    const destination = toInput?.value.trim() || this.optimizerState?.destination || "Rajpura Focal Point Logistics Hub";
 
     const vehicle = (this.getAvailableMarketplaceVehicles() || []).find(v => v.id === vehicleId) || (this.data?.vehicles || []).find(v => v.id === vehicleId) || (this.data?.vehicles || [])[0];
     if (!vehicle) {
