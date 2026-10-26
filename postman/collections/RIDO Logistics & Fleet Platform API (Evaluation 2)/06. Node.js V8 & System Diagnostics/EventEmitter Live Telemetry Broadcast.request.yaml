@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{baseUrl}}/api/curriculum/event-emitter-signal"
+method: GET
+order: 4000

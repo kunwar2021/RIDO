@@ -1,0 +1,12 @@
+$kind: http-request
+url: "{{baseUrl}}/api/upload/pod"
+method: POST
+headers:
+  Authorization: Bearer {{authToken}}
+body:
+  type: formdata
+  content:
+    - type: file
+      key: pod
+      src: []
+order: 1000

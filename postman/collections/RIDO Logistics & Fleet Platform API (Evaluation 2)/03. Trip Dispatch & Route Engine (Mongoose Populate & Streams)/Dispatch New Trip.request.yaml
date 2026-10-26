@@ -1,0 +1,24 @@
+$kind: http-request
+url: "{{baseUrl}}/api/trips"
+method: POST
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{authToken}}
+body:
+  type: text
+  content: |-
+    {
+      "vehicleId": "{{vehicleId}}",
+      "origin": "Mumbai Hub B",
+      "destination": "Pune Industrial Zone",
+      "cargoWeightKg": 8500,
+      "clientName": "Tata Motors Supply Chain",
+      "distanceKm": 148,
+      "estimatedDurationMin": 180,
+      "waypoints": [
+        "Panvel",
+        "Khopoli",
+        "Lonavala Expressway"
+      ]
+    }
+order: 2000

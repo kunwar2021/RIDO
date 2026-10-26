@@ -1,0 +1,5 @@
+$kind: collection
+description: Complete API test collection for RIDO Logistics Platform covering Auth (JWT & Google), Fleet CRUD, Trips & Stream CSV, Multer Uploads, MongoDB Analytics, and Node.js Diagnostics.
+variables:
+  baseUrl: http://localhost:5000
+  authToken: ""

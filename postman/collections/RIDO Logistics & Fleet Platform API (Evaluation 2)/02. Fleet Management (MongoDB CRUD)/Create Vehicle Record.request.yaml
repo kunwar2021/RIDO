@@ -1,0 +1,28 @@
+$kind: http-request
+url: "{{baseUrl}}/api/fleet"
+method: POST
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{authToken}}
+body:
+  type: text
+  content: |-
+    {
+      "registrationNumber": "MH-12-EV-9999",
+      "type": "heavy-truck",
+      "capacityKg": 16000,
+      "fuelType": "electric",
+      "driverName": "Arjun Verma",
+      "driverPhone": "+91-9988776655",
+      "currentSpeed": 58,
+      "batteryLevel": 94
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      var json = pm.response.json();
+      if (json.data && json.data._id) {
+          pm.environment.set('vehicleId', json.data._id);
+      }
+    language: text/javascript
+order: 2000

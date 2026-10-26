@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{baseUrl}}/api/curriculum/event-loop"
+method: GET
+order: 1000

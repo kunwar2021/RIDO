@@ -1,0 +1,5 @@
+$kind: http-request
+description: Verifies MVC status, Node.js runtime, and MongoDB connection.
+url: "{{baseUrl}}/api/health"
+method: GET
+order: 1000

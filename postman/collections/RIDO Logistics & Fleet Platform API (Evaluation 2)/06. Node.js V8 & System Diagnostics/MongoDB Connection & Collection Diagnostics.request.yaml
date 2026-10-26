@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{baseUrl}}/api/curriculum/db-status"
+method: GET
+order: 5000

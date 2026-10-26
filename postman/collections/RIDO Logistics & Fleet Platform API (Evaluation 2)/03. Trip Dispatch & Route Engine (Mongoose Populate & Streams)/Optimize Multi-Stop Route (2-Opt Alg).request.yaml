@@ -1,0 +1,20 @@
+$kind: http-request
+url: "{{baseUrl}}/api/trips/optimize"
+method: POST
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{authToken}}
+body:
+  type: text
+  content: |-
+    {
+      "origin": "Delhi Central Depot",
+      "destination": "Jaipur Logistics Park",
+      "stops": [
+        "Gurugram",
+        "Manesar",
+        "Neemrana Hub",
+        "Shahpura"
+      ]
+    }
+order: 4000

@@ -1,0 +1,11 @@
+name: RIDO Logistics Environment (Local & Cloud) Copy
+values:
+  - key: baseUrl
+    value: 'http://localhost:5000'
+  - key: authToken
+    value: ''
+  - key: vehicleId
+    value: ''
+  - key: deployedApiUrl
+    value: 'https://logiroute-api.onrender.com'
+    disabled: true

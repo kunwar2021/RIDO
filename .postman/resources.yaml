@@ -1,0 +1,75 @@
+# Use this workspace to collaborate
+workspace:
+  id: f87f94e8-d920-4549-807f-a48160ac6070
+
+localResources:
+  collections:
+    - ../tests/RIDO Logistics Platform API Collection
+
+dependencies:
+  mocks:
+    01a1588e-d530-752c-bc33-0d9d970da066:
+      name: New Mock
+      path: ../postman/.dependencies/mocks/New Mock
+    01a15871-ee3c-75bc-9b52-c0dc081301dc:
+      name: New Mock
+      path: ../postman/.dependencies/mocks/New Mock-1
+    01a15cbf-8110-724f-9520-8982fa32ddff:
+      name: New Mock
+      path: ../postman/.dependencies/mocks/New Mock-2
+    01a16c08-0a30-76db-978e-591940d79a7a:
+      name: New Mock
+      path: ../postman/.dependencies/mocks/New Mock-3
+    01a1768d-5d88-738c-a31c-ab435e7fc72b:
+      name: New Mock
+      path: ../postman/.dependencies/mocks/New Mock-4
+    e443f53e-c6c0-460a-a13d-07ac4b7f2e07:
+      name: tdx code mock boundary cm073db2995c
+      path: ../postman/.dependencies/mocks/tdx code mock boundary cm073db2995c
+    01a151cf-eebc-72d8-a44f-8521b4815ec7:
+      name: New Mock
+      path: ../postman/.dependencies/mocks/New Mock-5
+    01a151ca-7216-72aa-9cd0-5c5d0276a4bf:
+      name: New Mock
+      path: ../postman/.dependencies/mocks/New Mock-6
+    01a1440c-b843-73ac-ae33-4bc2d695b00e:
+      name: New Mock
+      path: ../postman/.dependencies/mocks/New Mock-7
+    01a142d4-2202-743e-badb-5d73570bb8ec:
+      name: New Mock
+      path: ../postman/.dependencies/mocks/New Mock-8
+    01a143cb-40f6-72fd-bf4c-455e7ce05d09:
+      name: New Mock
+      path: ../postman/.dependencies/mocks/New Mock-9
+    01a142d4-1252-7043-8839-fa6a43f7b357:
+      name: New Mock
+      path: ../postman/.dependencies/mocks/New Mock-10
+    01a11efb-9570-74b0-9ead-4bf2fe538e5e:
+      name: api.consultoriome.com mock
+      path: ../postman/.dependencies/mocks/api.consultoriome.com mock
+    01a115ff-5f8e-728e-ab41-3e23fa4ebd89:
+      name: New Mock
+      path: ../postman/.dependencies/mocks/New Mock-11
+    01a10ee8-3ef5-7618-951f-0293aefbc2bb:
+      name: New Mock
+      path: ../postman/.dependencies/mocks/New Mock-12
+    01a11656-1642-72cc-9e35-581c7e105d26:
+      name: New Mock
+      path: ../postman/.dependencies/mocks/New Mock-13
+    01a0f648-96d9-73d9-a2e0-bf12a0474405:
+      name: New Mock
+      path: ../postman/.dependencies/mocks/New Mock-14
+    01a0f1e8-0d12-75fe-8452-489111cf1847:
+      name: New Mock
+      path: ../postman/.dependencies/mocks/New Mock-15
+  collections:
+    12721794-67cb9baa-e0da-4986-957e-88d8734647e2:
+      name: Salesforce Platform APIs
+      path: ../postman/.dependencies/collections/Salesforce Platform APIs
+    19024122-92a85d0e-51e7-47da-9f83-c45dcb1cdf24:
+      name: PayPal APIs
+      path: ../postman/.dependencies/collections/PayPal APIs
+
+cloudResources:
+  collections:
+    ../postman/collections/RIDO Logistics & Fleet Platform API (Evaluation 2): a96c645c-5f0e-48f7-83de-ac6bf7a06a60

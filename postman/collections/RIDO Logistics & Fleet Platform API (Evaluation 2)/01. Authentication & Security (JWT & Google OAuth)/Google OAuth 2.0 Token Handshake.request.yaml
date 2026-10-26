@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/api/auth/google"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Google Verified Evaluator",
+      "email": "google.evaluator@gmail.com",
+      "googleId": "google-oauth2-11823901928"
+    }
+order: 4000

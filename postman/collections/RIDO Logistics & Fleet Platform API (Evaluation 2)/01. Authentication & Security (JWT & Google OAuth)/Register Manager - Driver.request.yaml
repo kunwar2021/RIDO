@@ -1,0 +1,28 @@
+$kind: http-request
+name: Register Manager / Driver
+url: "{{baseUrl}}/api/auth/register"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Evaluation Officer",
+      "email": "evaluator@logiroute.in",
+      "phone": "9876543210",
+      "password": "Password123!",
+      "role": "manager"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status is 201 Created or 200 OK', function () {
+          pm.expect(pm.response.code).to.be.oneOf([200, 201]);
+      });
+      var json = pm.response.json();
+      if (json.token) {
+          pm.environment.set('authToken', json.token);
+      }
+    language: text/javascript
+order: 1000

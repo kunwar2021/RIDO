@@ -1,0 +1,7 @@
+$kind: http-request
+name: List Registered Users (Admin/Manager Protected)
+url: "{{baseUrl}}/api/auth/users"
+method: GET
+headers:
+  Authorization: Bearer {{authToken}}
+order: 5000
