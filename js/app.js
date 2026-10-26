@@ -394,30 +394,60 @@ const App = {
 
       console.log(`[RIDO NAV] Navigating to view: '${target}' (Source: ${viewId}, Role: ${currentRole})`);
 
-      const allViews = document.querySelectorAll(".view-panel");
-      allViews.forEach((v) => {
-        v.classList.remove("active");
-        v.style.setProperty("display", "none", "important");
-      });
+      const appShell = document.getElementById('rido-app-shell');
+      const landingView = document.getElementById('view-landing');
 
-      let targetSection = document.getElementById(`view-${target}`);
-      if (!targetSection && (target === "operations" || target === "dashboard")) {
-        targetSection = document.getElementById("view-operations") || document.getElementById("view-dashboard");
-      }
-
-      if (targetSection) {
-        targetSection.classList.add("active");
-        targetSection.style.setProperty("display", "block", "important");
+      if (target === 'landing') {
+        if (landingView) {
+          landingView.classList.add('active');
+          landingView.style.setProperty('display', 'block', 'important');
+        }
+        if (appShell) appShell.style.display = 'none';
+        document.body.classList.add('on-landing-view');
       } else {
-        console.warn(`[RIDO NAV] Target section '#view-${target}' not found in DOM.`);
+        if (landingView) {
+          landingView.classList.remove('active');
+          landingView.style.setProperty('display', 'none', 'important');
+        }
+        if (appShell) appShell.style.display = 'flex';
+        document.body.classList.remove('on-landing-view');
+
+        // Toggle internal views inside app shell
+        const allInternalViews = document.querySelectorAll('#rido-views-host .view-panel');
+        allInternalViews.forEach(v => {
+          v.classList.remove('active');
+          v.style.setProperty('display', 'none', 'important');
+        });
+
+        let targetSection = document.getElementById(`view-${target}`);
+        if (!targetSection && (target === 'operations' || target === 'dashboard')) {
+          targetSection = document.getElementById('view-operations') || document.getElementById('view-dashboard');
+        }
+
+        if (targetSection) {
+          targetSection.classList.add('active');
+          targetSection.style.setProperty('display', 'block', 'important');
+        }
+
+        // Update active highlight on Persistent Left Sidebar buttons
+        const sidebarBtns = document.querySelectorAll('#rido-persistent-sidebar .sidebar-nav-btn');
+        sidebarBtns.forEach(btn => {
+          const snav = btn.dataset.snav;
+          const isActive = (snav === target) || (snav === 'operations' && (target === 'dashboard' || target === 'operations'));
+          if (isActive) {
+            btn.className = 'sidebar-nav-btn w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer border-none bg-orange-50 text-orange-600';
+            const icon = btn.querySelector('svg');
+            if (icon) icon.className = 'w-4 h-4 text-orange-600';
+          } else {
+            btn.className = 'sidebar-nav-btn w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition cursor-pointer border-none bg-transparent';
+            const icon = btn.querySelector('svg');
+            if (icon && !icon.classList.contains('text-orange-500')) icon.className = 'w-4 h-4 text-slate-400';
+          }
+        });
       }
 
       this.activeView = target;
-      if (target === 'landing') {
-        document.body.classList.add('on-landing-view');
-      } else {
-        document.body.classList.remove('on-landing-view');
-      }
+      this.updateSidebarUserProfile();
       this.renderNavItems();
 
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -4006,6 +4036,7 @@ const App = {
         </div>
       `;
     }
+    this.updateSidebarUserProfile();
     this.renderNavItems();
   },
 
