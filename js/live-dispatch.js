@@ -262,7 +262,7 @@ const LiveDispatch = {
 
     this._routePoints = points;
     this._currentPointIndex = 0;
-    this._totalDistance = Number(this._tripData.distanceKm) || 50.4;
+    this._totalDistance = Number(this._tripData.distanceKm) || 85.5;
     this._distanceRemaining = this._totalDistance;
     this._etaSeconds = Math.round((this._totalDistance / 48) * 3600);
   },

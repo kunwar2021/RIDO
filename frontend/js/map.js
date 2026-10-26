@@ -856,6 +856,44 @@ const MapEngine = {
   // --------------------------------------------------------------------------
   // FASTag Toll Plazas Along Active Corridor
   // --------------------------------------------------------------------------
+  renderTollPlazaMarkers(tolls) {
+    if (!this.state.tollGroup) return;
+    this.state.tollGroup.clearLayers();
+    if (!tolls || !tolls.length) return;
+
+    tolls.forEach((toll, idx) => {
+      if (!toll.lat || !toll.lng) return;
+      const tollIcon = L.divIcon({
+        className: "custom-fastag-toll-pin",
+        html: `
+          <div class="fastag-toll-marker-pin" title="${Utils.escapeHTML(toll.name)} (₹${toll.rate || toll.commercialRate || 0})">
+            <span>💳</span>
+          </div>
+        `,
+        iconSize: [28, 28],
+        iconAnchor: [14, 14]
+      });
+
+      const marker = L.marker([toll.lat, toll.lng], {
+        icon: tollIcon,
+        zIndexOffset: 650 + idx * 10
+      }).addTo(this.state.tollGroup);
+
+      marker.bindPopup(`
+        <div class="gmap-popup-card">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-bottom: 4px;">
+            <span class="gmap-popup-badge" style="background: rgba(16, 185, 129, 0.15); color: #059669; font-weight: 800;">NHAI FASTag ETC GATE</span>
+            <span style="font-family: monospace; font-size: 11px; font-weight: 700; color: #10b981;">₹${toll.rate || toll.commercialRate || 0}</span>
+          </div>
+          <h4 style="margin: 2px 0 4px 0; font-size: 13px; font-weight: 800; color: #0f172a;">${Utils.escapeHTML(toll.name)}</h4>
+          <p style="font-size: 0.72rem; color: #64748b; margin-bottom: 0.4rem;">${Utils.escapeHTML(toll.highway || 'National Highway')} (${Utils.escapeHTML(toll.state || 'India')})</p>
+          <div class="gmap-popup-row"><span>Commercial Vehicle Toll:</span> <strong>₹${toll.rate || toll.commercialRate || 0}</strong></div>
+          <div class="gmap-popup-row"><span>FASTag Auto-Debit:</span> <strong style="color: #10b981;">✓ Enabled</strong></div>
+        </div>
+      `);
+    });
+  },
+
   renderFastagTolls(startDepot, endDepot, optStops) {
     if (!this.state.tollGroup) return;
     this.state.tollGroup.clearLayers();
@@ -869,9 +907,16 @@ const MapEngine = {
 
     const activeTolls = tolls.filter((t) => {
       if (roadCoords.length > 0) {
+        // Check bounding box to prevent off-route tolls
+        const minLat = Math.min(...roadCoords.map(c => c[0])) - 0.04;
+        const maxLat = Math.max(...roadCoords.map(c => c[0])) + 0.04;
+        const minLng = Math.min(...roadCoords.map(c => c[1])) - 0.04;
+        const maxLng = Math.max(...roadCoords.map(c => c[1])) + 0.04;
+        if (t.lat < minLat || t.lat > maxLat || t.lng < minLng || t.lng > maxLng) return false;
+
         for (let i = 0; i < roadCoords.length; i += 8) {
           const d = Utils.haversineDistance(t.lat, t.lng, roadCoords[i][0], roadCoords[i][1]);
-          if (d <= 25) return true;
+          if (d <= 3.5) return true;
         }
       } else {
         for (const wp of waypoints) {

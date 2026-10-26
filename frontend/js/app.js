@@ -5695,8 +5695,16 @@ Enter code to sign in:`, generatedOtp);
       else tollCost = Math.round(distKm * 2.15);
     }
 
-    const driverAllowance = transitDays * driverAllowancePerDay;
-    const maintenanceCost = Math.round(distKm * maintCostPerKm);
+    // Realistically scaled driver allowance based on trip distance
+    let driverAllowance = 300;
+    if (distKm <= 120) {
+      driverAllowance = 300; // Local / short-haul trip
+    } else if (distKm <= 350) {
+      driverAllowance = 500; // Regional corridor trip
+    } else {
+      driverAllowance = transitDays * driverAllowancePerDay; // Multi-day interstate haul
+    }
+    const maintenanceCost = Math.round(distKm * 2.5);
     const baseOpEx = fuelCost + tollCost + driverAllowance + maintenanceCost;
     const driverEarnings = Math.round(baseOpEx * (driverEarningPct / 100));
     const companyMargin = Math.round((baseOpEx + driverEarnings) * (companyMarginPct / 100));
@@ -6062,7 +6070,9 @@ Enter code to sign in:`, generatedOtp);
         ? osrmResult.distanceKm
         : Utils.haversineDistance(startDepot.lat, startDepot.lng, endDepot.lat, endDepot.lng);
 
-      const durationMins = osrmResult.durationMinutes || Math.round((distKm / 50) * 60);
+      // Commercial truck highway speed is typically 52-58 km/h
+      const avgTruckSpeed = 55;
+      const durationMins = Math.max(25, Math.round((distKm / avgTruckSpeed) * 60));
 
       // 6. Intelligence & Cost Calculation
       const intel = OptimizerEngine.calculateRidoTripIntelligence({
@@ -6185,10 +6195,13 @@ Enter code to sign in:`, generatedOtp);
         if (el) el.textContent = txt;
       };
 
-      setEl("nav-stat-distance", `${Math.round(intel.distanceKm).toLocaleString()} km`);
-      setEl("nav-stat-time", `${Math.floor(intel.durationHours)}h ${Math.round((intel.durationHours % 1) * 60)}m`);
-      setEl("nav-stat-days", `${daysCount} Day${daysCount > 1 ? 's' : ''}`);
-      setEl("nav-stat-speed", `${Math.round(intel.avgSpeed || 50)} km/h`);
+      const estHours = distKm / 55;
+      const estH = Math.floor(estHours);
+      const estM = Math.round((estHours - estH) * 60);
+      setEl("nav-stat-distance", `${distKm.toFixed(1)} km`);
+      setEl("nav-stat-time", `${estH}h ${estM.toString().padStart(2, '0')}m`);
+      setEl("nav-stat-days", distKm > 450 ? `${daysCount} Days` : 'Same Day');
+      setEl("nav-stat-speed", `55 km/h`);
       setEl("nav-stat-toll", `₹ ${Math.round(totalTollCost).toLocaleString()}`);
       setEl("nav-stat-trucks", `${suitableVehicles.length} Available`);
 
@@ -6404,7 +6417,12 @@ Enter code to sign in:`, generatedOtp);
         lng: s.lng
       })),
       coordinates: routeRes.coordinates || [],
-      distanceKm: optStats.distance || 142.5,
+      distanceKm: Number(distKm.toFixed(1)),
+      durationHours: Number((distKm / 55).toFixed(2)),
+      durationFormatted: `${Math.floor(distKm / 55)}h ${Math.round(((distKm / 55) % 1) * 60)}m`,
+      eta: `~ ${Math.floor(distKm / 55)}h ${Math.round(((distKm / 55) % 1) * 60)}m`,
+      fuelCost: bestMatch ? bestMatch.costs.fuelCost : totalFuelCost,
+      tollCost: bestMatch ? bestMatch.costs.tollCost : totalTollCost,
       durationHours: (optStats.time || 180) / 60,
       durationFormatted: `${Math.floor((optStats.time || 180) / 60)}h ${Math.round((optStats.time || 180) % 60)}m`,
       eta: `~ ${Math.floor((optStats.time || 180) / 60)}h ${Math.round((optStats.time || 180) % 60)}m`,

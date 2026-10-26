@@ -575,11 +575,21 @@ const OptimizerEngine = {
           { name: "Vashi Bridge / Gateway Plaza", highway: "Sion-Panvel Highway", state: "Maharashtra", category: "City Gateway", rate: vehSpec.tollClass === 'truck' ? 175 : (vehSpec.tollClass === 'multiAxle' ? 260 : 85) }
         ];
       } else {
+        if (distanceKm > 35) {
+        const ratePerKm = vehSpec.tollClass === 'truck' ? 1.95 : (vehSpec.tollClass === 'multiAxle' ? 2.65 : 1.10);
+        const estimatedRate = Math.round(distanceKm * ratePerKm);
         tollPlazas = [
-          { name: "Kherki Daula Toll Plaza", highway: "NH-48", state: "Haryana", category: "Major NHAI", rate: vehSpec.tollClass === 'truck' ? 285 : (vehSpec.tollClass === 'multiAxle' ? 440 : 135) },
-          { name: "Shahjahanpur Toll Plaza", highway: "NH-48", state: "Rajasthan", category: "State Border Gate", rate: vehSpec.tollClass === 'truck' ? 535 : (vehSpec.tollClass === 'multiAxle' ? 815 : 255) },
-          { name: "Manoharpur Toll Plaza", highway: "NH-48", state: "Rajasthan", category: "Highway Corridor", rate: vehSpec.tollClass === 'truck' ? 325 : (vehSpec.tollClass === 'multiAxle' ? 495 : 155) }
+          {
+            name: "NHAI Corridor Toll Gate",
+            highway: "National Highway Tariff Corridor",
+            state: states[0] || "India",
+            category: "NHAI FASTag Standard",
+            rate: estimatedRate
+          }
         ];
+      } else {
+        tollPlazas = [];
+      }
       }
     }
 
