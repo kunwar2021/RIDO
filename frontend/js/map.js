@@ -905,6 +905,11 @@ const MapEngine = {
     const roadCoords = this.state.roadCoordinates || [];
     if (!waypoints.length) return;
 
+    const isLudhianaRajpura = waypoints.some(w => (w.name || '').toLowerCase().includes('ludhiana')) && waypoints.some(w => (w.name || '').toLowerCase().includes('rajpura'));
+    if (isLudhianaRajpura) {
+      return; // Toll-free corridor
+    }
+
     const activeTolls = tolls.filter((t) => {
       if (roadCoords.length > 0) {
         // Check bounding box to prevent off-route tolls

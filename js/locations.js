@@ -480,20 +480,6 @@ const PAN_INDIA_FASTAG_TOLLS = [
     lanes: "NETC FASTag Priority"
   },
   {
-    id: "toll_khanna",
-    name: "Chachraddi (Khanna) Toll Plaza",
-    highway: "NH-44 (Ludhiana-Rajpura Corridor)",
-    state: "Punjab",
-    lat: 30.6845,
-    lng: 76.2420,
-    direction: "Both Ways",
-    vehicleRates: { car: 55, lcv: 85, bus: 165, truck: 175, multiAxle: 265 },
-    commercialRate: 175,
-    source: "NHAI / NETC Official Tariff",
-    lastUpdated: "2026-04-01",
-    lanes: "Dedicated FASTag Auto-Debit"
-  },
-  {
     id: "toll_shambhu",
     name: "Shambhu Toll Plaza",
     highway: "NH-44 (Punjab-Haryana Border / Rajpura)",

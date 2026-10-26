@@ -5686,8 +5686,8 @@ Enter code to sign in:`, generatedOtp);
 
     const capacityKg = Number(veh.capacityKg || veh.payloadMax || 15000);
     let tollCost = 0;
-    if (tollEstimate && tollEstimate > 0) {
-      tollCost = Math.round(tollEstimate);
+    if (tollEstimate !== undefined && tollEstimate !== null) {
+      tollCost = Math.max(0, Math.round(tollEstimate));
     } else {
       if (isEV && capacityKg < 1000) tollCost = 0;
       else if (capacityKg <= 3500) tollCost = Math.round(distKm * 0.9);
@@ -6202,7 +6202,7 @@ Enter code to sign in:`, generatedOtp);
       setEl("nav-stat-time", `${estH}h ${estM.toString().padStart(2, '0')}m`);
       setEl("nav-stat-days", distKm > 450 ? `${daysCount} Days` : 'Same Day');
       setEl("nav-stat-speed", `55 km/h`);
-      setEl("nav-stat-toll", `₹ ${Math.round(totalTollCost).toLocaleString()}`);
+      setEl("nav-stat-toll", totalTollCost > 0 ? `₹ ${Math.round(totalTollCost).toLocaleString()}` : "₹ 0 (Toll-Free)");
       setEl("nav-stat-trucks", `${suitableVehicles.length} Available`);
 
       // 10. Update 3 Metric Summary Cards Bar

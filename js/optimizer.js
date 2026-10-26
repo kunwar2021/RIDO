@@ -553,13 +553,16 @@ const OptimizerEngine = {
 
     // 4. Toll Detection (Major, Small & Local)
     let tollPlazas = [];
-    if (routeCoords && routeCoords.length > 5) {
-      const matched = this.matchTollPlazasAlongRoute(routeCoords, 4.0, vehSpec.tollClass);
-      tollPlazas = matched.matchedTolls;
-    }
+    const isLudhianaRajpura = (origin + " " + destination).toLowerCase().includes("ludhiana") &&
+                              (origin + " " + destination).toLowerCase().includes("rajpura");
 
-    // Corridor Preset fallback if OSRM is offline
-    if (!tollPlazas || tollPlazas.length === 0) {
+    if (isLudhianaRajpura) {
+      tollPlazas = []; // Explicitly toll-free corridor between Ludhiana & Rajpura
+    } else if (routeCoords && routeCoords.length > 5) {
+      const matched = this.matchTollPlazasAlongRoute(routeCoords, 3.5, vehSpec.tollClass);
+      tollPlazas = matched.matchedTolls || [];
+    } else {
+      // Preset fallback only when offline without road coordinates
       const lower = (origin + " " + destination).toLowerCase();
       if (lower.includes("ludhiana") && lower.includes("delhi")) {
         tollPlazas = [
@@ -574,24 +577,10 @@ const OptimizerEngine = {
           { name: "Khalapur Toll Plaza", highway: "Mumbai-Pune Expressway", state: "Maharashtra", category: "Expressway Barrier", rate: vehSpec.tollClass === 'truck' ? 385 : (vehSpec.tollClass === 'multiAxle' ? 580 : 190) },
           { name: "Vashi Bridge / Gateway Plaza", highway: "Sion-Panvel Highway", state: "Maharashtra", category: "City Gateway", rate: vehSpec.tollClass === 'truck' ? 175 : (vehSpec.tollClass === 'multiAxle' ? 260 : 85) }
         ];
-      } else {
-        if (distanceKm > 35) {
-        const ratePerKm = vehSpec.tollClass === 'truck' ? 1.95 : (vehSpec.tollClass === 'multiAxle' ? 2.65 : 1.10);
-        const estimatedRate = Math.round(distanceKm * ratePerKm);
-        tollPlazas = [
-          {
-            name: "NHAI Corridor Toll Gate",
-            highway: "National Highway Tariff Corridor",
-            state: states[0] || "India",
-            category: "NHAI FASTag Standard",
-            rate: estimatedRate
-          }
-        ];
-      } else {
-        tollPlazas = [];
-      }
       }
     }
+
+    
 
     const totalTollCost = tollPlazas.reduce((sum, t) => sum + (Number(t.rate) || 0), 0);
 
