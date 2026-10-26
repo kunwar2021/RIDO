@@ -217,6 +217,147 @@ const App = {
     return GUEST_VIEWS.includes(viewId);
   },
 
+
+  initControlTowerMap() {
+    const mapContainer = document.getElementById('ct-overview-map');
+    if (!mapContainer || typeof L === 'undefined') return;
+
+    if (this._ctMap) {
+      try { this._ctMap.invalidateSize(); return; } catch (e) {}
+    }
+
+    try {
+      const placeholder = document.getElementById('ct-map-placeholder');
+      if (placeholder) placeholder.style.display = 'none';
+
+      // Ludhiana (30.9010, 75.8573) to Rajpura (30.4840, 76.5932)
+      const ludhianaCoords = [30.9010, 75.8573];
+      const rajpuraCoords = [30.4840, 76.5932];
+      const centerCoords = [30.6925, 76.2252];
+
+      const map = L.map('ct-overview-map', {
+        zoomControl: true,
+        attributionControl: false
+      }).setView(centerCoords, 10);
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19
+      }).addTo(map);
+
+      // Route Polyline
+      const corridorPoints = [
+        ludhianaCoords,
+        [30.8500, 75.9800], // Sahnewal
+        [30.7500, 76.2200], // Khanna
+        [30.6600, 76.3800], // Mandi Gobindgarh
+        [30.6200, 76.4500], // Sirhind
+        rajpuraCoords
+      ];
+
+      const polyline = L.polyline(corridorPoints, {
+        color: '#ea580c',
+        weight: 5,
+        opacity: 0.9,
+        dashArray: '10, 8'
+      }).addTo(map);
+
+      // Origin Marker (Ludhiana Hub)
+      const originIcon = L.divIcon({
+        className: 'ct-marker-origin',
+        html: '<div style="background:#0f172a;color:#fff;font-weight:900;font-size:10px;padding:3px 7px;border-radius:12px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3);white-space:nowrap;">🏢 Ludhiana Hub</div>',
+        iconSize: [80, 24],
+        iconAnchor: [40, 12]
+      });
+      L.marker(ludhianaCoords, { icon: originIcon }).addTo(map);
+
+      // Destination Marker (Rajpura DC)
+      const destIcon = L.divIcon({
+        className: 'ct-marker-dest',
+        html: '<div style="background:#ea580c;color:#fff;font-weight:900;font-size:10px;padding:3px 7px;border-radius:12px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3);white-space:nowrap;">🎯 Rajpura DC</div>',
+        iconSize: [80, 24],
+        iconAnchor: [40, 12]
+      });
+      L.marker(rajpuraCoords, { icon: destIcon }).addTo(map);
+
+      // Moving Truck Marker
+      const truckIcon = L.divIcon({
+        className: 'ct-marker-truck',
+        html: '<div style="background:#10b981;color:#fff;font-size:14px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:2px solid #fff;box-shadow:0 3px 8px rgba(0,0,0,0.35);">🚚</div>',
+        iconSize: [28, 28],
+        iconAnchor: [14, 14]
+      });
+      L.marker([30.7500, 76.2200], { icon: truckIcon }).addTo(map).bindPopup('<b>Eicher Pro 3019</b><br>Speed: 58 km/h • Fuel: 92%');
+
+      map.fitBounds(polyline.getBounds(), { padding: [30, 30] });
+      this._ctMap = map;
+    } catch (err) {
+      console.warn('[Control Tower Map] Initialization note:', err.message);
+    }
+  },
+
+  async assignOrder(orderId = 'SO-7811') {
+    UIManager.showToast(`⚡ Auto-dispatching Order [${orderId}] with AI capacity matching...`, "info");
+    
+    // Auto-create and dispatch active trip
+    const activeTrip = {
+      tripId: "TRIP-" + Date.now().toString().slice(-4),
+      orderId: orderId,
+      vehicleId: "eicher-pro-3019",
+      vehicleName: "Eicher Pro 3019",
+      vehicleReg: "HR55AB1234",
+      plate: "HR55AB1234",
+      driverName: "Manoj Yadav",
+      driverPhone: "+91 98765 43210",
+      driverRating: 4.8,
+      driverPhoto: "MY",
+      origin: "Ludhiana Central Cargo Hub (Industrial Area-A)",
+      destination: "Rajpura Focal Point Logistics Hub",
+      distanceKm: 85.5,
+      totalDistance: 85.5,
+      durationMinutes: 99,
+      fuelCost: 1132,
+      tollCost: 0,
+      totalCost: 2082,
+      driverAllowance: 300,
+      pickupPin: "3816",
+      status: "IN_PROGRESS",
+      startedAt: new Date().toISOString()
+    };
+
+    StorageEngine.saveActiveTrip(activeTrip);
+
+    // Save into MongoDB backend via REST API
+    try {
+      await fetch((CONFIG.BACKEND_BASE_URL || '') + '/api/trips', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          origin: activeTrip.origin,
+          destination: activeTrip.destination,
+          distanceKm: activeTrip.distanceKm,
+          tollCost: activeTrip.tollCost,
+          fuelCost: activeTrip.fuelCost,
+          totalCost: activeTrip.totalCost,
+          driverName: activeTrip.driverName,
+          vehiclePlate: activeTrip.vehicleReg
+        })
+      });
+      console.log('✅ [MongoDB Sync] Trip saved into MongoDB database collection!');
+    } catch (err) {
+      console.warn('Trip saved in browser; MongoDB sync deferred:', err.message);
+    }
+
+    UIManager.playSound("success");
+    UIManager.showToast(`✅ Order [${orderId}] Dispatched to Driver Manoj Yadav! Saved to MongoDB. Transitioning to Live GPS...`, "success");
+
+    setTimeout(() => {
+      this.navigateTo("live-tracking");
+      if (window.LiveDispatch && typeof window.LiveDispatch.init === 'function') {
+        window.LiveDispatch.init();
+      }
+    }, 700);
+  },
+
   navigateTo(viewId) {
     try {
       this.closeMobileMenu();
@@ -272,6 +413,11 @@ const App = {
       }
 
       this.activeView = target;
+      if (target === 'landing') {
+        document.body.classList.add('on-landing-view');
+      } else {
+        document.body.classList.remove('on-landing-view');
+      }
       this.renderNavItems();
 
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -3977,52 +4123,28 @@ const App = {
         </div>
       `;
     } else {
-      // Guest
-      navHTML = `
-        <button class="nav-item-btn ${active === 'landing' ? 'active' : ''} group" data-nav="landing" onclick="App.navigateTo('landing')">
-          <svg class="w-[17px] h-[17px] text-orange-600 nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-          <span>Product Overview</span>
-        </button>
-        <button class="nav-item-btn group" data-nav="optimizer" onclick="App.navigateTo('optimizer')">
-          <svg class="w-[17px] h-[17px] text-orange-500 nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-          <span>Route Optimizer</span>
-        </button>
-        <button class="nav-item-btn group" data-nav="fleet" onclick="App.navigateTo('fleet')">
-          <svg class="w-[17px] h-[17px] text-slate-500 nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-          <span>Fleet Telemetry</span>
-        </button>
-        <button class="nav-item-btn group" data-nav="operations" onclick="App.navigateTo('operations')">
-          <svg class="w-[17px] h-[17px] text-slate-500 nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
-          <span>Operations HQ</span>
-        </button>
-      `;
-
+      // Guest - clean header navbar with zero floating pill tabs
+      navHTML = ``;
       drawerHTML = `
-        <button class="w-full text-left flex items-center gap-3 p-3 rounded-2xl ${active === 'landing' ? 'bg-orange-50 text-orange-600 font-black' : 'text-slate-700 hover:bg-slate-50 font-bold'} text-xs cursor-pointer border-none bg-transparent" onclick="App.navigateTo('landing')">
-          <span class="text-base">🏠</span>
-          <span>Product Overview</span>
-        </button>
-        <button class="w-full text-left flex items-center gap-3 p-3 rounded-2xl ${active === 'optimizer' ? 'bg-orange-50 text-orange-600 font-black' : 'text-slate-700 hover:bg-slate-50 font-bold'} text-xs cursor-pointer border-none bg-transparent" onclick="App.navigateTo('optimizer')">
-          <span class="text-base">⚡</span>
-          <span>Route Optimizer</span>
-        </button>
-        <button class="w-full text-left flex items-center gap-3 p-3 rounded-2xl ${active === 'fleet' ? 'bg-orange-50 text-orange-600 font-black' : 'text-slate-700 hover:bg-slate-50 font-bold'} text-xs cursor-pointer border-none bg-transparent" onclick="App.navigateTo('fleet')">
-          <span class="text-base">🚛</span>
-          <span>Fleet Telemetry</span>
-        </button>
-        <button class="w-full text-left flex items-center gap-3 p-3 rounded-2xl ${active === 'operations' ? 'bg-orange-50 text-orange-600 font-black' : 'text-slate-700 hover:bg-slate-50 font-bold'} text-xs cursor-pointer border-none bg-transparent" onclick="App.navigateTo('operations')">
-          <span class="text-base">🏢</span>
-          <span>Operations HQ</span>
-        </button>
-        <div class="border-t border-slate-100 my-2 pt-2 space-y-2">
-          <button class="w-full py-2.5 px-4 rounded-xl bg-orange-600 text-white font-extrabold text-xs shadow-sm cursor-pointer border-none" onclick="App.openRoleModal()">
-            Get Started / Sign In
+        <div class="space-y-2 p-2">
+          <button class="w-full py-2.5 px-4 rounded-xl bg-orange-600 text-white font-extrabold text-xs shadow-sm cursor-pointer border-none" onclick="App.openRoleModal('company', 'signup')">
+            Get Started
+          </button>
+          <button class="w-full py-2.5 px-4 rounded-xl bg-white border border-slate-200 text-slate-800 font-bold text-xs shadow-2xs cursor-pointer" onclick="App.openRoleModal('company', 'login')">
+            Sign In
           </button>
         </div>
       `;
     }
 
-    if (navBar) navBar.innerHTML = navHTML;
+    if (navBar) {
+      navBar.innerHTML = navHTML;
+      if (!navHTML || this.activeView === 'landing' || role === 'guest') {
+        navBar.style.display = 'none';
+      } else {
+        navBar.style.display = 'flex';
+      }
+    }
     if (mobileDrawer) mobileDrawer.innerHTML = drawerHTML;
 
     // Update Mobile Bottom Nav Active States

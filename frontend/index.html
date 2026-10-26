@@ -161,7 +161,7 @@
         </div>
 
         <!-- 2. Center (Floating Glassmorphic Pill Navigation - Always Visible) -->
-        <nav class="main-nav-pill-container flex items-center" id="main-nav-bar">
+        <nav class="main-nav-pill-container flex items-center" id="main-nav-bar" style="display: none;">
           <button class="nav-item-btn group" data-nav="operations" onclick="App.navigateTo('operations')">
             <svg class="w-[17px] h-[17px] text-slate-500 nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
             <span>Operations HQ</span>
@@ -222,16 +222,14 @@
               <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               <span>🌐 Cloud API</span>
             </button>
-            <button type="button" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-all shadow-2xs cursor-pointer active:scale-95" onclick="CurriculumLab.openModal()" title="Open Full-Stack Curriculum Lab (Lectures 1–41)">
-              <span>🎓</span>
-              <span>Curriculum Lab</span>
+            <button type="button" class="px-3.5 py-1.5 sm:py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200 transition-all shadow-2xs cursor-pointer active:scale-95" onclick="App.openRoleModal('company', 'login')">
+              Sign In
             </button>
-            <button class="btn-header-signup px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 transition-all shadow-xs cursor-pointer active:scale-95 border-none" onclick="App.openRoleModal()">
+            <button class="btn-header-signup px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 transition-all shadow-xs cursor-pointer active:scale-95 border-none" onclick="App.openRoleModal('company', 'signup')">
               Get Started
             </button>
           </div>
         </div>
-
       </div>
 
       <!-- Mobile Dropdown Slide-Down Drawer Sheet -->
@@ -1173,363 +1171,383 @@
       <!-- ============================================== -->
       <section class="view-panel" id="view-operations">
         
-        <!-- Operations Header / Breadcrumbs -->
-        <div class="flex items-center justify-between mb-5 flex-wrap gap-3 text-left">
-          <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-orange-500 shrink-0"></span>
-            <div>
-              <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Operations Dashboard</h2>
-              <p class="text-xs text-slate-500 font-medium mt-0.5">Real-time overview of your logistics operations</p>
-            </div>
-          </div>
-          <div class="flex items-center gap-2.5">
-            <button type="button" class="px-3.5 py-2 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-600 font-bold text-xs border border-orange-200 transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs" onclick="App.navigateTo('optimizer')">
-              <span>⚡</span>
-              <span>Optimize Route</span>
-            </button>
-            <button type="button" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs" onclick="App.navigateTo('fleet')">
-              <span>📈</span>
-              <span>Fleet Telemetry</span>
-            </button>
-          </div>
-        </div>
+        <!-- ============================================================================== -->
+        <!-- ROUTELOGIC ENTERPRISE CONTROL TOWER: 12-COLUMN SAAS DISPATCH SUITE            -->
+        <!-- ============================================================================== -->
+        <div class="flex flex-col lg:flex-row gap-5 text-left items-start w-full">
 
-        <!-- Top 4 KPI Cards (Compact 4-Column SaaS Row) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5 text-left">
-          
-          <!-- Card 1: Total Deliveries -->
-          <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs flex items-start gap-3.5">
-            <div class="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0 font-bold">
-              <svg class="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-            </div>
-            <div class="flex-1">
-              <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Total Deliveries</span>
-              <strong class="text-2xl font-black text-slate-900 font-mono block leading-tight mt-0.5" id="ops-kpi-deliveries">0</strong>
-              <div class="text-[11px] text-slate-500 font-medium mt-0.5">Today</div>
-              <div class="text-[11px] text-slate-400 font-medium mt-1">
-                <span>No data yet</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card 2: Active Vehicles (Highlighted with prominent orange border) -->
-          <div class="bg-white p-5 rounded-3xl border-2 border-orange-400 shadow-xs flex items-start gap-3.5">
-            <div class="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shrink-0 font-bold">
-              <svg class="w-5 h-5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-            </div>
-            <div class="flex-1">
-              <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Active Vehicles</span>
-              <strong class="text-2xl font-black text-slate-900 font-mono block leading-tight mt-0.5" id="ops-kpi-active-vehicles">0</strong>
-              <div class="text-[11px] text-slate-500 font-medium mt-0.5">Running Now</div>
-              <div class="text-[11px] text-slate-400 font-medium mt-1">
-                <span>No data yet</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card 3: On-Time Delivery -->
-          <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs flex items-start gap-3.5">
-            <div class="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shrink-0 font-bold">
-              <svg class="w-5 h-5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            </div>
-            <div class="flex-1">
-              <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">On-Time Delivery</span>
-              <strong class="text-2xl font-black text-slate-900 font-mono block leading-tight mt-0.5" id="ops-kpi-ontime">0%</strong>
-              <div class="text-[11px] text-slate-500 font-medium mt-0.5">This Month</div>
-              <div class="text-[11px] text-slate-400 font-medium mt-1">
-                <span>No data yet</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card 4: Total Distance -->
-          <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs flex items-start gap-3.5">
-            <div class="w-11 h-11 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center text-xl shrink-0 font-bold">
-              <svg class="w-5 h-5 text-orange-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
-            </div>
-            <div class="flex-1">
-              <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Total Distance</span>
-              <strong class="text-2xl font-black text-slate-900 font-mono block leading-tight mt-0.5" id="ops-kpi-distance">0 km</strong>
-              <div class="text-[11px] text-slate-500 font-medium mt-0.5">Today</div>
-              <div class="text-[11px] text-slate-400 font-medium mt-1">
-                <span>No data yet</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Middle Row: Delivery Trend (5 cols), Vehicle Utilization (4 cols), Cost & Recent Activity (3 cols) -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 mb-5 text-left items-stretch">
-          
-          <!-- Delivery Trend Area Chart (5 cols) -->
-          <div class="lg:col-span-5 bg-white p-5 rounded-3xl border border-slate-200 shadow-xs flex flex-col justify-between min-w-0">
-            <div class="flex items-center justify-between mb-2 pb-2 border-b border-slate-100">
-              <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider">DELIVERY TREND</h3>
-              <span class="inline-flex items-center gap-1.5 text-[10px] font-black text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                <span>Live</span>
-              </span>
-            </div>
-            
-            <div class="text-[11px] font-bold text-slate-500 mb-1">Deliveries (This Week)</div>
-            
-            <!-- SVG Delivery Trend Curve with Center Empty Badge -->
-            <div class="w-full py-1 relative">
-              <svg viewBox="0 0 420 160" class="w-full h-36 overflow-visible" preserveAspectRatio="none">
-                <!-- Grid lines -->
-                <line x1="30" y1="20" x2="410" y2="20" stroke="#f1f5f9" stroke-width="1" />
-                <line x1="30" y1="55" x2="410" y2="55" stroke="#f1f5f9" stroke-width="1" />
-                <line x1="30" y1="90" x2="410" y2="90" stroke="#f1f5f9" stroke-width="1" />
-                <line x1="30" y1="125" x2="410" y2="125" stroke="#f1f5f9" stroke-width="1" />
-                
-                <!-- Y-Labels -->
-                <text x="16" y="24" font-size="9" fill="#94a3b8" font-family="monospace">4</text>
-                <text x="16" y="59" font-size="9" fill="#94a3b8" font-family="monospace">3</text>
-                <text x="16" y="94" font-size="9" fill="#94a3b8" font-family="monospace">2</text>
-                <text x="16" y="129" font-size="9" fill="#94a3b8" font-family="monospace">1</text>
-                <text x="16" y="152" font-size="9" fill="#94a3b8" font-family="monospace">0</text>
-
-                <!-- Flat Zero Line -->
-                <line x1="40" y1="145" x2="400" y2="145" stroke="#cbd5e1" stroke-width="1.5" />
-                
-                <!-- Data Points with Value Badges -->
-                <circle cx="40" cy="145" r="2.5" fill="#94a3b8" />
-                <text x="40" y="137" font-size="8" font-weight="bold" fill="#0f172a" text-anchor="middle">0</text>
-                <text x="40" y="157" font-size="9" fill="#64748b" text-anchor="middle">Mon</text>
-
-                <circle cx="100" cy="145" r="2.5" fill="#94a3b8" />
-                <text x="100" y="137" font-size="8" font-weight="bold" fill="#0f172a" text-anchor="middle">0</text>
-                <text x="100" y="157" font-size="9" fill="#64748b" text-anchor="middle">Tue</text>
-
-                <circle cx="160" cy="145" r="2.5" fill="#94a3b8" />
-                <text x="160" y="137" font-size="8" font-weight="bold" fill="#0f172a" text-anchor="middle">0</text>
-                <text x="160" y="157" font-size="9" fill="#64748b" text-anchor="middle">Wed</text>
-
-                <circle cx="220" cy="145" r="2.5" fill="#94a3b8" />
-                <text x="220" y="137" font-size="8" font-weight="bold" fill="#0f172a" text-anchor="middle">0</text>
-                <text x="220" y="157" font-size="9" fill="#64748b" text-anchor="middle">Thu</text>
-
-                <circle cx="280" cy="145" r="2.5" fill="#94a3b8" />
-                <text x="280" y="137" font-size="8" font-weight="bold" fill="#0f172a" text-anchor="middle">0</text>
-                <text x="280" y="157" font-size="9" fill="#64748b" text-anchor="middle">Fri</text>
-
-                <circle cx="340" cy="145" r="2.5" fill="#94a3b8" />
-                <text x="340" y="137" font-size="8" font-weight="bold" fill="#0f172a" text-anchor="middle">0</text>
-                <text x="340" y="157" font-size="9" fill="#64748b" text-anchor="middle">Sat</text>
-
-                <circle cx="400" cy="145" r="2.5" fill="#94a3b8" />
-                <text x="400" y="137" font-size="8" font-weight="bold" fill="#0f172a" text-anchor="middle">0</text>
-                <text x="400" y="157" font-size="9" fill="#64748b" text-anchor="middle">Sun</text>
-              </svg>
-
-              <!-- Centered Floating Prompt in Delivery Trend -->
-              <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-4">
-                <div class="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center mb-1">
-                  <svg class="w-5 h-5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          <!-- Left Sidebar Navigation Panel (RouteLogic Grouped Style) -->
+          <aside class="w-full lg:w-60 bg-white rounded-3xl border border-slate-200/90 shadow-xs p-4 shrink-0 flex flex-col justify-between">
+            <div class="space-y-4">
+              
+              <!-- Sidebar Header -->
+              <div class="pb-3 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                  <span class="text-[9px] font-extrabold tracking-widest text-orange-600 uppercase">Enterprise</span>
+                  <h3 class="text-sm font-black text-slate-900 leading-tight">Control Tower</h3>
                 </div>
-                <span class="text-xs font-bold text-slate-500">No deliveries recorded yet</span>
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" title="System Operational & Live"></span>
               </div>
-            </div>
 
-            <!-- Footer Stats -->
-            <div class="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
+              <!-- Nav Group 1: Core -->
               <div>
-                <span class="text-[10px] text-slate-400 font-bold block">Total Deliveries</span>
-                <strong class="text-sm font-black text-slate-900 font-mono">0</strong>
+                <span class="text-[10px] font-extrabold tracking-wider text-slate-400 uppercase block mb-1.5 px-2">Core</span>
+                <div class="space-y-0.5">
+                  <button type="button" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold bg-orange-50 text-orange-600 transition cursor-pointer border-none" onclick="App.navigateTo('operations')">
+                    <span class="flex items-center gap-2">
+                      <svg class="w-4 h-4 text-orange-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+                      <span>Dashboard</span>
+                    </span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+                  </button>
+                  <button type="button" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition cursor-pointer border-none bg-transparent" onclick="document.getElementById('ct-orders-today-card')?.scrollIntoView({ behavior: 'smooth' })">
+                    <span class="flex items-center gap-2">
+                      <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/></svg>
+                      <span>Orders Today</span>
+                    </span>
+                    <span class="px-1.5 py-0.2 rounded-full bg-orange-100 text-orange-700 font-extrabold text-[10px]">3</span>
+                  </button>
+                  <button type="button" class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition cursor-pointer border-none bg-transparent" onclick="App.navigateTo('live-tracking')">
+                    <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+                    <span>Shipments</span>
+                  </button>
+                </div>
               </div>
-              <div class="text-right">
-                <span class="text-[10px] text-slate-400 font-bold block">Avg / Day</span>
-                <strong class="text-sm font-black text-slate-900 font-mono">0</strong>
-              </div>
-            </div>
-          </div>
 
-          <!-- Vehicle Utilization Donut Chart (4 cols) -->
-          <div class="lg:col-span-4 bg-white p-5 rounded-3xl border border-slate-200 shadow-xs flex flex-col justify-between min-w-0">
-            <div class="flex items-center justify-between mb-2 pb-2 border-b border-slate-100">
-              <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider">VEHICLE UTILIZATION</h3>
-              <span class="text-[10px] font-bold text-slate-600 bg-slate-50 px-2 py-0.5 rounded-full border border-slate-200 cursor-pointer">All Fleet ▾</span>
+              <!-- Nav Group 2: Fleet & Telemetry -->
+              <div>
+                <span class="text-[10px] font-extrabold tracking-wider text-slate-400 uppercase block mb-1.5 px-2">Fleet Operations</span>
+                <div class="space-y-0.5">
+                  <button type="button" class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition cursor-pointer border-none bg-transparent" onclick="App.navigateTo('fleet')">
+                    <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                    <span>Vehicles Roster</span>
+                  </button>
+                  <button type="button" class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition cursor-pointer border-none bg-transparent" onclick="App.navigateTo('live-tracking')">
+                    <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    <span>Live GPS Tracking</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Nav Group 3: Optimization -->
+              <div>
+                <span class="text-[10px] font-extrabold tracking-wider text-slate-400 uppercase block mb-1.5 px-2">Optimization</span>
+                <div class="space-y-0.5">
+                  <button type="button" class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition cursor-pointer border-none bg-transparent" onclick="App.navigateTo('optimizer')">
+                    <svg class="w-4 h-4 text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    <span>Route Optimizer</span>
+                  </button>
+                  <button type="button" class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition cursor-pointer border-none bg-transparent" onclick="App.navigateTo('analytics')">
+                    <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                    <span>Cost & Toll Analytics</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Nav Group 4: Admin & Evaluation -->
+              <div>
+                <span class="text-[10px] font-extrabold tracking-wider text-slate-400 uppercase block mb-1.5 px-2">System</span>
+                <div class="space-y-0.5">
+                  <a href="admin-login.html" class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition cursor-pointer no-underline block">
+                    <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <span>Admin Portal</span>
+                  </a>
+                  <button type="button" class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-emerald-700 hover:bg-emerald-50 transition cursor-pointer border-none bg-transparent" onclick="CloudApiModal.open()">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span>Cloud API Switcher</span>
+                  </button>
+                </div>
+              </div>
+
             </div>
+
+            <!-- Sidebar Footer User Card -->
+            <div class="pt-4 border-t border-slate-100 mt-4 flex items-center justify-between">
+              <div class="flex items-center gap-2 min-w-0">
+                <div class="w-7 h-7 rounded-full bg-slate-900 text-white font-black text-xs flex items-center justify-center shrink-0">
+                  <span id="ct-sidebar-initials">TI</span>
+                </div>
+                <div class="truncate">
+                  <span class="text-xs font-black text-slate-900 block truncate" id="ct-sidebar-user">TransIndia Logistics</span>
+                  <span class="text-[10px] text-slate-400 block truncate">Company Fleet Admin</span>
+                </div>
+              </div>
+              <button type="button" class="p-1 text-slate-400 hover:text-rose-600 transition cursor-pointer border-none bg-transparent" onclick="App.handleLogout()" title="Sign Out">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              </button>
+            </div>
+          </aside>
+
+          <!-- Main Content Area: Header + 4 KPIs + 2-Column Dashboard Grid -->
+          <div class="flex-1 min-w-0 w-full space-y-5">
             
-            <div class="flex items-center justify-center gap-4 py-3 my-auto">
-              <!-- SVG Donut -->
-              <div class="relative w-28 h-28 shrink-0">
-                <svg viewBox="0 0 36 36" class="w-full h-full -rotate-90">
-                  <circle cx="18" cy="18" r="14" fill="transparent" stroke="#f1f5f9" stroke-width="3.5" />
-                </svg>
-                <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <strong class="text-base font-black text-slate-900 font-mono leading-none">0%</strong>
-                  <span class="text-[8px] text-slate-400 font-bold mt-0.5">Utilization</span>
+            <!-- Control Tower Header & Action Cluster -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 sm:p-5 rounded-3xl border border-slate-200/90 shadow-xs">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider">Live Corridor HQ</span>
+                  <span class="text-xs text-slate-400 font-mono">Today, 26 Oct 2026</span>
                 </div>
+                <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-1">Operations Control Tower</h2>
+                <p class="text-xs text-slate-500 font-medium">Ludhiana ➔ Rajpura Priority Industrial Logistics Corridor</p>
               </div>
-
-              <!-- Legend -->
-              <div class="space-y-1.5 text-xs flex-1 min-w-0">
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-slate-600 flex items-center gap-1.5 truncate"><span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span> In Transit</span>
-                  <strong class="font-mono text-slate-900 shrink-0">0 (0%)</strong>
-                </div>
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-slate-600 flex items-center gap-1.5 truncate"><span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span> Idle</span>
-                  <strong class="font-mono text-slate-900 shrink-0">0 (0%)</strong>
-                </div>
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-slate-600 flex items-center gap-1.5 truncate"><span class="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span> Maintenance</span>
-                  <strong class="font-mono text-slate-900 shrink-0">0 (0%)</strong>
-                </div>
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-slate-600 flex items-center gap-1.5 truncate"><span class="w-2 h-2 rounded-full bg-slate-300 shrink-0"></span> Inactive</span>
-                  <strong class="font-mono text-slate-900 shrink-0">0 (0%)</strong>
-                </div>
+              <div class="flex items-center gap-2">
+                <button type="button" class="px-3.5 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs shadow-xs transition cursor-pointer border-none flex items-center gap-1.5 active:scale-95" onclick="App.assignOrder('SO-7811')">
+                  <span>⚡</span>
+                  <span>Auto-Dispatch Fleet</span>
+                </button>
+                <button type="button" class="px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs border border-slate-200 transition cursor-pointer flex items-center gap-1.5 shadow-2xs active:scale-95" onclick="App.exportTripCSV()">
+                  <svg class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  <span>Export CSV</span>
+                </button>
               </div>
             </div>
 
-            <!-- Bottom Pill Banner -->
-            <div class="text-[11px] font-bold text-slate-500 bg-slate-50 p-2 rounded-2xl border border-slate-200 text-center flex items-center justify-center gap-1.5 mt-auto">
-              <span>ⓘ</span> <span>No vehicles connected yet</span>
-            </div>
-          </div>
-
-          <!-- Cost & Recent Activity Card (3 cols) -->
-          <div class="lg:col-span-3 bg-white p-5 rounded-3xl border border-slate-200 shadow-xs flex flex-col justify-between min-w-0">
-            <div class="flex items-center justify-between mb-2 pb-2 border-b border-slate-100">
-              <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider truncate">COST & RECENT ACTIVITY</h3>
-              <button type="button" class="text-xs font-bold text-slate-500 hover:text-slate-900 border-none bg-transparent cursor-pointer shrink-0 ml-1" onclick="App.navigateTo('analytics')">View All</button>
-            </div>
-
-            <!-- Cost Summary Strip -->
-            <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 mb-3">
-              <div class="flex items-center justify-between gap-2">
-                <div class="min-w-0">
-                  <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block truncate">AVG COST / STOP</span>
-                  <div class="text-sm font-black text-slate-900 font-mono mt-0.5" id="kpi-val-avg-cost">₹0</div>
+            <!-- Top 4 KPI Summary Cards Row (RouteLogic Metric Specs) -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+              
+              <!-- KPI 1: Total Routes -->
+              <div class="ct-kpi-card">
+                <div class="flex items-center justify-between text-slate-400 mb-1.5">
+                  <span class="text-[11px] font-extrabold uppercase tracking-wider">Total Routes</span>
+                  <span class="px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-100">+3% vs ystd</span>
                 </div>
-                <div class="text-right min-w-0">
-                  <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block truncate">TOTAL TOLLS</span>
-                  <div class="text-sm font-black text-slate-900 font-mono mt-0.5" id="ops-recent-toll-cost">₹0</div>
+                <div class="flex items-baseline gap-2">
+                  <strong class="text-2xl sm:text-3xl font-black text-slate-900 font-mono" id="ct-kpi-routes">24</strong>
+                  <span class="text-xs text-slate-500 font-medium">Dispatched</span>
                 </div>
               </div>
-            </div>
 
-            <!-- Activity Feed with Center Clock Icon -->
-            <div class="flex flex-col items-center justify-center py-6 my-auto text-center" id="ops-recent-activity-list">
-              <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center mb-1.5">
-                <svg class="w-5 h-5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <!-- KPI 2: On-Time Rate -->
+              <div class="ct-kpi-card">
+                <div class="flex items-center justify-between text-slate-400 mb-1.5">
+                  <span class="text-[11px] font-extrabold uppercase tracking-wider">On-Time %</span>
+                  <span class="px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-bold border border-blue-100">Target 95%</span>
+                </div>
+                <div class="flex items-baseline gap-2">
+                  <strong class="text-2xl sm:text-3xl font-black text-emerald-600 font-mono" id="ct-kpi-ontime">94%</strong>
+                  <span class="text-xs text-slate-500 font-medium">High SLA</span>
+                </div>
               </div>
-              <span class="text-xs text-slate-400 font-medium">No recent activity</span>
+
+              <!-- KPI 3: Total Mileage -->
+              <div class="ct-kpi-card">
+                <div class="flex items-center justify-between text-slate-400 mb-1.5">
+                  <span class="text-[11px] font-extrabold uppercase tracking-wider">Total Mileage</span>
+                  <span class="px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-100">-12% Dist</span>
+                </div>
+                <div class="flex items-baseline gap-2">
+                  <strong class="text-2xl sm:text-3xl font-black text-slate-900 font-mono" id="ct-kpi-mileage">1,842</strong>
+                  <span class="text-xs text-slate-500 font-medium">km today</span>
+                </div>
+              </div>
+
+              <!-- KPI 4: Fleet OpEx Cost -->
+              <div class="ct-kpi-card">
+                <div class="flex items-center justify-between text-slate-400 mb-1.5">
+                  <span class="text-[11px] font-extrabold uppercase tracking-wider">OpEx Cost</span>
+                  <span class="px-1.5 py-0.5 rounded-full bg-orange-50 text-orange-700 text-[10px] font-bold border border-orange-100">₹0 Toll Zone</span>
+                </div>
+                <div class="flex items-baseline gap-2">
+                  <strong class="text-2xl sm:text-3xl font-black text-slate-900 font-mono" id="ct-kpi-cost">₹12,450</strong>
+                  <span class="text-xs text-slate-500 font-medium">Fuel + Driver</span>
+                </div>
+              </div>
+
             </div>
 
-            <!-- Footer status -->
-            <div class="pt-2 mt-2 border-t border-slate-100 flex items-center justify-between text-[11px] gap-2">
-              <span class="text-slate-500 font-medium flex items-center gap-1.5 truncate">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
-                <span>No fleet data available</span>
-              </span>
-              <span class="font-mono text-blue-600 font-bold shrink-0" id="ops-fleet-status-counter">0 Active Dispatches</span>
-            </div>
-          </div>
+            <!-- Two-Column Control Tower Grid (8 Cols Center + 4 Cols Right) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+              
+              <!-- Center Column (8 Cols): Map Overview + Orders Today Manifest Table -->
+              <div class="lg:col-span-8 space-y-5">
+                
+                <!-- Map Overview Container -->
+                <div class="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200/90 shadow-xs">
+                  <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100 flex-wrap gap-2">
+                    <div class="flex items-center gap-2">
+                      <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
+                      <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider">Live Corridor Map Overview</h3>
+                    </div>
+                    <span class="text-[11px] font-bold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">Ludhiana Hub ➔ Rajpura DC (85.5 km)</span>
+                  </div>
+                  
+                  <!-- Interactive Leaflet Map Div for Control Tower -->
+                  <div id="ct-overview-map" class="w-full h-64 sm:h-72 rounded-2xl bg-slate-100 border border-slate-200 relative overflow-hidden z-10">
+                    <div class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-50/80 pointer-events-none" id="ct-map-placeholder">
+                      <svg class="w-8 h-8 text-orange-500 animate-spin mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>
+                      <span class="text-xs font-bold text-slate-600">Initializing Live Corridor Map...</span>
+                    </div>
+                  </div>
+                </div>
 
-        </div>
+                <!-- "Orders Today" Manifest Table -->
+                <div class="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200/90 shadow-xs" id="ct-orders-today-card">
+                  <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100 flex-wrap gap-2">
+                    <div>
+                      <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider">Orders Today (Manifest)</h3>
+                      <p class="text-[11px] text-slate-400 font-medium">Consignments waiting for vehicle assignment</p>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-full bg-orange-50 text-orange-700 text-xs font-extrabold border border-orange-200">
+                      3 Active Orders
+                    </span>
+                  </div>
 
-        <!-- Bottom Row: Live Trips (8 cols) & Alerts & Notifications (4 cols) -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 text-left mb-8 items-stretch">
-          
-          <!-- Live Trips Table (8 cols) -->
-          <div class="lg:col-span-8 bg-white p-5 rounded-3xl border border-slate-200 shadow-xs min-w-0">
-            <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
-              <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider">LIVE TRIPS</h3>
-              <button type="button" class="text-xs font-bold text-slate-500 hover:text-slate-900 border-none bg-transparent cursor-pointer" onclick="App.navigateTo('live-tracking')">View All</button>
-            </div>
+                  <div class="overflow-x-auto">
+                    <table class="w-full text-left ct-manifest-table border-collapse">
+                      <thead>
+                        <tr>
+                          <th>Order ID</th>
+                          <th>Corridor / Route</th>
+                          <th>Payload</th>
+                          <th>Status</th>
+                          <th class="text-right">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        
+                        <!-- Order 1: Ready to Assign -->
+                        <tr>
+                          <td class="font-mono font-bold text-slate-900">SO-7811</td>
+                          <td>
+                            <strong class="font-bold text-slate-800 block text-xs">Ludhiana Hub ➔ Rajpura DC</strong>
+                            <span class="text-[10px] text-slate-400">NH-44 Expressway Corridor</span>
+                          </td>
+                          <td><span class="font-mono font-bold text-slate-700">5.2 Tons</span></td>
+                          <td>
+                            <span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase">Ready</span>
+                          </td>
+                          <td class="text-right">
+                            <button type="button" class="px-3 py-1.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-black text-[11px] shadow-2xs transition cursor-pointer border-none active:scale-95" onclick="App.assignOrder('SO-7811')">
+                              ⚡ Auto Assign
+                            </button>
+                          </td>
+                        </tr>
 
-            <div class="overflow-x-auto">
-              <table class="w-full text-xs text-left border-collapse">
-                <thead>
-                  <tr class="bg-slate-50 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider border-b border-slate-100">
-                    <th class="p-2.5">TRIP ID</th>
-                    <th class="p-2.5">ROUTE</th>
-                    <th class="p-2.5">VEHICLE</th>
-                    <th class="p-2.5">DRIVER</th>
-                    <th class="p-2.5">STATUS</th>
-                    <th class="p-2.5">ETA</th>
-                    <th class="p-2.5 text-right">ACTION</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100" id="ops-live-trips-tbody">
-                  <tr>
-                    <td colspan="7" class="py-8 text-center">
-                      <div class="flex flex-col items-center justify-center">
-                        <div class="w-11 h-11 rounded-2xl bg-slate-100 flex items-center justify-center mb-2">
-                          <svg class="w-6 h-6 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-                        </div>
-                        <strong class="text-sm font-black text-slate-900 block">No active trips</strong>
-                        <p class="text-xs text-slate-400 mt-0.5">You don't have any active trips at the moment.</p>
+                        <!-- Order 2: In Transit -->
+                        <tr>
+                          <td class="font-mono font-bold text-slate-900">SO-7812</td>
+                          <td>
+                            <strong class="font-bold text-slate-800 block text-xs">Khanna Whse ➔ Mandi Gobindgarh</strong>
+                            <span class="text-[10px] text-slate-400">Truck: Ashok Leyland BADA DOST</span>
+                          </td>
+                          <td><span class="font-mono font-bold text-slate-700">1.8 Tons</span></td>
+                          <td>
+                            <span class="px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 text-[10px] font-black uppercase">In Transit</span>
+                          </td>
+                          <td class="text-right">
+                            <button type="button" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-[11px] shadow-2xs transition cursor-pointer border-none active:scale-95" onclick="App.navigateTo('live-tracking')">
+                              📍 Live GPS
+                            </button>
+                          </td>
+                        </tr>
+
+                        <!-- Order 3: Scheduled -->
+                        <tr>
+                          <td class="font-mono font-bold text-slate-900">SO-7813</td>
+                          <td>
+                            <strong class="font-bold text-slate-800 block text-xs">Doraha Logistics ➔ Sirhind Bypass</strong>
+                            <span class="text-[10px] text-slate-400">Departure: 18:30 IST</span>
+                          </td>
+                          <td><span class="font-mono font-bold text-slate-700">3.5 Tons</span></td>
+                          <td>
+                            <span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 text-[10px] font-black uppercase">Scheduled</span>
+                          </td>
+                          <td class="text-right">
+                            <button type="button" class="px-3 py-1.5 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 font-bold text-[11px] transition cursor-pointer active:scale-95" onclick="App.assignOrder('SO-7813')">
+                              ⚡ Auto Assign
+                            </button>
+                          </td>
+                        </tr>
+
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Right Column (4 Cols): Active Dispatched Routes -->
+              <div class="lg:col-span-4 space-y-4">
+                
+                <div class="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200/90 shadow-xs">
+                  <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
+                    <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider">Active Dispatches</h3>
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                  </div>
+
+                  <div class="space-y-3.5">
+                    
+                    <!-- Route Card 1: Active Trip R-1042 -->
+                    <div class="ct-route-card p-3.5 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-white transition">
+                      <div class="flex items-center justify-between mb-2">
+                        <span class="font-mono font-black text-xs text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-100">Route #R-1042</span>
+                        <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">En Route (58 km/h)</span>
                       </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+                      
+                      <div class="text-xs font-black text-slate-900 leading-tight">Ludhiana Hub ➔ Rajpura Focal Point</div>
+                      <div class="text-[11px] text-slate-500 font-medium mt-0.5">85.5 km • ₹0 Toll-Free Corridor</div>
 
-          <!-- Alerts & Notifications (4 cols) -->
-          <div class="lg:col-span-4 bg-white p-5 rounded-3xl border border-slate-200 shadow-xs flex flex-col justify-between min-w-0">
-            <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
-              <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider">ALERTS & NOTIFICATIONS</h3>
-              <button type="button" class="text-xs font-bold text-slate-500 hover:text-slate-900 border-none bg-transparent cursor-pointer" onclick="App.toggleNotificationDrawer()">View All</button>
-            </div>
+                      <div class="my-2.5 pt-2 border-t border-slate-200/60 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                          <div class="w-7 h-7 rounded-full bg-orange-100 text-orange-700 font-black text-[10px] flex items-center justify-center">MY</div>
+                          <div>
+                            <strong class="text-xs font-bold text-slate-800 block leading-tight">Manoj Yadav</strong>
+                            <span class="text-[10px] text-slate-400 font-mono">Eicher Pro 3019 (HR55AB1234)</span>
+                          </div>
+                        </div>
+                        <div class="text-right">
+                          <span class="text-[9px] text-slate-400 uppercase font-extrabold block">PIN</span>
+                          <span class="font-mono font-black text-xs text-slate-900 bg-white px-1.5 py-0.5 rounded border border-slate-200">3816</span>
+                        </div>
+                      </div>
 
-            <div class="space-y-2 text-xs overflow-y-auto max-h-[280px] scrollbar-thin" id="ops-alerts-list">
+                      <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden mb-2">
+                        <div class="bg-orange-500 h-1.5 rounded-full" style="width: 45%;"></div>
+                      </div>
+                      <div class="flex justify-between text-[10px] font-medium text-slate-400 mb-3">
+                        <span>Payload: 5,000 kg</span>
+                        <span class="font-bold text-slate-700">45% Capacity</span>
+                      </div>
 
-              <!-- 1. Critical Maintenance Alert -->
-              <div class="flex items-start gap-2.5 p-2.5 rounded-2xl bg-rose-50 border border-rose-100 hover:bg-rose-100/60 transition cursor-pointer">
-                <div class="w-7 h-7 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0 mt-0.5">
-                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                </div>
-                <div class="flex-1 min-w-0">
-                  <strong class="text-[11px] font-bold text-slate-900 block leading-tight truncate">Maintenance due: Truck RJ 14 GA 1234</strong>
-                  <span class="text-[10px] text-slate-500 block mt-0.5">Scheduled service due in 2 days</span>
-                </div>
-                <span class="text-[10px] text-slate-400 font-medium shrink-0 mt-0.5">10m ago</span>
-              </div>
+                      <button type="button" class="w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs transition cursor-pointer border-none flex items-center justify-center gap-1.5" onclick="App.navigateTo('live-tracking')">
+                        <svg class="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+                        <span>Track Live GPS Turn-by-Turn</span>
+                      </button>
+                    </div>
 
-              <!-- 2. Service Due -->
-              <div class="flex items-start gap-2.5 p-2.5 rounded-2xl bg-amber-50 border border-amber-100 hover:bg-amber-100/60 transition cursor-pointer">
-                <div class="w-7 h-7 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 mt-0.5">
-                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                </div>
-                <div class="flex-1 min-w-0">
-                  <strong class="text-[11px] font-bold text-slate-900 block leading-tight truncate">Oil service due: Truck HR 55 AB 1234</strong>
-                  <span class="text-[10px] text-slate-500 block mt-0.5">Service recommended after 500 km</span>
-                </div>
-                <span class="text-[10px] text-slate-400 font-medium shrink-0 mt-0.5">25m ago</span>
-              </div>
+                    <!-- Route Card 2: Active Trip R-1039 -->
+                    <div class="ct-route-card p-3.5 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-white transition">
+                      <div class="flex items-center justify-between mb-2">
+                        <span class="font-mono font-black text-xs text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">Route #R-1039</span>
+                        <span class="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">NH-44 Karnal</span>
+                      </div>
+                      
+                      <div class="text-xs font-black text-slate-900 leading-tight">Ambala Depot ➔ Delhi Hub</div>
+                      <div class="text-[11px] text-slate-500 font-medium mt-0.5">198 km • ETA 3h 15m</div>
 
-              <!-- 3. Insurance Reminder -->
-              <div class="flex items-start gap-2.5 p-2.5 rounded-2xl bg-blue-50 border border-blue-100 hover:bg-blue-100/60 transition cursor-pointer">
-                <div class="w-7 h-7 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 mt-0.5">
-                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                </div>
-                <div class="flex-1 min-w-0">
-                  <strong class="text-[11px] font-bold text-slate-900 block leading-tight truncate">Insurance expiring: Truck MH 12 AB 5678</strong>
-                  <span class="text-[10px] text-slate-500 block mt-0.5">Insurance expires in 15 days</span>
-                </div>
-                <span class="text-[10px] text-slate-400 font-medium shrink-0 mt-0.5">1h ago</span>
-              </div>
+                      <div class="my-2.5 pt-2 border-t border-slate-200/60 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                          <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-700 font-black text-[10px] flex items-center justify-center">GS</div>
+                          <div>
+                            <strong class="text-xs font-bold text-slate-800 block leading-tight">Gurpreet Singh</strong>
+                            <span class="text-[10px] text-slate-400 font-mono">BharatBenz 1617R</span>
+                          </div>
+                        </div>
+                      </div>
 
-              <!-- 4. Preventive Maintenance -->
-              <div class="flex items-start gap-2.5 p-2.5 rounded-2xl bg-orange-50 border border-orange-100 hover:bg-orange-100/60 transition cursor-pointer">
-                <div class="w-7 h-7 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center shrink-0 mt-0.5">
-                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                      <button type="button" class="w-full py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-bold text-xs transition cursor-pointer" onclick="App.navigateTo('live-tracking')">
+                        View Telemetry
+                      </button>
+                    </div>
+
+                  </div>
                 </div>
-                <div class="flex-1 min-w-0">
-                  <strong class="text-[11px] font-bold text-slate-900 block leading-tight truncate">Preventive maintenance: Truck PB 10 CQ 4821</strong>
-                  <span class="text-[10px] text-slate-500 block mt-0.5">Service scheduled for tomorrow</span>
-                </div>
-                <span class="text-[10px] text-slate-400 font-medium shrink-0 mt-0.5">2h ago</span>
+
               </div>
 
             </div>
+
           </div>
 
         </div>
