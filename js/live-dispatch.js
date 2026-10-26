@@ -4,9 +4,9 @@
  * ==============================================================================
  * Handles the full Ola/Uber-inspired post-assignment experience:
  * 1. Generates a 4-digit secure Pickup OTP/PIN on dispatch
- * 2. Renders the bottom-sheet driver card with live ETA, speed, battery
- * 3. Animates the truck marker smoothly along the route polyline
- * 4. Updates telemetry gauges in real time
+ * 2. Renders the Driver Details Card on the LEFT side of the screen
+ * 3. Shows the Live Tracking Leaflet Map on the RIGHT side of the screen
+ * 4. Animates the truck marker smoothly along the route polyline with real-time speed & battery
  * 5. PIN verification flow for the Driver Dashboard
  */
 
@@ -43,12 +43,12 @@ const LiveDispatch = {
       tripPin: this._tripPin,
       vehicleId: veh.id || vehicleId,
       vehicleName: veh.name || 'Tata Ace EV Ultra',
-      vehiclePlate: veh.regNo || veh.registrationNumber || FLEET_REGISTRATIONS[vehicleId]?.regNo || 'DL 1EV 9901',
+      vehiclePlate: veh.regNo || veh.registrationNumber || veh.plate || (typeof FLEET_REGISTRATIONS !== 'undefined' && FLEET_REGISTRATIONS[vehicleId]?.regNo) || 'DL 1EV 9901',
       vehicleCategory: veh.category || veh.type || 'LCV (Electric)',
       vehicleIcon: veh.icon || (veh.powertrain === 'Electric (EV)' ? '⚡' : '🚚'),
       isEV: (veh.powertrain || '').includes('Electric'),
       driverName: driverName || veh.driver || 'Karthik Nair',
-      driverMobile: FLEET_REGISTRATIONS[vehicleId]?.mobile || '+91 98765 43210',
+      driverMobile: (typeof FLEET_REGISTRATIONS !== 'undefined' && FLEET_REGISTRATIONS[vehicleId]?.mobile) || veh.driverMobile || '+91 98765 43210',
       driverRating: veh.rating || '4.8',
       driverInitials: (driverName || veh.driver || 'KN').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2),
       origin: activeTrip.origin || 'Okhla Industrial Area, Delhi',
@@ -61,7 +61,7 @@ const LiveDispatch = {
       dispatchedAt: Date.now()
     };
 
-    // Save PIN to active trip
+    // Save PIN to active trip in localStorage
     activeTrip.tripPin = this._tripPin;
     activeTrip.dispatchStatus = 'DRIVER_ON_WAY';
     StorageEngine.saveActiveTrip(activeTrip);
@@ -74,27 +74,27 @@ const LiveDispatch = {
     // Navigate to live tracking view
     window.App?.navigateTo('live-tracking');
 
-    // Short delay for DOM to render, then initialize map and UI
+    // Short delay for DOM view transition, then render left panel and right map
     setTimeout(() => {
       this._showDispatchUI();
       this._initLiveMap();
       this._startAnimation();
-    }, 350);
+    }, 300);
 
     UIManager.playSound('success');
-    UIManager.showToast(`✅ Trip dispatched! Driver ${this._tripData.driverName} is on the way. Share PIN: ${this._tripPin}`, 'success', 5000);
+    UIManager.showToast(`✅ Trip Dispatched! Driver ${this._tripData.driverName} assigned. Pickup PIN: ${this._tripPin}`, 'success', 5000);
   },
 
   // ============================================================================
   // 2. BUILD SIMULATED ROUTE WAYPOINTS
   // ============================================================================
   _buildRoutePoints() {
-    // Use the corridor matching the vehicle ID if available from MapEngine
-    const corridor = REGIONAL_FLEET_CORRIDORS[this._tripData.vehicleId];
+    // If corridor points exist in MapEngine/REGIONAL_FLEET_CORRIDORS
+    const corridor = (typeof REGIONAL_FLEET_CORRIDORS !== 'undefined') && REGIONAL_FLEET_CORRIDORS[this._tripData.vehicleId];
     if (corridor && corridor.points && corridor.points.length >= 2) {
       this._routePoints = corridor.points.map(p => ({ lat: p[0], lng: p[1] }));
     } else {
-      // Default Delhi-NCR route simulation (Okhla → Noida → CP → Dwarka → Gurugram)
+      // Default Delhi-NCR corridor simulation
       this._routePoints = [
         { lat: 28.5355, lng: 77.2631 },  // Okhla Industrial
         { lat: 28.5520, lng: 77.2480 },  // Kalkaji
@@ -113,25 +113,27 @@ const LiveDispatch = {
   },
 
   // ============================================================================
-  // 3. RENDER THE OLA/UBER BOTTOM-SHEET UI
+  // 3. RENDER DRIVER DETAILS CARD ON THE LEFT SIDE PANEL
   // ============================================================================
   _showDispatchUI() {
-    // Hide the empty state, show the active tracking container
+    // Hide empty state, show active tracking container
     const emptyBox = document.getElementById('live-tracking-empty-box');
     const activeBox = document.getElementById('live-tracking-active-container');
     if (emptyBox) emptyBox.classList.add('hidden');
     if (activeBox) activeBox.classList.remove('hidden');
 
-    // Inject the Ola/Uber bottom-sheet after the map
-    let sheet = document.getElementById('dispatch-bottom-sheet');
-    if (!sheet) {
-      sheet = document.createElement('div');
-      sheet.id = 'dispatch-bottom-sheet';
-      const mapContainer = document.querySelector('#live-tracking-active-container .bg-white.p-4.rounded-3xl') 
-                         || document.getElementById('live-tracking-active-container');
-      if (mapContainer) {
-        mapContainer.parentNode.insertBefore(sheet, mapContainer.nextSibling);
-      }
+    // Remove legacy bottom sheet if it exists
+    const oldSheet = document.getElementById('dispatch-bottom-sheet');
+    if (oldSheet) oldSheet.remove();
+
+    // Target the LEFT column panel
+    let panel = document.getElementById('dispatch-left-panel');
+    if (!panel) {
+      console.warn('dispatch-left-panel not found in DOM, falling back to prepending');
+      panel = document.createElement('div');
+      panel.id = 'dispatch-left-panel';
+      const container = document.getElementById('live-tracking-active-container');
+      if (container) container.prepend(panel);
     }
 
     const d = this._tripData;
@@ -139,62 +141,62 @@ const LiveDispatch = {
       ? 'from-emerald-500 to-teal-500' 
       : 'from-orange-500 to-amber-500';
 
-    sheet.innerHTML = `
-      <!-- Ola/Uber Style Dispatch Bottom Sheet -->
-      <div class="mt-5 bg-white rounded-3xl border border-slate-200 shadow-lg overflow-hidden">
+    panel.innerHTML = `
+      <!-- Ola/Uber Style Driver Details Card (LEFT SIDE) -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-md overflow-hidden flex flex-col justify-between h-full text-left">
         
-        <!-- Status Header Bar -->
-        <div class="px-5 py-4 bg-gradient-to-r ${d.isEV ? 'from-emerald-600 to-teal-600' : 'from-slate-900 to-slate-800'} text-white">
-          <div class="flex items-center justify-between flex-wrap gap-3">
+        <!-- Status Header Bar with Pickup PIN -->
+        <div class="px-5 py-4 bg-gradient-to-r ${d.isEV ? 'from-emerald-700 to-teal-700' : 'from-slate-900 to-slate-800'} text-white">
+          <div class="flex items-center justify-between gap-3">
             <div>
               <div class="flex items-center gap-2 mb-1">
                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-300" id="dispatch-status-label">Driver On The Way</span>
               </div>
-              <h3 class="text-lg font-black tracking-tight">
+              <h3 class="text-base sm:text-lg font-black tracking-tight">
                 Arriving in <span class="text-amber-300" id="dispatch-eta-header">calculating...</span>
               </h3>
             </div>
-            <div class="text-right">
-              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">PICKUP PIN</span>
-              <div class="text-2xl font-black tracking-[0.25em] font-mono bg-white/15 backdrop-blur px-3 py-1 rounded-xl border border-white/20" id="dispatch-pin-display">
+            <div class="text-right shrink-0">
+              <span class="text-[10px] font-bold text-slate-300 uppercase tracking-widest block font-mono">PICKUP PIN</span>
+              <div class="text-2xl font-black tracking-[0.25em] font-mono bg-white/20 backdrop-blur px-3 py-1 rounded-xl border border-white/25 text-white" id="dispatch-pin-display">
                 ${this._tripPin}
               </div>
-              <span class="text-[10px] text-slate-400 mt-0.5 block">Share with driver at pickup</span>
+              <span class="text-[9px] text-slate-300 mt-0.5 block">Share at pickup</span>
             </div>
           </div>
         </div>
 
-        <div class="p-5 space-y-4">
+        <!-- Driver Card Content Body -->
+        <div class="p-5 space-y-4 flex-1 flex flex-col justify-between">
 
-          <!-- Driver & Vehicle Profile Card -->
-          <div class="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-2xl">
-            <div class="flex items-center gap-3.5">
-              <!-- Driver Avatar -->
-              <div class="relative">
-                <div class="w-14 h-14 rounded-full bg-gradient-to-tr ${gradientColors} flex items-center justify-center text-white font-black text-lg shadow-md">
+          <!-- Driver Profile Row -->
+          <div class="flex items-center justify-between p-3.5 bg-slate-50 border border-slate-200 rounded-2xl gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <!-- Driver Avatar Circle -->
+              <div class="relative shrink-0">
+                <div class="w-13 h-13 rounded-full bg-gradient-to-tr ${gradientColors} flex items-center justify-center text-white font-black text-base shadow-sm">
                   ${d.driverInitials}
                 </div>
-                <div class="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full w-5 h-5 flex items-center justify-center border-2 border-white text-[9px] font-black">
+                <div class="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full w-4.5 h-4.5 flex items-center justify-center border-2 border-white text-[9px] font-black">
                   ✓
                 </div>
               </div>
-              <div>
-                <div class="flex items-center gap-2">
-                  <strong class="text-sm font-extrabold text-slate-900">${Utils.escapeHTML(d.driverName)}</strong>
-                  <span class="px-1.5 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-bold rounded flex items-center gap-0.5">
+              <div class="truncate">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <strong class="text-sm font-extrabold text-slate-900 truncate">${Utils.escapeHTML(d.driverName)}</strong>
+                  <span class="px-1.5 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-bold rounded flex items-center gap-0.5 shrink-0">
                     ★ ${d.driverRating}
                   </span>
-                  <span class="text-[10px] text-emerald-600 font-bold">• Available</span>
                 </div>
-                <p class="text-xs text-slate-500 font-medium">${Utils.escapeHTML(d.vehicleName)} • ${Utils.escapeHTML(d.vehicleCategory)}</p>
+                <p class="text-xs text-slate-500 font-medium truncate mt-0.5">${Utils.escapeHTML(d.vehicleName)}</p>
                 <p class="text-[11px] text-slate-400 font-mono">${Utils.escapeHTML(d.driverMobile)}</p>
               </div>
             </div>
 
-            <!-- Vehicle Registration Plate -->
-            <div class="text-right">
-              <div class="text-sm font-black font-mono bg-white border-2 border-slate-300 px-3 py-1.5 rounded-xl text-slate-900 shadow-sm tracking-wide">
+            <!-- Vehicle License Plate -->
+            <div class="text-right shrink-0">
+              <div class="text-xs font-black font-mono bg-white border border-slate-300 px-2.5 py-1 rounded-xl text-slate-900 shadow-2xs tracking-wide">
                 ${Utils.escapeHTML(d.vehiclePlate)}
               </div>
               <span class="text-[10px] font-bold ${d.isEV ? 'text-emerald-600' : 'text-slate-500'} block mt-1">
@@ -203,63 +205,70 @@ const LiveDispatch = {
             </div>
           </div>
 
-          <!-- Live Telemetry Gauges Row -->
-          <div class="grid grid-cols-4 gap-3">
-            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
-              <span class="text-[10px] font-bold text-slate-400 uppercase block">Speed</span>
-              <strong class="text-base font-black text-slate-900 font-mono block" id="dispatch-live-speed">0 km/h</strong>
-            </div>
-            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
-              <span class="text-[10px] font-bold text-slate-400 uppercase block">${d.isEV ? 'Battery' : 'Fuel'}</span>
-              <strong class="text-base font-black ${d.isEV ? 'text-emerald-600' : 'text-amber-600'} font-mono block" id="dispatch-live-battery">${d.batteryLevel}%</strong>
-            </div>
-            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
-              <span class="text-[10px] font-bold text-slate-400 uppercase block">Distance</span>
-              <strong class="text-base font-black text-orange-600 font-mono block" id="dispatch-live-distance">${d.distanceKm.toFixed(1)} km</strong>
-            </div>
-            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
-              <span class="text-[10px] font-bold text-slate-400 uppercase block">ETA</span>
-              <strong class="text-base font-black text-emerald-600 font-mono block" id="dispatch-live-eta">--:--</strong>
+          <!-- Live Telemetry Gauges Grid (2x2 on narrow, 4-col on wider) -->
+          <div>
+            <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block mb-2">Live CAN Bus & Telemetry Feed</span>
+            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 gap-2.5">
+              <div class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-center">
+                <span class="text-[10px] font-bold text-slate-400 uppercase block">Speed</span>
+                <strong class="text-sm sm:text-base font-black text-slate-900 font-mono block" id="dispatch-live-speed">0 km/h</strong>
+              </div>
+              <div class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-center">
+                <span class="text-[10px] font-bold text-slate-400 uppercase block">${d.isEV ? 'Battery' : 'Fuel'}</span>
+                <strong class="text-sm sm:text-base font-black ${d.isEV ? 'text-emerald-600' : 'text-amber-600'} font-mono block" id="dispatch-live-battery">${d.batteryLevel}%</strong>
+              </div>
+              <div class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-center">
+                <span class="text-[10px] font-bold text-slate-400 uppercase block">Distance</span>
+                <strong class="text-sm sm:text-base font-black text-orange-600 font-mono block" id="dispatch-live-distance">${d.distanceKm.toFixed(1)} km</strong>
+              </div>
+              <div class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-center">
+                <span class="text-[10px] font-bold text-slate-400 uppercase block">ETA</span>
+                <strong class="text-sm sm:text-base font-black text-emerald-600 font-mono block" id="dispatch-live-eta">--:--</strong>
+              </div>
             </div>
           </div>
 
           <!-- Quick Communication Buttons -->
-          <div class="grid grid-cols-4 gap-2.5">
-            <button type="button" class="py-3 px-2 bg-slate-100 hover:bg-slate-200 rounded-xl transition flex flex-col items-center gap-1.5 cursor-pointer border-none" onclick="UIManager.showToast('Calling ${Utils.escapeHTML(d.driverName)}...', 'info')">
-              <span class="text-lg">📞</span>
-              <span class="text-[10px] font-bold text-slate-700">Call Driver</span>
-            </button>
-            <button type="button" class="py-3 px-2 bg-slate-100 hover:bg-slate-200 rounded-xl transition flex flex-col items-center gap-1.5 cursor-pointer border-none" onclick="UIManager.showToast('Opening chat with ${Utils.escapeHTML(d.driverName)}...', 'info')">
-              <span class="text-lg">💬</span>
-              <span class="text-[10px] font-bold text-slate-700">Message</span>
-            </button>
-            <button type="button" class="py-3 px-2 bg-slate-100 hover:bg-slate-200 rounded-xl transition flex flex-col items-center gap-1.5 cursor-pointer border-none" onclick="LiveDispatch.shareTrackingLink()">
-              <span class="text-lg">🔗</span>
-              <span class="text-[10px] font-bold text-slate-700">Share Trip</span>
-            </button>
-            <button type="button" class="py-3 px-2 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition flex flex-col items-center gap-1.5 cursor-pointer" onclick="UIManager.showToast('🛡️ Emergency SOS alert sent to Control Room & nearest patrol unit.', 'error')">
-              <span class="text-lg">🛡️</span>
-              <span class="text-[10px] font-bold text-rose-700">SOS</span>
-            </button>
+          <div>
+            <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block mb-2">Driver Contact & Safety</span>
+            <div class="grid grid-cols-4 gap-2">
+              <button type="button" class="py-2.5 px-1 bg-slate-100 hover:bg-slate-200 rounded-xl transition flex flex-col items-center gap-1 cursor-pointer border-none shadow-2xs" onclick="UIManager.showToast('Calling driver ${Utils.escapeHTML(d.driverName)}: ${Utils.escapeHTML(d.driverMobile)}', 'info')">
+                <span class="text-base">📞</span>
+                <span class="text-[10px] font-bold text-slate-700">Call</span>
+              </button>
+              <button type="button" class="py-2.5 px-1 bg-slate-100 hover:bg-slate-200 rounded-xl transition flex flex-col items-center gap-1 cursor-pointer border-none shadow-2xs" onclick="UIManager.showToast('Opening instant message with ${Utils.escapeHTML(d.driverName)}...', 'info')">
+                <span class="text-base">💬</span>
+                <span class="text-[10px] font-bold text-slate-700">Message</span>
+              </button>
+              <button type="button" class="py-2.5 px-1 bg-slate-100 hover:bg-slate-200 rounded-xl transition flex flex-col items-center gap-1 cursor-pointer border-none shadow-2xs" onclick="LiveDispatch.shareTrackingLink()">
+                <span class="text-base">🔗</span>
+                <span class="text-[10px] font-bold text-slate-700">Share</span>
+              </button>
+              <button type="button" class="py-2.5 px-1 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition flex flex-col items-center gap-1 cursor-pointer shadow-2xs" onclick="UIManager.showToast('🛡️ Emergency SOS signal transmitted to Control Room.', 'error')">
+                <span class="text-base">🛡️</span>
+                <span class="text-[10px] font-bold text-rose-700">SOS</span>
+              </button>
+            </div>
           </div>
 
-          <!-- Route Progress Bar (Origin → Destination) -->
+          <!-- Corridor Progress Timeline (Origin → Destination) -->
           <div class="pt-3 border-t border-slate-100">
-            <div class="flex items-center justify-between text-xs text-slate-600">
-              <div class="flex items-center gap-2">
-                <span class="w-3 h-3 rounded-full bg-slate-900 flex items-center justify-center text-white text-[7px] font-black">A</span>
-                <span class="font-bold text-slate-800">${Utils.escapeHTML(d.originShort)}</span>
+            <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block mb-2">Transit Progress</span>
+            <div class="flex items-center justify-between text-xs text-slate-600 gap-2">
+              <div class="flex items-center gap-1.5 min-w-0">
+                <span class="w-3.5 h-3.5 rounded-full bg-slate-900 text-white text-[8px] font-black flex items-center justify-center shrink-0">A</span>
+                <span class="font-bold text-slate-800 text-[11px] truncate">${Utils.escapeHTML(d.originShort)}</span>
               </div>
-              <div class="flex-1 mx-4 relative">
+              <div class="flex-1 mx-2 relative">
                 <div class="border-t-2 border-dashed border-slate-300 w-full"></div>
                 <div class="border-t-2 border-emerald-500 absolute top-0 left-0 transition-all duration-500" id="dispatch-progress-bar" style="width: 0%"></div>
                 <div class="absolute -top-2.5 transition-all duration-500" id="dispatch-progress-truck" style="left: 0%">
-                  <span class="text-sm">${d.vehicleIcon}</span>
+                  <span class="text-xs">${d.vehicleIcon}</span>
                 </div>
               </div>
-              <div class="flex items-center gap-2">
-                <span class="w-3 h-3 rounded-full bg-rose-600 flex items-center justify-center text-white text-[7px] font-black">B</span>
-                <span class="font-bold text-slate-800">${Utils.escapeHTML(d.destinationShort)}</span>
+              <div class="flex items-center gap-1.5 min-w-0">
+                <span class="w-3.5 h-3.5 rounded-full bg-rose-600 text-white text-[8px] font-black flex items-center justify-center shrink-0">B</span>
+                <span class="font-bold text-slate-800 text-[11px] truncate">${Utils.escapeHTML(d.destinationShort)}</span>
               </div>
             </div>
           </div>
@@ -268,7 +277,7 @@ const LiveDispatch = {
       </div>
     `;
 
-    // Update the KPI cards at the top too
+    // Update top KPI labels
     this._updateTopKPIs();
   },
 
@@ -375,10 +384,17 @@ const LiveDispatch = {
       document.head.appendChild(style);
     }
 
-    // Fit map to show entire route
-    this._liveMap.fitBounds(routeLatLngs, { padding: [60, 60] });
+    // Fit map to show entire route with comfortable padding
+    this._liveMap.fitBounds(routeLatLngs, { padding: [50, 50] });
 
-    // Update the floating vehicle label
+    // Recalibrate leaflet size after DOM layout settles
+    setTimeout(() => {
+      if (this._liveMap) {
+        this._liveMap.invalidateSize();
+      }
+    }, 250);
+
+    // Update floating vehicle label
     const vehLabel = document.getElementById('live-map-active-vehicle-label');
     if (vehLabel) vehLabel.textContent = `${this._tripData.vehicleIcon} ${this._tripData.vehicleName} (${this._tripData.vehiclePlate}) • Live Dispatch`;
   },
@@ -433,26 +449,25 @@ const LiveDispatch = {
       this._distanceRemaining = this._totalDistance * (1 - progress);
       this._etaSeconds = Math.round((this._distanceRemaining / 45) * 3600);
 
-      // Simulate speed variation (35-65 km/h range)
-      const baseSpeed = 45 + Math.sin(currentStep * 0.15) * 18;
-      const speed = Math.round(baseSpeed + (Math.random() * 6 - 3));
+      // Simulate realistic speed variation (40-65 km/h range)
+      const baseSpeed = 48 + Math.sin(currentStep * 0.15) * 14;
+      const speed = Math.round(baseSpeed + (Math.random() * 4 - 2));
 
-      // Battery drain simulation
+      // Battery/Fuel drain simulation
       const batteryDrain = progress * 8; // ~8% drain over full route
       const currentBattery = Math.max(0, Math.round(this._tripData.batteryLevel - batteryDrain));
 
-      // Update all UI elements
+      // Update telemetry gauges
       this._updateTelemetry(speed, currentBattery, this._distanceRemaining, this._etaSeconds, progress);
 
       currentStep++;
-    }, 600); // Update every 600ms for smooth movement
+    }, 600);
   },
 
   // ============================================================================
   // 6. UPDATE TELEMETRY UI (Speed, Battery, Distance, ETA, Progress)
   // ============================================================================
   _updateTelemetry(speed, battery, distKm, etaSec, progress) {
-    // Bottom sheet gauges
     const speedEl = document.getElementById('dispatch-live-speed');
     const batteryEl = document.getElementById('dispatch-live-battery');
     const distEl = document.getElementById('dispatch-live-distance');
@@ -492,7 +507,7 @@ const LiveDispatch = {
       kpiLatLng.textContent = `${ll.lat.toFixed(4)}° N, ${ll.lng.toFixed(4)}° E`;
     }
 
-    // Status label updates based on distance
+    // Status label updates
     const statusLabel = document.getElementById('dispatch-status-label');
     if (statusLabel) {
       if (distKm < 0.5) {
@@ -522,7 +537,6 @@ const LiveDispatch = {
       this._animInterval = null;
     }
 
-    // Update status
     const statusLabel = document.getElementById('dispatch-status-label');
     const etaHeader = document.getElementById('dispatch-eta-header');
     const progressBar = document.getElementById('dispatch-progress-bar');
@@ -533,16 +547,13 @@ const LiveDispatch = {
     if (progressBar) progressBar.style.width = '100%';
     if (progressTruck) progressTruck.style.left = '100%';
 
-    // Update telemetry
     this._updateTelemetry(0, Math.round(this._tripData.batteryLevel - 8), 0, 0, 1);
 
-    // Snap marker to destination
     const lastPt = this._routePoints[this._routePoints.length - 1];
     if (this._driverMarker) {
       this._driverMarker.setLatLng([lastPt.lat, lastPt.lng]);
     }
 
-    // Update active trip status
     const activeTrip = StorageEngine.loadActiveTrip();
     if (activeTrip) {
       activeTrip.dispatchStatus = 'ARRIVED';
@@ -550,17 +561,17 @@ const LiveDispatch = {
     }
 
     UIManager.playSound('success');
-    UIManager.showToast(`🎉 ${this._tripData.driverName} has arrived at ${this._tripData.destinationShort}! Share PIN ${this._tripPin} to start loading.`, 'success', 6000);
+    UIManager.showToast(`🎉 Driver ${this._tripData.driverName} has arrived at ${this._tripData.destinationShort}! Share PIN ${this._tripPin} to start trip.`, 'success', 6000);
   },
 
   // ============================================================================
-  // 8. SHARE TRACKING LINK (Clipboard)
+  // 8. SHARE TRACKING LINK
   // ============================================================================
   shareTrackingLink() {
     const url = `${window.location.origin}?trip=${this._tripData?.tripId || 'ACTIVE'}&pin=${this._tripPin || '----'}`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(url).then(() => {
-        UIManager.showToast('📋 Live tracking link copied to clipboard! Share it with the client.', 'success');
+        UIManager.showToast('📋 Live tracking link copied to clipboard! Share it with the customer.', 'success');
       });
     } else {
       UIManager.showToast(`Share this link: ${url}`, 'info');
@@ -568,7 +579,7 @@ const LiveDispatch = {
   },
 
   // ============================================================================
-  // 9. PIN VERIFICATION (For Driver Dashboard)
+  // 9. PIN VERIFICATION
   // ============================================================================
   verifyPin(enteredPin) {
     const activeTrip = StorageEngine.loadActiveTrip();
@@ -584,9 +595,8 @@ const LiveDispatch = {
       StorageEngine.saveActiveTrip(activeTrip);
 
       UIManager.playSound('success');
-      UIManager.showToast('✅ PIN Verified! Trip started. Cargo loading confirmed.', 'success');
+      UIManager.showToast('✅ Pickup PIN Verified! Cargo loading confirmed. Trip Started!', 'success');
       
-      // Start navigation simulation
       if (window.MapEngine?.startNavigationSimulation) {
         window.MapEngine.startNavigationSimulation();
       }
@@ -601,17 +611,11 @@ const LiveDispatch = {
     }
   },
 
-  // ============================================================================
-  // 10. GET CURRENT PIN (for display in driver banner)
-  // ============================================================================
   getCurrentPin() {
     const activeTrip = StorageEngine.loadActiveTrip();
     return activeTrip?.tripPin || this._tripPin || null;
   },
 
-  // ============================================================================
-  // 11. CLEANUP
-  // ============================================================================
   cleanup() {
     if (this._animInterval) {
       clearInterval(this._animInterval);
@@ -621,8 +625,8 @@ const LiveDispatch = {
     this._tripData = null;
     this._tripPin = null;
 
-    const sheet = document.getElementById('dispatch-bottom-sheet');
-    if (sheet) sheet.remove();
+    const panel = document.getElementById('dispatch-left-panel');
+    if (panel) panel.innerHTML = '';
   }
 };
 
