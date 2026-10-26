@@ -99,6 +99,27 @@ const LiveDispatch = {
   _etaSeconds: 0,
   _distanceRemaining: 0,
   _totalDistance: 0,
+  _simSpeedMultiplier: 1,
+  _totalSteps: 220,
+  _currentStep: 0,
+
+  setSimSpeed(multiplier) {
+    this._simSpeedMultiplier = Number(multiplier) || 1;
+    document.querySelectorAll('.btn-sim-spd').forEach(btn => {
+      btn.classList.toggle('bg-slate-900', Number(btn.dataset.spd) === this._simSpeedMultiplier);
+      btn.classList.toggle('text-white', Number(btn.dataset.spd) === this._simSpeedMultiplier);
+      btn.classList.toggle('bg-slate-100', Number(btn.dataset.spd) !== this._simSpeedMultiplier);
+      btn.classList.toggle('text-slate-700', Number(btn.dataset.spd) !== this._simSpeedMultiplier);
+    });
+    if (typeof UIManager !== 'undefined' && UIManager.showToast) {
+      UIManager.showToast(`Simulation Speed: ${multiplier}x`, 'info', 1500);
+    }
+  },
+
+  fastForwardArrival() {
+    this._currentStep = this._totalSteps - 1;
+    this._onArrival();
+  },
 
   // ============================================================================
   // 1. DISPATCH: Called when user clicks "Assign" on a recommended truck
@@ -333,7 +354,15 @@ const LiveDispatch = {
 
           <!-- Live Telemetry Gauges Grid (2x2 on narrow, 4-col on wider) -->
           <div>
-            <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block mb-2">Live CAN Bus & Telemetry Feed</span>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Live CAN Bus & Telemetry Feed</span>
+              <div class="flex items-center gap-1">
+                <button type="button" class="btn-sim-spd px-2 py-0.5 rounded text-[10px] font-bold bg-slate-900 text-white cursor-pointer transition border-none" data-spd="1" onclick="LiveDispatch.setSimSpeed(1)">1x</button>
+                <button type="button" class="btn-sim-spd px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer transition border-none" data-spd="3" onclick="LiveDispatch.setSimSpeed(3)">3x</button>
+                <button type="button" class="btn-sim-spd px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer transition border-none" data-spd="8" onclick="LiveDispatch.setSimSpeed(8)">8x</button>
+                <button type="button" class="px-2 py-0.5 rounded text-[10px] font-bold bg-orange-100 hover:bg-orange-200 text-orange-700 cursor-pointer transition border-none" onclick="LiveDispatch.fastForwardArrival()">⏩ Arrive</button>
+              </div>
+            </div>
             <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 gap-2.5">
               <div class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-center">
                 <span class="text-[10px] font-bold text-slate-400 uppercase block">Speed</span>
@@ -402,6 +431,10 @@ const LiveDispatch = {
         </div>
       </div>
     `;
+
+    // Immediately render initial telemetry so card NEVER displays "calculating..."
+    const initialEtaSec = Math.round((this._totalDistance / 52) * 3600);
+    this._updateTelemetry(58, this._tripData.batteryLevel, this._totalDistance, initialEtaSec, 0);
 
     // Update top KPI labels
     this._updateTopKPIs();
@@ -540,38 +573,55 @@ const LiveDispatch = {
   _startAnimation() {
     if (this._animInterval) clearInterval(this._animInterval);
 
-    const totalSteps = (this._routePoints.length - 1) * 40; // 40 sub-steps per segment
-    let currentStep = 0;
+    this._totalSteps = 220; // 22 seconds at 1x (100ms per step)
+    this._currentStep = 0;
+
+    // Immediately render first frame
+    const initialEtaSec = Math.round((this._totalDistance / 52) * 3600);
+    this._updateTelemetry(58, this._tripData.batteryLevel, this._totalDistance, initialEtaSec, 0);
 
     this._animInterval = setInterval(() => {
-      if (!this._active || currentStep >= totalSteps) {
+      if (!this._active) return;
+
+      this._currentStep += (this._simSpeedMultiplier || 1);
+
+      if (this._currentStep >= this._totalSteps) {
         this._onArrival();
         return;
       }
 
-      const segmentIndex = Math.floor(currentStep / 40);
-      const subStep = (currentStep % 40) / 40;
+      const progress = Math.min(1, this._currentStep / this._totalSteps);
+      const totalPoints = this._routePoints.length;
 
-      if (segmentIndex >= this._routePoints.length - 1) {
+      if (totalPoints < 2) {
         this._onArrival();
         return;
       }
 
-      const from = this._routePoints[segmentIndex];
-      const to = this._routePoints[segmentIndex + 1];
+      // Smooth continuous interpolation across all route points
+      const exactIndex = progress * (totalPoints - 1);
+      const segIndex = Math.floor(exactIndex);
+      const subStep = exactIndex - segIndex;
 
-      // Interpolate position
+      const from = this._routePoints[segIndex];
+      const to = this._routePoints[Math.min(totalPoints - 1, segIndex + 1)];
+
+      if (!from || !to) {
+        this._onArrival();
+        return;
+      }
+
       const lat = from.lat + (to.lat - from.lat) * subStep;
       const lng = from.lng + (to.lng - from.lng) * subStep;
 
-      // Update marker position
+      // Update moving vehicle marker
       if (this._driverMarker) {
         this._driverMarker.setLatLng([lat, lng]);
       }
 
-      // Update travelled line
+      // Update travelled polyline path
       const travelledPoints = [];
-      for (let i = 0; i <= segmentIndex; i++) {
+      for (let i = 0; i <= segIndex; i++) {
         travelledPoints.push([this._routePoints[i].lat, this._routePoints[i].lng]);
       }
       travelledPoints.push([lat, lng]);
@@ -579,24 +629,21 @@ const LiveDispatch = {
         this._travelledLine.setLatLngs(travelledPoints);
       }
 
-      // Calculate progress
-      const progress = currentStep / totalSteps;
-      this._distanceRemaining = this._totalDistance * (1 - progress);
-      this._etaSeconds = Math.round((this._distanceRemaining / 45) * 3600);
+      // Decrement distance remaining and ETA in real time
+      this._distanceRemaining = Math.max(0, this._totalDistance * (1 - progress));
+      this._etaSeconds = Math.round((this._distanceRemaining / 50) * 3600);
 
-      // Simulate realistic speed variation (40-65 km/h range)
-      const baseSpeed = 48 + Math.sin(currentStep * 0.15) * 14;
+      // Realistic highway speed fluctuations (52 - 64 km/h)
+      const baseSpeed = 56 + Math.sin(this._currentStep * 0.12) * 6;
       const speed = Math.round(baseSpeed + (Math.random() * 4 - 2));
 
-      // Battery/Fuel drain simulation
-      const batteryDrain = progress * 8; // ~8% drain over full route
+      // Realistic battery/fuel drain
+      const batteryDrain = progress * 6;
       const currentBattery = Math.max(0, Math.round(this._tripData.batteryLevel - batteryDrain));
 
-      // Update telemetry gauges
+      // Synchronize telemetry across card and top KPIs
       this._updateTelemetry(speed, currentBattery, this._distanceRemaining, this._etaSeconds, progress);
-
-      currentStep++;
-    }, 600);
+    }, 100);
   },
 
   // ============================================================================
