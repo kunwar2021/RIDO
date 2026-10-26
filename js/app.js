@@ -2929,7 +2929,16 @@ const App = {
     this.optimizerState.selectedVehicleId = vehId;
 
     // Update shared active trip in localStorage
-    const activeTrip = StorageEngine.loadActiveTrip();
+    let activeTrip = StorageEngine.loadActiveTrip();
+    if (!activeTrip) {
+      activeTrip = {
+        tripId: 'TRP-' + Date.now().toString().slice(-6),
+        origin: this.optimizerState?.origin || 'Delhi Logistics Hub',
+        destination: this.optimizerState?.destination || 'Mumbai Nhava Sheva Terminal',
+        waypoints: this.optimizerState?.waypoints || [],
+        distanceKm: this.optimizerState?.distanceKm || 1410
+      };
+    }
     activeTrip.vehicleId = veh.id;
     activeTrip.vehicleName = veh.name;
     activeTrip.vehicleCategory = veh.category || veh.type;
@@ -6419,8 +6428,12 @@ Enter code to sign in:`, generatedOtp);
     this.updateAllUI();
     setTimeout(() => {
       UIManager.showToast(`Trip ${tripId} is now live on Live Tracking.`, "info");
-      this.navigateTo("live-tracking");
-    }, 1000);
+      if (window.LiveDispatch && window.LiveDispatch.dispatchAndTrack) {
+        window.LiveDispatch.dispatchAndTrack(vehicle.id, driverName, vehicle);
+      } else {
+        this.navigateTo("live-tracking");
+      }
+    }, 600);
   },
 
   // --------------------------------------------------------------------------
@@ -7108,6 +7121,34 @@ Enter code to sign in:`, generatedOtp);
     this.updateAllUI();
     MapEngine.stopNavigationSimulation(true);
     UIManager.showToast("Trip successfully completed! Logistics manifest signed and closed.", "success");
+  },
+
+  verifyDriverPickupPin() {
+    const input = document.getElementById("driver-otp-input");
+    const entered = input?.value.trim();
+    if (!entered || entered.length !== 4) {
+      UIManager.showToast("Please enter the 4-digit pickup PIN provided by the customer/dispatcher.", "warn");
+      return;
+    }
+    if (window.LiveDispatch && window.LiveDispatch.verifyPin) {
+      const ok = window.LiveDispatch.verifyPin(entered);
+      if (ok) {
+        input.value = "";
+        const wrap = document.getElementById("driver-pin-verification-wrap");
+        if (wrap) wrap.innerHTML = '<span class="text-xs font-bold text-emerald-700 flex items-center gap-1">✓ Pickup PIN Verified (Trip Authorized)</span>';
+      }
+    } else {
+      const activeTrip = StorageEngine.loadActiveTrip();
+      if (activeTrip && String(activeTrip.tripPin) === String(entered)) {
+        activeTrip.status = CONFIG.TRIP_STATUS.IN_PROGRESS;
+        StorageEngine.saveActiveTrip(activeTrip);
+        this.updateAllUI();
+        MapEngine.startNavigationSimulation();
+        UIManager.showToast("✅ Pickup PIN Verified! Cargo loading confirmed. Trip Started!", "success");
+      } else {
+        UIManager.showToast("❌ Incorrect PIN. Please ask the dispatcher for the 4-digit PIN.", "error");
+      }
+    }
   },
 
   handleOverviewNavClick() {

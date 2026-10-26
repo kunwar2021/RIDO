@@ -1641,6 +1641,12 @@
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Estimated Payout</span>
                     <strong class="text-lg font-black text-orange-600 font-mono" id="driver-banner-payout">₹ 0.00</strong>
                   </div>
+                  <!-- Driver Pickup PIN Verification Input -->
+                  <div id="driver-pin-verification-wrap" class="flex items-center gap-2 bg-white/95 backdrop-blur px-3 py-2 rounded-xl border border-orange-300 shadow-sm">
+                    <span class="text-xs font-bold text-slate-700">Customer PIN:</span>
+                    <input type="text" id="driver-otp-input" maxlength="4" placeholder="4-digit" class="w-16 px-2 py-1 text-center font-mono font-bold text-xs bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:border-orange-500">
+                    <button type="button" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-lg transition cursor-pointer border-none shadow-xs" onclick="App.verifyDriverPickupPin()">Verify</button>
+                  </div>
                   <button type="button" id="btn-driver-start-trip" class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-lg transition-all cursor-pointer flex items-center gap-2 border-none active:scale-98" onclick="App.driverStartTrip()">
                     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                     <span>START TRIP & LAUNCH NAVIGATION</span>
@@ -4898,6 +4904,7 @@
   <script src="js/testimonials.js?v=101.0"></script>
   <script src="js/app.js?v=101.0"></script>
   <script src="js/cloud-api-modal.js?v=101.0"></script>
+  <script src="js/live-dispatch.js?v=101.0"></script>
   <script src="js/curriculum-lab.js?v=101.0"></script>
   <script src="script.js?v=101.0"></script>
 </body>
