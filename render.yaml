@@ -11,6 +11,6 @@ services:
       - key: NODE_ENV
         value: production
       - key: JWT_SECRET
-        generateValue: true
+        value: rido_jwt_super_secret_evaluation_2026
       - key: MONGODB_URI
-        sync: false
+        value: mongodb+srv://bansalkunwar753_db_user:etbowgPjIMeM4Ycp@cluster0.lrchh2q.mongodb.net/rido_logistics?retryWrites=true&w=majority

@@ -12,7 +12,7 @@ const mongoose = require('mongoose');
 let isConnected = false;
 
 const connectDB = async () => {
-  const uri = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://localhost:27017/rido_logistics';
+  const uri = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb+srv://bansalkunwar753_db_user:etbowgPjIMeM4Ycp@cluster0.lrchh2q.mongodb.net/rido_logistics?retryWrites=true&w=majority';
   const isCloud = uri.includes('mongodb+srv://') || uri.includes('@');
 
   try {
