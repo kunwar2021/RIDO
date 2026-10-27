@@ -434,3 +434,104 @@ exports.getAllUsers = async (req, res, next) => {
     next(err);
   }
 };
+
+// 6. Update Current User Profile (PUT /api/auth/me or PUT /api/auth/profile)
+exports.updateProfile = async (req, res, next) => {
+  try {
+    const userId = req.user?.id || req.user?._id;
+    const { name, phone, companyName, picture } = req.body;
+
+    try {
+      const updateFields = {};
+      if (name) updateFields.name = name.trim();
+      if (phone) updateFields.phone = phone.trim();
+      if (companyName) updateFields.companyName = companyName.trim();
+      if (picture) updateFields.picture = picture.trim();
+
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { $set: updateFields },
+        { new: true, runValidators: true }
+      ).select('-password');
+
+      if (updatedUser) {
+        return res.json({
+          success: true,
+          message: 'User profile updated successfully in MongoDB.',
+          user: updatedUser
+        });
+      }
+    } catch (mongoErr) {
+      console.warn('[Update Profile] MongoDB update error:', mongoErr.message);
+    }
+
+    const fbUser = inMemoryUsers.find((u) => u.id === userId);
+    if (fbUser) {
+      if (name) fbUser.name = name.trim();
+      if (phone) fbUser.phone = phone.trim();
+      if (companyName) fbUser.companyName = companyName.trim();
+      return res.json({
+        success: true,
+        message: 'User profile updated successfully (Fallback Cache).',
+        user: fbUser
+      });
+    }
+
+    return res.status(404).json({ success: false, message: 'User profile not found.' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// 7. Update User by ID (PUT /api/auth/users/:id or PUT /api/auth/:id)
+exports.updateUserById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { name, phone, companyName, role, isActive } = req.body;
+
+    try {
+      const updateFields = {};
+      if (name) updateFields.name = name.trim();
+      if (phone) updateFields.phone = phone.trim();
+      if (companyName) updateFields.companyName = companyName.trim();
+      if (role) updateFields.role = role.trim();
+      if (typeof isActive === 'boolean') updateFields.isActive = isActive;
+
+      const isObjectId = /^[0-9a-fA-F]{24}$/.test(id);
+      const query = isObjectId ? { _id: id } : { email: id.toLowerCase() };
+
+      const updatedUser = await User.findOneAndUpdate(
+        query,
+        { $set: updateFields },
+        { new: true, runValidators: true }
+      ).select('-password');
+
+      if (updatedUser) {
+        return res.json({
+          success: true,
+          message: `User '${id}' updated successfully in MongoDB.`,
+          user: updatedUser
+        });
+      }
+    } catch (mongoErr) {
+      console.warn('[Update User by ID] MongoDB update error:', mongoErr.message);
+    }
+
+    const fbUser = inMemoryUsers.find((u) => u.id === id || u.email === id);
+    if (fbUser) {
+      if (name) fbUser.name = name.trim();
+      if (phone) fbUser.phone = phone.trim();
+      if (companyName) fbUser.companyName = companyName.trim();
+      if (role) fbUser.role = role.trim();
+      return res.json({
+        success: true,
+        message: `User '${id}' updated successfully (Fallback Cache).`,
+        user: fbUser
+      });
+    }
+
+    return res.status(404).json({ success: false, message: `User '${id}' not found.` });
+  } catch (err) {
+    next(err);
+  }
+};
