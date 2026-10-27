@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/api/fleet/tata-ace-ev"
+method: PUT
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{jwtToken}}
+body:
+  type: text
+  content: |-
+    {
+      "status": "en-route",
+      "currentLocation": "NH-48 Jaipur Bypass"
+    }
+order: 4000

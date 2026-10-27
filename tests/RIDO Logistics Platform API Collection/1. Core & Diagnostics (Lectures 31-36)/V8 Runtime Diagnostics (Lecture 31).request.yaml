@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{baseUrl}}/api/curriculum/v8-diagnostics"
+method: GET
+order: 3000

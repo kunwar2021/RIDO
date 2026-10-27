@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{baseUrl}}/api/trips/export/csv"
+method: GET
+order: 3000

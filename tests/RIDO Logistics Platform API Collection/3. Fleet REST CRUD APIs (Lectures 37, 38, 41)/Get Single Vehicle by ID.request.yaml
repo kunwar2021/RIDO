@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{baseUrl}}/api/fleet/tata-ace-ev"
+method: GET
+order: 2000

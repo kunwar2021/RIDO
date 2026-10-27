@@ -1,0 +1,17 @@
+$kind: http-request
+url: "{{baseUrl}}/api/trips/dispatch"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "vehicleId": "tata-ace-ev",
+      "driverName": "Vikram Singh",
+      "origin": "Delhi Hub",
+      "destination": "Chandigarh Depot",
+      "distanceKm": 248,
+      "tollCost": 420
+    }
+order: 2000

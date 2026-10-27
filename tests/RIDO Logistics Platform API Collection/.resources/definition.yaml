@@ -1,0 +1,13 @@
+$kind: collection
+description: |-
+  Comprehensive Postman API Collection covering Lectures 35 to 41:
+  - Health Check & Diagnostics
+  - JWT Authentication & bcrypt Registration
+  - Fleet Management REST CRUD
+  - Trip Dispatches & EventEmitter
+  - Node.js Stream CSV Export
+  - Multer File Uploads
+  - MongoDB & Mongoose Relations
+variables:
+  baseUrl: http://localhost:5000
+  jwtToken: ""

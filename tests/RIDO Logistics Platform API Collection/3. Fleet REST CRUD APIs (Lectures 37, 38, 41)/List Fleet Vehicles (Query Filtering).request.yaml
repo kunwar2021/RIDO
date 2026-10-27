@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{baseUrl}}/api/fleet?status=available"
+method: GET
+order: 1000

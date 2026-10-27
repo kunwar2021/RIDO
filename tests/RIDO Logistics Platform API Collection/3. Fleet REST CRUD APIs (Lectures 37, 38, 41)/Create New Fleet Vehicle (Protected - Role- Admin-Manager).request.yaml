@@ -1,0 +1,20 @@
+$kind: http-request
+name: "Create New Fleet Vehicle (Protected - Role: Admin/Manager)"
+url: "{{baseUrl}}/api/fleet"
+method: POST
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{jwtToken}}
+body:
+  type: text
+  content: |-
+    {
+      "customId": "tata-ultra-ev-09",
+      "name": "Tata Ultra EV Prime",
+      "category": "ICV (Electric)",
+      "capacityKg": 4200,
+      "powertrain": "Electric (EV)",
+      "fuelEfficiency": "190 km/charge",
+      "costPerKm": 4.8
+    }
+order: 3000

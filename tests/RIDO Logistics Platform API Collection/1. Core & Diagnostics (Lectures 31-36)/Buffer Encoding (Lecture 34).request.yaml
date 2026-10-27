@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/api/curriculum/buffers"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "manifestCode": "MNF-2026-X1",
+      "weightKg": 4500,
+      "priority": "Urgent"
+    }
+order: 4000
