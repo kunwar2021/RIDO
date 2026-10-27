@@ -7489,7 +7489,7 @@ Enter code to sign in:`, generatedOtp);
 
     const activeTrip = StorageEngine.loadActiveTrip();
     const routeRes = this.optimizerState?.routeResult;
-    const hasActiveTrip = (activeTrip && activeTrip.status !== "COMPLETED" && (activeTrip.coordinates?.length > 1 || activeTrip.origin)) || (this.optimizerState?.routeCalculated && routeRes?.coordinates?.length > 1);
+    const hasActiveTrip = (activeTrip && activeTrip.status !== "COMPLETED" && (activeTrip.coordinates?.length > 1 || activeTrip.origin));
 
     if (!hasActiveTrip) {
       if (emptyBox) emptyBox.classList.remove("hidden");

@@ -206,7 +206,7 @@ const FleetManager = {
 
     // Fleet Summary Card Widget
     const totalCount = vehicles.length;
-    const availCount = vehicles.filter(v => v.status === "Available").length;
+    const availCount = vehicles.filter(v => (v.status || "").toLowerCase() === "available").length;
     const routeCount = vehicles.filter(v => v.status === "On Route" || v.status === "On Trip").length;
     const fuelCount = vehicles.filter(v => v.status === "Low Fuel").length;
     const maintCount = vehicles.filter(v => v.status === "Maintenance").length;
@@ -252,7 +252,13 @@ const FleetManager = {
   updateFilterCounts(vehicles) {
     const counts = { all: vehicles.length, Available: 0, "On Route": 0, "Low Fuel": 0, Maintenance: 0, Breakdown: 0 };
     vehicles.forEach((v) => {
-      if (counts[v.status] !== undefined) counts[v.status]++;
+      const s = (v.status || "").toLowerCase();
+      if (s === "available") counts.Available++;
+      else if (s === "on route" || s === "on trip" || s === "en-route" || s === "in transit") counts["On Route"]++;
+      else if (s.includes("fuel")) counts["Low Fuel"]++;
+      else if (s.includes("maint")) counts.Maintenance++;
+      else if (s.includes("break")) counts.Breakdown++;
+      else counts.Available++;
     });
 
     const setVal = (id, count) => {
