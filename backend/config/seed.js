@@ -116,7 +116,7 @@ const seedUsers = [
     email: 'admin@ridosaathi.com',
     password: 'Admin@123',
     role: 'admin',
-    phone: '9876543210'
+    phone: '9800000001'
   },
   {
     name: 'Logistics Dispatch Admin',

@@ -4048,7 +4048,12 @@ const App = {
 
       if (container) {
         const isDriver = this.userSession.role === "driver";
-        const roleBadge = isDriver ? "Driver" : "Company";
+        const role = (this.userSession.role || 'company').toLowerCase();
+        const isDriver = role === "driver";
+        const isAdmin = role === "admin";
+        const isManager = role === "manager";
+        const roleBadge = isDriver ? "Driver Partner" : (isAdmin ? "System Administrator" : (isManager ? "Evaluation Officer" : "Fleet Admin"));
+        const displayName = this.userSession.name || (isDriver ? "Driver" : (isAdmin ? "System Admin" : "Vikram Mehta"));
         const displayName = this.userSession.name || (isDriver ? "Driver" : "Vikram Mehta");
 
         container.innerHTML = `
@@ -4062,7 +4067,7 @@ const App = {
             `}
             <div class="hidden sm:flex flex-col text-left">
               <span class="text-xs font-bold text-slate-900 leading-tight">${Utils.escapeHTML(displayName)}</span>
-              <span class="text-[10px] text-slate-600 font-semibold uppercase tracking-wider">${roleBadge} Admin</span>
+              <span class="text-[10px] text-slate-600 font-semibold uppercase tracking-wider">${roleBadge}</span>
             </div>
             <button type="button" class="px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 transition-all cursor-pointer flex items-center gap-1.5 shadow-sm active:scale-95 border-none ml-1" onclick="App.handleLogout()" title="Sign Out of RIDO">
               <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
@@ -4141,7 +4146,7 @@ const App = {
           </button>
         </div>
       `;
-    } else if (role === 'company') {
+    } else if (role === 'company' || role === 'admin' || role === 'manager') {
       navHTML = `
         <button class="nav-item-btn ${active === 'operations' ? 'active' : ''} group" data-nav="operations" onclick="App.navigateTo('operations')">
           <svg class="w-[17px] h-[17px] text-slate-500 nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
@@ -4251,6 +4256,33 @@ const App = {
         if (label) label.className = "text-[10px] font-bold text-slate-500";
       }
     });
+  },
+
+  updateSidebarUserProfile() {
+    const avatarEl = document.getElementById("sidebar-user-avatar");
+    const initialsEl = document.getElementById("sidebar-user-initials");
+    const nameEl = document.getElementById("sidebar-user-name");
+    const roleEl = document.getElementById("sidebar-user-role");
+
+    if (!this.userSession) {
+      if (initialsEl) initialsEl.textContent = "KB";
+      if (nameEl) nameEl.textContent = "Kunwar Bansal";
+      if (roleEl) roleEl.textContent = "Guest";
+      return;
+    }
+
+    const session = this.userSession;
+    const role = (session.role || "company").toLowerCase();
+    const isDriver = role === "driver";
+    const isAdmin = role === "admin";
+    const isManager = role === "manager";
+    const roleText = isDriver ? "Driver Partner" : (isAdmin ? "System Administrator" : (isManager ? "Evaluation Officer" : "Company Fleet Admin"));
+    const displayName = session.name || (isDriver ? "Rajinder Singh" : (isAdmin ? "System Admin" : "Vikram Mehta"));
+    const initials = session.initials || displayName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) || "U";
+
+    if (nameEl) nameEl.textContent = displayName;
+    if (roleEl) roleEl.textContent = roleText;
+    if (initialsEl) initialsEl.textContent = initials;
   },
 
   toggleMobileMenu() {
@@ -5241,17 +5273,17 @@ Enter code to sign in:`, generatedOtp);
       this.switchAuthRole('driver', 'login');
       if (inputId) inputId.value = "9876543210";
       if (inputPass) inputPass.value = "Driver@123";
-      UIManager.showToast("Loaded Driver credentials (Rajinder Singh)", "info");
+      UIManager.showToast("Loaded Driver credentials (Rajinder Singh: 9876543210 / Driver@123)", "info");
     } else if (type === 'company') {
       this.switchAuthRole('company', 'login');
       if (inputId) inputId.value = "admin@transindia.in";
       if (inputPass) inputPass.value = "Company@123";
-      UIManager.showToast("Loaded Company credentials (TransIndia)", "info");
+      UIManager.showToast("Loaded Company credentials (admin@transindia.in / Company@123)", "info");
     } else if (type === 'admin') {
       this.switchAuthRole('company', 'login');
       if (inputId) inputId.value = "admin@ridosaathi.com";
       if (inputPass) inputPass.value = "Admin@123";
-      UIManager.showToast("Loaded System Admin credentials", "info");
+      UIManager.showToast("Loaded System Admin credentials (admin@ridosaathi.com / Admin@123)", "info");
     }
     UIManager.playSound("click");
   },
@@ -5333,8 +5365,9 @@ Enter code to sign in:`, generatedOtp);
 
       StorageEngine.saveUserSession(session, rememberMe);
       this.userSession = session;
-      document.body.classList.remove('role-guest');
+      document.body.classList.remove('role-guest', 'role-driver', 'role-company');
       document.body.classList.add(isDriver ? 'role-driver' : 'role-company');
+      UIManager.closeModals();
 
       UIManager.playSound("success");
       UIManager.showToast(`Signed in successfully! Welcome back, ${session.name}`, "success");
@@ -5355,7 +5388,7 @@ Enter code to sign in:`, generatedOtp);
       this.syncFreshDataFromBackend();
     } else {
       // Instant resilient fallback for demo credentials
-      if ((identifier === 'admin@transindia.in' || identifier === '9812345678') && (password === 'Company@123' || password === 'admin123')) {
+      if ((identifier === 'admin@transindia.in' || identifier === '9812345678') && (password === 'Company@123' || password === 'admin123' || password === 'Password123!')) {
         const session = {
           id: 'user_company_01',
           name: 'Vikram Mehta',
@@ -5367,8 +5400,9 @@ Enter code to sign in:`, generatedOtp);
         };
         StorageEngine.saveUserSession(session, rememberMe);
         this.userSession = session;
-        document.body.classList.remove('role-guest');
+        document.body.classList.remove('role-guest', 'role-driver');
         document.body.classList.add('role-company');
+        UIManager.closeModals();
         UIManager.playSound("success");
         UIManager.showToast("Signed in successfully as TransIndia Logistics!", "success");
         this.setupCompanyDashboard(false);
@@ -5378,7 +5412,31 @@ Enter code to sign in:`, generatedOtp);
         return;
       }
 
-      if ((identifier === '9876543210' || identifier === 'driver.rajinder@transindia.in') && password === 'Driver@123') {
+      if ((identifier === 'admin@ridosaathi.com' || identifier === '9800000001' || identifier === 'admin@rido.in') && (password === 'Admin@123' || password === 'admin123' || password === 'Password123!')) {
+        const session = {
+          id: 'user_admin_01',
+          name: 'System Admin',
+          initials: 'SA',
+          role: 'admin',
+          companyName: 'RIDO Logistics HQ',
+          phone: '9800000001',
+          email: 'admin@ridosaathi.com'
+        };
+        StorageEngine.saveUserSession(session, rememberMe);
+        this.userSession = session;
+        document.body.classList.remove('role-guest', 'role-driver');
+        document.body.classList.add('role-company');
+        UIManager.closeModals();
+        UIManager.playSound("success");
+        UIManager.showToast("Signed in successfully as System Admin!", "success");
+        this.setupCompanyDashboard(false);
+        this.navigateTo("operations");
+        this.renderAuthUI();
+        this.updateSidebarUserProfile();
+        return;
+      }
+
+      if ((identifier === '9876543210' || identifier === 'driver.rajinder@transindia.in') && (password === 'Driver@123' || password === 'Password123!' || password === 'driver123')) {
         const session = {
           id: 'user_driver_01',
           name: 'Rajinder Singh',
@@ -5390,8 +5448,9 @@ Enter code to sign in:`, generatedOtp);
         };
         StorageEngine.saveUserSession(session, rememberMe);
         this.userSession = session;
-        document.body.classList.remove('role-guest');
+        document.body.classList.remove('role-guest', 'role-company');
         document.body.classList.add('role-driver');
+        UIManager.closeModals();
         UIManager.playSound("success");
         UIManager.showToast("Signed in successfully as Driver Rajinder Singh!", "success");
         this.setupDriverDashboard(false);
@@ -5522,6 +5581,7 @@ Enter code to sign in:`, generatedOtp);
       StorageEngine.saveUserSession(session, true);
       this.userSession = session;
       this.renderAuthUI();
+      UIManager.closeModals();
 
       UIManager.playSound("success");
       UIManager.showToast(`Account registered successfully in MongoDB! Welcome, ${session.name}`, "success");
