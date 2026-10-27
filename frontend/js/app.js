@@ -4047,14 +4047,12 @@ const App = {
       searchPills.forEach(el => el.style.display = "");
 
       if (container) {
-        const isDriver = this.userSession.role === "driver";
         const role = (this.userSession.role || 'company').toLowerCase();
         const isDriver = role === "driver";
         const isAdmin = role === "admin";
         const isManager = role === "manager";
         const roleBadge = isDriver ? "Driver Partner" : (isAdmin ? "System Administrator" : (isManager ? "Evaluation Officer" : "Fleet Admin"));
         const displayName = this.userSession.name || (isDriver ? "Driver" : (isAdmin ? "System Admin" : "Vikram Mehta"));
-        const displayName = this.userSession.name || (isDriver ? "Driver" : "Vikram Mehta");
 
         container.innerHTML = `
           <div class="flex items-center gap-2 sm:gap-3">
@@ -4062,7 +4060,7 @@ const App = {
               <img src="${Utils.escapeHTML(this.userSession.picture)}" alt="${Utils.escapeHTML(displayName)}" class="w-8 h-8 rounded-full object-cover border border-slate-200 shadow-2xs select-none" title="${Utils.escapeHTML(displayName)} (${roleBadge})" />
             ` : `
               <div class="w-8 h-8 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center shadow-xs select-none" title="${Utils.escapeHTML(displayName)} (${roleBadge})">
-                ${Utils.escapeHTML(this.userSession.initials || (isDriver ? "DR" : "VM"))}
+                ${Utils.escapeHTML(this.userSession.initials || (isDriver ? "DR" : (isAdmin ? "SA" : "VM")))}
               </div>
             `}
             <div class="hidden sm:flex flex-col text-left">
