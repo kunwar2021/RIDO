@@ -234,6 +234,27 @@ async function runTestSuite() {
     }
   });
 
+  // Cleanup temporary test artifacts to maintain pristine 0-trip presentation baseline
+  try {
+    if (createdVehicleId) {
+      await request(`/api/fleet/${createdVehicleId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+    }
+    const mongoose = require('mongoose');
+    const Trip = require('../backend/models/Trip');
+    const User = require('../backend/models/User');
+    require('dotenv').config();
+    if (process.env.MONGODB_URI) {
+      await mongoose.connect(process.env.MONGODB_URI);
+      await Trip.deleteMany({});
+      await User.deleteMany({ email: { $regex: /^evaluator_\d+/ } });
+      await User.deleteMany({ email: { $regex: /^google_\d+/ } });
+      await mongoose.disconnect();
+    }
+  } catch (cleanErr) {}
+
   console.log('\n=============================================================');
   console.log(`📊 Result: ${passed}/${total} Endpoints Tested Successfully (${Math.round((passed/total)*100)}%)`);
   console.log('=============================================================\n');

@@ -10,21 +10,7 @@ const Trip = require('../models/Trip');
 const { dispatchEvents, appendDispatchLog, streamTripsAsCSV } = require('../core/fsStreamManager');
 
 // In-Memory Fallback Trips
-const inMemoryTrips = [
-  {
-    id: 'TRIP-DEL-MUM-892',
-    tripCode: 'TRIP-DEL-MUM-892',
-    origin: 'New Delhi Distribution Hub',
-    destination: 'Mumbai Nhava Sheva Terminal',
-    vehicleCustomId: 'bharatbenz-1617r',
-    driverName: 'Gurpreet Singh',
-    status: 'In-Transit',
-    distanceKm: 1410,
-    fuelSavedPercentage: 18.4,
-    estimatedTollCost: 3120,
-    createdAt: new Date().toISOString()
-  }
-];
+const inMemoryTrips = [];
 
 const optimizationLogs = [];
 
@@ -33,16 +19,16 @@ exports.getAllTrips = async (req, res, next) => {
   try {
     try {
       const trips = await Trip.find().withFullDetails();
-      if (trips && trips.length > 0) {
-        return res.json({
-          success: true,
-          source: 'MongoDB Mongoose Model (Populated)',
-          count: trips.length,
-          trips,
-          data: trips
-        });
-      }
-    } catch (e) {}
+      return res.json({
+        success: true,
+        source: 'MongoDB Mongoose Model (Populated)',
+        count: trips.length,
+        trips,
+        data: trips
+      });
+    } catch (e) {
+      console.warn('[Trip Controller] MongoDB fetch error, using fallback:', e.message);
+    }
 
     res.json({
       success: true,

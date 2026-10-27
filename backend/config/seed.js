@@ -194,12 +194,10 @@ async function seedFreshDatabase(force = false) {
       }
     }
 
-    // Seed Trips
-    const tripCount = await Trip.countDocuments();
-    if (tripCount === 0 || force) {
-      if (force) await Trip.deleteMany({});
+    // Seed Trips (Only if force === true, otherwise leave at 0 for live presentation)
+    if (force) {
+      await Trip.deleteMany({});
       
-      // Link ObjectId references
       const sampleVeh = await Vehicle.findOne({ customId: 'bharatbenz-1617r' });
       const sampleDriver = await User.findOne({ role: 'driver' });
 

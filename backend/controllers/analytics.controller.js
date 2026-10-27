@@ -34,9 +34,9 @@ exports.getAnalyticsSummary = async (req, res, next) => {
 
     res.json({
       success: true,
-      totalDispatchedTrips: totalTrips || recentOpts.length,
+      totalDispatchedTrips: totalTrips,
       totalVehicles: totalVehicles || 6,
-      totalUsers: totalUsers || 4,
+      totalUsers: totalUsers || 5,
       totalDistanceOptimizedKm: totalDistKm,
       totalFuelSavedLiters: fuelSaved,
       totalCostSavingsInr: costSavings,
