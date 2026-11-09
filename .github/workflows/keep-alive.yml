@@ -1,0 +1,33 @@
+# Keep-Alive Pinger — RIDO Backend (Render Free Tier)
+# Pings the health endpoint every 14 minutes to prevent Render from sleeping.
+# Render free tier sleeps after 15 min of inactivity — this keeps it awake 24/7.
+
+name: Keep Backend Alive
+
+on:
+  schedule:
+    - cron: '*/14 * * * *'   # every 14 minutes, all day, every day
+  workflow_dispatch:          # allow manual trigger from GitHub Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ping RIDO Health Endpoint
+        run: |
+          echo "🏓 Pinging RIDO backend at $(date)..."
+          RESPONSE=$(curl --silent --max-time 30 --write-out "HTTP_STATUS:%{http_code} TIME:%{time_total}s" \
+            https://rido-logistics.onrender.com/api/health)
+
+          HTTP_STATUS=$(echo "$RESPONSE" | grep -o "HTTP_STATUS:[0-9]*" | cut -d: -f2)
+          TIME=$(echo "$RESPONSE" | grep -o "TIME:[0-9.]*s")
+
+          echo "📊 Status: $HTTP_STATUS | Response time: $TIME"
+
+          if [ "$HTTP_STATUS" -eq 200 ]; then
+            echo "✅ Backend is alive and healthy!"
+          else
+            echo "❌ Backend returned status $HTTP_STATUS — may need attention."
+            exit 1
+          fi
