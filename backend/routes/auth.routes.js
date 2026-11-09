@@ -14,13 +14,9 @@ const { verifyToken } = require('../middleware/auth');
 router.post('/register', authController.register);
 router.post('/login', authController.login);
 router.post('/google', authController.googleAuth);
-router.get('/users', authController.getAllUsers);
 
-// Protected User Profile Endpoints
+// Protected Endpoints (require valid JWT)
+router.get('/users', verifyToken, authController.getAllUsers);
 router.get('/me', verifyToken, authController.getMe);
-router.put('/me', verifyToken, authController.updateProfile);
-router.put('/profile', verifyToken, authController.updateProfile);
-router.put('/users/:id', verifyToken, authController.updateUserById);
-router.put('/:id', verifyToken, authController.updateUserById);
 
 module.exports = router;

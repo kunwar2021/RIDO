@@ -77,6 +77,40 @@ app.use((req, res) => {
   res.sendFile(path.join(rootDir, 'index.html'));
 });
 
+// ==============================================================================
+// Self-Ping Keep-Alive (prevents Render free tier from sleeping)
+// Pings /api/health every 12 minutes using RENDER_EXTERNAL_URL env var.
+// ==============================================================================
+function startKeepAlive() {
+  const PING_URL = process.env.RENDER_EXTERNAL_URL
+    ? `${process.env.RENDER_EXTERNAL_URL}/api/health`
+    : null;
+
+  if (!PING_URL) {
+    console.log('ℹ️  Keep-alive skipped (RENDER_EXTERNAL_URL not set).');
+    return;
+  }
+
+  const INTERVAL_MS = 12 * 60 * 1000; // every 12 minutes
+
+  setInterval(() => {
+    try {
+      const https = require('https');
+      const req = https.get(PING_URL, (res) => {
+        console.log(`🏓 [Keep-Alive] Self-ping → ${res.statusCode} at ${new Date().toISOString()}`);
+      });
+      req.on('error', (err) => {
+        console.warn(`⚠️  [Keep-Alive] Ping failed: ${err.message}`);
+      });
+      req.end();
+    } catch (err) {
+      console.warn(`⚠️  [Keep-Alive] Error: ${err.message}`);
+    }
+  }, INTERVAL_MS);
+
+  console.log(`♻️  Keep-alive pinger started → ${PING_URL} (every 12 min)`);
+}
+
 // Start Server Listener
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
@@ -85,6 +119,7 @@ if (process.env.NODE_ENV !== 'test') {
     console.log(`🏛️ Architecture: Model-View-Controller (MVC) Structure Active`);
     console.log(`📦 Database: MongoDB Community / Atlas Mongoose Layer`);
     console.log(`=================================================================\n`);
+    startKeepAlive();
   });
 }
 
