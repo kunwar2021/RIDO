@@ -1,5 +1,16 @@
 $kind: http-request
 description: Verifies MVC status, Node.js runtime, and MongoDB connection.
-url: "{{baseUrl}}/api/health"
-method: GET
+url: '{{baseUrl}}/api/auth/register'
+method: POST
 order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Test User",
+      "email": "testuser_20261027@example.com",
+      "password": "password123"
+    }

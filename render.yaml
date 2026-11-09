@@ -10,9 +10,9 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: JWT_SECRET
-        value: rido_jwt_super_secret_evaluation_2026
-      - key: MONGODB_URI
-        value: mongodb+srv://bansalkunwar753_db_user:etbowgPjIMeM4Ycp@cluster0.lrchh2q.mongodb.net/rido_logistics?retryWrites=true&w=majority
       - key: RENDER_EXTERNAL_URL
         value: https://rido-logistics.onrender.com
+      # ⚠️  Set these in Render Dashboard → Environment tab (do NOT hardcode secrets here)
+      # JWT_SECRET       → Render Dashboard > Environment
+      # MONGODB_URI      → Render Dashboard > Environment
+      # GOOGLE_MAPS_API_KEY → Render Dashboard > Environment (optional, for real routing)

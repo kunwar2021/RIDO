@@ -9,8 +9,8 @@ body:
   content: |-
     {
       "name": "Evaluation Officer",
-      "email": "evaluator@logiroute.in",
-      "phone": "9876543210",
+      "email": "manager.oct2026c@logiroute.in",
+      "phone": "9876500101",
       "password": "Password123!",
       "role": "manager"
     }

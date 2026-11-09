@@ -12,6 +12,7 @@ const cors = require('cors');
 const path = require('path');
 const { connectDB } = require('./config/db');
 const { requestInspector, errorHandler } = require('./middleware/auth');
+const { apiLimiter } = require('./middleware/rateLimiter');
 
 // Controllers for root endpoints
 const analyticsController = require('./controllers/analytics.controller');
@@ -34,6 +35,9 @@ app.use(cors({
 app.use(express.json({ limit: '15mb' }));
 app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 app.use(requestInspector);
+
+// Global API Rate Limiter (200 req/min per IP)
+app.use('/api', apiLimiter);
 
 // 4. Static Files & Multer Uploads Hosting
 const frontendDir = path.join(__dirname, '..', 'frontend');
