@@ -1,0 +1,43 @@
+{
+  "tests": [
+    {
+      "testName": "RIDO - Auth Login API",
+      "startUrl": "https://rido-logistics.onrender.com/api/auth/login",
+      "type": "api",
+      "subtype": "http",
+      "request": {
+        "method": "POST",
+        "url": "https://rido-logistics.onrender.com/api/auth/login",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"email\": \"admin@rido.com\", \"password\": \"admin123\"}"
+      },
+      "assertions": [
+        {
+          "operator": "is",
+          "type": "statusCode",
+          "target": 200
+        },
+        {
+          "operator": "contains",
+          "type": "body",
+          "target": "token"
+        },
+        {
+          "operator": "lessThan",
+          "type": "responseTime",
+          "target": 8000
+        }
+      ],
+      "tags": ["e2e-tests", "rido", "auth"],
+      "locations": ["aws:us-east-1"],
+      "options": {
+        "tick_every": 900,
+        "follow_redirects": true,
+        "min_failure_duration": 0,
+        "min_location_failed": 1
+      }
+    }
+  ]
+}

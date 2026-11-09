@@ -1,0 +1,34 @@
+{
+  "tests": [
+    {
+      "testName": "RIDO - Trips List API",
+      "startUrl": "https://rido-logistics.onrender.com/api/trips",
+      "type": "api",
+      "subtype": "http",
+      "request": {
+        "method": "GET",
+        "url": "https://rido-logistics.onrender.com/api/trips"
+      },
+      "assertions": [
+        {
+          "operator": "is",
+          "type": "statusCode",
+          "target": 200
+        },
+        {
+          "operator": "lessThan",
+          "type": "responseTime",
+          "target": 8000
+        }
+      ],
+      "tags": ["e2e-tests", "rido", "trips"],
+      "locations": ["aws:us-east-1"],
+      "options": {
+        "tick_every": 900,
+        "follow_redirects": true,
+        "min_failure_duration": 0,
+        "min_location_failed": 1
+      }
+    }
+  ]
+}
