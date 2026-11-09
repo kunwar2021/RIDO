@@ -7,9 +7,9 @@
 # documentation.
 
 # To get started:
-
-# 1. Add your Datadog API (DD_API_KEY) and Application Key (DD_APP_KEY) as secrets to your GitHub repository. For more information, see: https://docs.datadoghq.com/account_management/api-app-keys/.
-# 2. Start using the action within your workflow
+# 1. Add your Datadog API (DD_API_KEY) and Application Key (DD_APP_KEY) as secrets to your GitHub repository.
+#    See: https://docs.datadoghq.com/account_management/api-app-keys/
+# 2. Create Synthetic tests in Datadog and tag them with 'e2e-tests' (or update test_search_query below).
 
 name: Run Datadog Synthetic tests
 
@@ -20,19 +20,31 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  synthetics:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    # Run Synthetic tests within your GitHub workflow.
-    # For additional configuration options visit the action within the marketplace: https://github.com/marketplace/actions/datadog-synthetics-ci
-    - name: Run Datadog Synthetic tests
-      uses: DataDog/synthetics-ci-github-action@87b505388a22005bb8013481e3f73a367b9a53eb # v1.4.0
-      with:
-        api_key: ${{secrets.DD_API_KEY}}
-        app_key: ${{secrets.DD_APP_KEY}}
-        test_search_query: 'tag:e2e-tests' #Modify this tag to suit your tagging strategy
+      # Skip gracefully if Datadog secrets are not yet configured
+      - name: Check Datadog secrets
+        id: check_secrets
+        run: |
+          if [ -z "${{ secrets.DD_API_KEY }}" ] || [ -z "${{ secrets.DD_APP_KEY }}" ]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "⚠️  DD_API_KEY or DD_APP_KEY secret not set — skipping Datadog Synthetic tests."
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
 
-
+      # Run Synthetic tests within your GitHub workflow.
+      # For additional configuration options visit the action within the marketplace:
+      # https://github.com/marketplace/actions/datadog-synthetics-ci
+      - name: Run Datadog Synthetic tests
+        if: steps.check_secrets.outputs.skip == 'false'
+        uses: DataDog/synthetics-ci-github-action@87b505388a22005bb8013481e3f73a367b9a53eb # v1.4.0
+        with:
+          api_key: ${{ secrets.DD_API_KEY }}
+          app_key: ${{ secrets.DD_APP_KEY }}
+          test_search_query: 'tag:e2e-tests'  # Update this tag to match your Datadog Synthetic test tags
